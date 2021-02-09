@@ -106,6 +106,11 @@ class Gen_uncompressed(threading.Thread):
     f.write("""
 this.IS_NODE_JS = !!(typeof module !== 'undefined' && module.exports);
 
+if (this.IS_NODE_JS) {
+  var window = {};
+  require('./closure/goog/bootstrap/nodejs')
+}
+
 this.BLOCKLY_DIR = (function(root) {
   if (!root.IS_NODE_JS) {
     // Find name of current directory.
@@ -147,6 +152,7 @@ if (this.IS_NODE_JS) {
   this.BLOCKLY_BOOT(this);
   module.exports = Blockly;
 } else {
+  document.write('<script>var goog = undefined;</script>');
   document.write('<script src="' + this.BLOCKLY_DIR +
       '/closure/goog/base.js"></script>');
   document.write('<script>this.BLOCKLY_BOOT(this);</script>');
