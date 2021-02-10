@@ -1,23 +1,51 @@
 //Template example
+
 var xmlText = `<xml xmlns="https://developers.google.com/blockly/xml">
-<block type="text_print" id="a4UhA}qi]*v+f^@xR|(0" x="113" y="37">
-  <value name="TEXT">
-    <shadow type="text" id="Y8I@iQlmvh^=z/9sgqS?">
-      <field name="TEXT">abc</field>
-    </shadow>
-    <block type="math_atan2" id="b+vCx$hTgg_vipk=Mxn5">
-      <value name="X">
-        <shadow type="math_number" id="SR}7aUccCH@j|gear!,Q">
-          <field name="NUM">1</field>
-        </shadow>
-      </value>
-      <value name="Y">
-        <shadow type="math_number" id="c6:}Jcj,@I5?[52QxvhI">
-          <field name="NUM">1</field>
-        </shadow>
-      </value>
-    </block>
+<block type="controls_if" id="{2z}?sL?_HKyq|4wHvhT" x="-38" y="63">
+  <value name="IF0">
+	<block type="logic_boolean" id="d#LF2~keLags0O.NM$6D">
+	  <field name="BOOL">TRUE</field>
+	</block>
   </value>
+  <statement name="DO0">
+	<block type="text_print" id="yk13VnE|+uTqQElT@w~F">
+	  <value name="TEXT">
+		<shadow type="text" id="2p4MJ$*!)kNTeR~w$DO0">
+		  <field name="TEXT">abc</field>
+		</shadow>
+		<block type="math_number" id="{VupbQnS40v%1*ZYAuYx">
+		  <field name="NUM">123</field>
+		</block>
+	  </value>
+	  <next>
+		<block type="controls_if" id="#~lNfE=/?3m1TA^_+1uH">
+		  <value name="IF0">
+			<block type="logic_boolean" id="4,+AK)n@$CCFs=qXcd}?">
+			  <field name="BOOL">FALSE</field>
+			</block>
+		  </value>
+		  <statement name="DO0">
+			<block type="text_print" id="Vse;?em0f+Fl])P3L,$O">
+			  <value name="TEXT">
+				<shadow type="text" id="bHK}2HF($Ay[ZVj_]0?2">
+				  <field name="TEXT">abc</field>
+				</shadow>
+			  </value>
+			  <next>
+				<block type="text_print" id=";!G;LZ+i2U;T71~kmPpf">
+				  <value name="TEXT">
+					<shadow type="text" id=",5+9UY}tYKCT!4C1Ft=%">
+					  <field name="TEXT">5</field>
+					</shadow>
+				  </value>
+				</block>
+			  </next>
+			</block>
+		  </statement>
+		</block>
+	  </next>
+	</block>
+  </statement>
 </block>
 </xml>`
 
@@ -127,21 +155,43 @@ function Generator(xmlText){
 		  case "math_atan2":
 			makeMathAtan2(block);
 			break;
-		case "text_print":
+		  case "text_print":
 			makeTextPrint(block);
 			break;
 		  case "text":
 			makeText(block);
 			break;
-		  case "text":
-			makeText(block);
+	   	  case "text_join":
+			makeTextJoin(block);
 			break;
-		  case "":
-			make(block);
+		  case "text_append":
+			makeTextAppend(block);
 			break;
-		  case "":
-			make(block);
+		  case "text_length":
+			makeTextLength(block);
 			break;
+		  case "text_isEmpty":
+			makeTextEmpty(block);
+			break;
+		  case "text_indexOf":
+			makeTextIndexOf(block);
+			break;
+		  case "text_charAt":
+			makeTextCharAt(block);
+			break;
+		  case "text_getSubstring":
+			makeTextSubstring(block);
+			break;
+		  case "text_changeCase":
+			makeTextChangeCase(block);
+			break;
+		  case "text_trim":
+			makeTextTrim(block);
+			break;
+		  case "text_prompt_ext":
+			makeTextPromt(block);
+			break;
+			
 		}
 
 		addToJSON('}'); //data
@@ -426,30 +476,6 @@ function Generator(xmlText){
 	  addToJSON('"high": ');
 	  var high_value = getElement(block, ELEMENT_NODE, "value", 3)
 	  createAllBlocks(high_value)
-
-	  /*addToJSON('"type": "func_call",\n');
-	  addToJSON('"name": "Math.min",\n');
-
-
-	  addToJSON('"arg1": {\n'); //arg1 of min
-	  addToJSON('"type": "func_call",\n');
-	  addToJSON('"name": "Math.max",\n');
-
-	  addToJSON('"arg1": {\n'); //arg1 of max
-	  var constraint_value = block.getElementsByTagName("value")[0];
-	  createValue(constraint_value)
-	  addToJSON('},\n');
-
-	  addToJSON('"arg2": {\n'); //arg2 of max
-	  constraint_value = block.getElementsByTagName("value")[1];
-	  createValue(constraint_value)
-	  addToJSON('}\n');
-	  addToJSON('},\n'); //max is done
-
-	  addToJSON('"arg2": {\n'); //arg2 of min
-	  constraint_value = block.getElementsByTagName("value")[2];
-	  createValue(constraint_value)
-	  addToJSON('}\n');*/
 	}
 
 	 /*----------------------------------------------*/
@@ -487,16 +513,197 @@ function Generator(xmlText){
 	}
 
 	 /*----------------------------------------------*/
-	 function makeText(block){
+	function makeText(block){
 		addToJSON('"type": "text_const",\n');
   
-		if (block.getElementsByTagName("field")[0].childNodes.length == 0){
+		if (block.getElementsByTagName("field")[0].childNodes.length == 0){ //DO THIS FOR EVERY FUNCTION
 			addToJSON('"value": ""\n');
 		}else{
 			var text = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
 			addToJSON('"value": "'+ text +'"\n');
 		}
-	  }
+	}
+
+	/*----------------------------------------------*/
+	function makeTextJoin(block){
+		addToJSON('"type": "property_join",\n');
+		addToJSON('"items": [\n');
+
+
+		var join_value = getElement(block, ELEMENT_NODE, "value", 1);
+		if (join_value === null){
+			addToJSON(']\n');
+			return;
+		}
+		
+		var occ = 1;
+		while (join_value !== null){
+			createAllBlocks(join_value);
+			join_value = getElement(block, ELEMENT_NODE, "value", ++occ);
+			addToJSON(',\n');
+		}
+		JSON = JSON.slice(0, -2); //remove the last ','
+		addToJSON(']\n');
+	}
+
+	/*----------------------------------------------*/
+	function makeTextAppend(block){
+		addToJSON('"type": "arithm_expr",\n');
+		addToJSON('"op": "PLUS_EQ",\n');
+		
+
+		addToJSON('"lval": {\n');
+		addToJSON('"type": "var",\n');
+		var lvalue = block.getElementsByTagName("field")[0].getAttribute('name');
+		if (lvalue == "VAR"){
+			if (block.getElementsByTagName("field")[0].childNodes.length == 0){
+				addToJSON('"value": ""\n');
+			}else{
+				var variable = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+				addToJSON('"name": "' + variable + '"\n');
+			}
+		}else{
+		  console.log("Error in makeTextAppend")
+		  exit();
+		}
+		addToJSON('},\n');
+
+
+		addToJSON('"rval": ');
+		var rval_value = getElement(block, ELEMENT_NODE, "value", 1)
+		createAllBlocks(rval_value);
+	}
+
+
+	/*----------------------------------------------*/
+	function makeTextLength(block){
+		addToJSON('"type": "property",\n');
+		addToJSON('"name": ".length",\n');
+		addToJSON('"item": ');
+
+		var len_value = block.getElementsByTagName("value")[0];
+		createAllBlocks(len_value)
+	}
+
+	/*----------------------------------------------*/
+	function makeTextEmpty(block){
+		addToJSON('"type": "arithm_expr",\n');
+		addToJSON('"op": "EQ",\n');
+
+		addToJSON('"lval": ');
+		var lval_value = getElement(block, ELEMENT_NODE, "value", 1)
+		createAllBlocks(lval_value);
+		addToJSON(',\n');
+
+		addToJSON('"rval": {\n');
+			addToJSON('"type": "text_const",\n');
+			addToJSON('"value": ""\n');
+		addToJSON('}\n');
+	}
+
+	/*----------------------------------------------*/
+	function makeTextIndexOf(block){
+		addToJSON('"type": "property",\n');
+
+		var property = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		if (property == "LAST"){
+			addToJSON('"name": ".lastIndexOf",\n');
+		}else if (property == "FIRST"){
+			addToJSON('"name": ".indexOf",\n');
+		}
+		
+		var searchIn_value = getElement(block, ELEMENT_NODE, "value", 1);
+		addToJSON('"item": ');
+		createAllBlocks(searchIn_value)
+		addToJSON(',\n');
+		
+		var searchFor_value = getElement(block, ELEMENT_NODE, "value", 2)
+		addToJSON('"arg": ');
+		createAllBlocks(searchFor_value);
+	}
+	
+	/*----------------------------------------------*/
+	function makeTextCharAt(block){
+		addToJSON('"type": "property_charAt",\n');
+
+		var where = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"where": "' + where.toLowerCase() +'",\n');
+		
+
+		addToJSON('"item": ');
+		var inttext_value =  getElement(block, ELEMENT_NODE, "value", 1);
+		createAllBlocks(inttext_value);
+
+		var at_value =  getElement(block, ELEMENT_NODE, "value", 2);
+		if (at_value !== null){
+			addToJSON(',\n');
+			addToJSON('"at": ');
+			createAllBlocks(at_value);
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeTextSubstring(block){
+		addToJSON('"type": "property_substr",\n');
+
+		var where1 = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"where1": "' + where1.toLowerCase() +'",\n');
+
+		var where2 = block.getElementsByTagName("field")[1].childNodes[0].nodeValue;
+		addToJSON('"where2": "' + where2.toLowerCase() +'",\n');
+		
+		addToJSON('"item": ');
+		var item_value =  getElement(block, ELEMENT_NODE, "value", 1);
+		createAllBlocks(item_value);
+		addToJSON(',\n');
+
+		addToJSON('"arg1": ');
+		var arg1_value =  getElement(block, ELEMENT_NODE, "value", 2);
+		createAllBlocks(arg1_value);
+		addToJSON(',\n');
+
+		addToJSON('"arg2": ');
+		var arg2_value =  getElement(block, ELEMENT_NODE, "value", 3);
+		createAllBlocks(arg2_value);
+	}
+
+	/*----------------------------------------------*/
+	function makeTextChangeCase(block){
+		addToJSON('"type": "property_changeCase",\n');
+
+		var case_type = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"case": "' + case_type.toLowerCase() +'",\n');
+		
+
+		addToJSON('"item": ');
+		var case_value =  getElement(block, ELEMENT_NODE, "value", 1);
+		createAllBlocks(case_value);
+	}
+
+	/*----------------------------------------------*/
+	function makeTextPromt(block){
+		addToJSON('"type": "func_call",\n');
+		addToJSON('"name": "window.prompt",\n');
+
+		addToJSON('"arg": ');
+		var arg_value =  getElement(block, ELEMENT_NODE, "value", 1);
+		createAllBlocks(arg_value);
+	}
+
+
+	/*----------------------------------------------*/
+	function makeTextTrim(block){
+		addToJSON('"type": "property_trim",\n');
+		var side = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"side": "' + side.toLowerCase() +'",\n');
+		
+
+		addToJSON('"item": ');
+		var text_value =  getElement(block, ELEMENT_NODE, "value", 1);
+		createAllBlocks(text_value);
+	}
+
+
 
 	function getElement(blocks, type, name, occurance=1){
 	  if (blocks === undefined || blocks === null)
