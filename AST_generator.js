@@ -48,25 +48,40 @@ function Generator(xmlText){
 	addToJSON("{\n");
 	addToJSON('"type": "stmts",\n');
 
+	
 	var elements = xmlDoc.childNodes[0];
-	createAllBlocks(elements);
-
+	addToJSON('"data": [\n');
+		createAllBlocks(elements);
+	addToJSON(']\n');
+	
 	addToJSON('}\n');
 	
 	return JSON;
 	//-----------------------------------------------//
 
-	function createValue(blocks){
-	  var name = blocksExist(blocks)
-	  if (name === null){ //no blocks or shadow block exist
-		return;
-	  }
 
-	  var occ = 1;
-	  while ( (block = getElement(blocks, ELEMENT_NODE, name, occ++)) != null ){ //while there are more blocks..
+	/*----------------------------------------------------*/
+	function createAllBlocks(blocks){
+	  var name = blocksExist(blocks)
+	  if (name === null) //no blocks or shadow block exist
+		return;
+	  
+	  var block, occ = 1;
+	  block = getElement(blocks, ELEMENT_NODE, name, occ++);
+	  while ( block  !== null ){ //while there are more blocks..
+		addToJSON("{\n")
 		var type = block.getAttribute('type');
 
 		switch (type){
+		  case "controls_if":
+			makeIf(block);
+			break;
+		  case "variables_set":
+			makeVariableSet(block);
+			break;
+		  case "controls_repeat_ext":
+			makeRepeat(block);
+			break;
 		  case "logic_boolean":
 			makeLogicBoolean(block);
 			break;
@@ -112,42 +127,14 @@ function Generator(xmlText){
 		  case "math_atan2":
 			makeMathAtan2(block);
 			break;
-		  default:
-			console.log("Error in 'createValue'. Case doesn't exist")
-			exit();
-		}
-	  }
-	}
-	/*----------------------------------------------------*/
-	function createAllBlocks(blocks){
-	  addToJSON('"data": [\n{\n');
-	  var block;
-
-	  var name = blocksExist(blocks)
-	  if (name === null){ //no blocks or shadow block exist
-		addToJSON('}\n]\n');
-		return;
-	  }
-
-	  var occ = 1;
-	  while ( (block = getElement(blocks, ELEMENT_NODE, name, occ++)) !== null ){ //while there are more blocks..
-		var type = block.getAttribute('type');
-
-		switch (type){
-		  case "controls_if":
-			makeIf(block);
-			break;
-		  case "variables_set":
-			makeVariableSet(block);
-			break;
-		  case "controls_repeat_ext":
-			makeRepeat(block);
-			break;
-		  case "text_print":
+		case "text_print":
 			makeTextPrint(block);
 			break;
-		  case "": //TODO
-			make(block);
+		  case "text":
+			makeText(block);
+			break;
+		  case "text":
+			makeText(block);
 			break;
 		  case "":
 			make(block);
@@ -155,17 +142,17 @@ function Generator(xmlText){
 		  case "":
 			make(block);
 			break;
-		  case "":
-			make(block);
-			break;
-
 		}
 
 		addToJSON('}'); //data
 		nextBlock(block);
+		block = getElement(blocks, ELEMENT_NODE, name, occ++)
+		if (block !== null){
+			addToJSON(',\n');
+		}
 	  }
 
-	  addToJSON(']\n'); //data
+	 // addToJSON(']\n'); //data
 	}
 
 	function blocksExist(blocks){
@@ -184,11 +171,6 @@ function Generator(xmlText){
 
 	/*----------------------------------------------------*/
 	  function nextBlock(block){ 
-		if (block.getElementsByTagName("next")[0] == undefined){ //if there is no next block
-		  addToJSON('\n');
-		  return;
-		}
-
 		var next = getElement(block, ELEMENT_NODE, "next");
 
 		if (next == null){
@@ -196,35 +178,38 @@ function Generator(xmlText){
 		  return;
 		}
 
-		var next_block = getElement(next, ELEMENT_NODE, "block");
+		//var next_block = getElement(next, ELEMENT_NODE, "block");
 
 		addToJSON(',\n');
+		createAllBlocks(next)
 		//var next_block = block.getElementsByTagName("next")[0].getElementsByTagName("block")[0];
-		var next_type = next_block.getAttribute('type');
+		// var next_type = next_block.getAttribute('type');
 
-		addToJSON('{\n');
-		if (next_type == "text_print"){
-		  makeTextPrint(next_block);
-		}
-		addToJSON('}\n');
+		// addToJSON('{\n');
+		// if (next_type == "text_print"){
+		//   makeTextPrint(next_block);
+		// }
+		// addToJSON('}\n');
 	  }
 
 	  /*----------------------------------------------------*/
 	  function makeIf(block){
 		addToJSON('"type": "if_stmt",\n');
-		addToJSON('"cond": {\n');
+		
 
 		var if_value = block.getElementsByTagName("value")[0];
-		createValue(if_value)
-		addToJSON('},\n'); //cond
-
+		addToJSON('"cond": ');
+		createAllBlocks(if_value)
+		addToJSON(',\n');
 
 		addToJSON('"do": {\n');
 		addToJSON('"type": "stmts",\n');
 		
 		var do_statement = block.getElementsByTagName("statement")[0];
 
+		addToJSON('"data": [\n');
 		createAllBlocks(do_statement)
+		addToJSON(']\n');
 
 		//nextBlock(do_block);
 		addToJSON('}\n'); //do
@@ -233,18 +218,20 @@ function Generator(xmlText){
 	 /*----------------------------------------------------*/
 	 function makeRepeat(block){
 	  addToJSON('"type": "repeat_stmt",\n');
-	  addToJSON('"times": {\n');
+	  
 
 	  var times_value = block.getElementsByTagName("value")[0];
-	  createValue(times_value)
-	  addToJSON('},\n');
-	  
+	  addToJSON('"times": ');
+	  createAllBlocks(times_value)
+	  addToJSON(',\n');
 
 	  addToJSON('"do": {\n');
 	  addToJSON('"type": "stmts",\n');
 	  var do_statement = block.getElementsByTagName("statement")[0];
 	  
+	  addToJSON('"data": [\n');
 	  createAllBlocks(do_statement)
+	  addToJSON(']\n');
 	  addToJSON('}\n'); //do
 	}
 
@@ -264,9 +251,8 @@ function Generator(xmlText){
 		}
 
 		if (rvalue == "VALUE"){
-		  addToJSON('"rval": {\n');
-		  createValue(rvalue_value)
-		  addToJSON('}\n');
+		  addToJSON('"rval": ');
+		  createAllBlocks(rvalue_value)
 		}
 	  }
 
@@ -287,7 +273,7 @@ function Generator(xmlText){
 
 	/*----------------------------------------------*/
 	  function makeLogicBoolean(block){
-		addToJSON('"type": "const_bool",\n');
+		addToJSON('"type": "bool_const",\n');
 		var field = block.getElementsByTagName("field")[0];
 		var field_name = field.getAttribute("name");
 		if (field_name == "BOOL"){
@@ -318,28 +304,29 @@ function Generator(xmlText){
 	  var operation = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
 	  addToJSON('"op": "' + operation + '",\n');
 
-	  addToJSON('"lval": {\n');
+	  
 	  var lval_value = getElement(block, ELEMENT_NODE, "value", 1)
-	  createValue(lval_value);
-	  addToJSON('},\n');
+	  addToJSON('"lval": ');
+	  createAllBlocks(lval_value);
+	  addToJSON(',\n');
 
-	  addToJSON('"rval": {\n');
+	  
 	  var rval_value = getElement(block, ELEMENT_NODE, "value", 2)
-	  createValue(rval_value);
-	  addToJSON('}\n');
+	  addToJSON('"rval": ');
+	  createAllBlocks(rval_value);
 	}
 
 	 /*----------------------------------------------*/
 	function makeTextPrint(block){
 	  addToJSON('"type": "func_call",\n');
-	  addToJSON('"name": "alert",\n');
+	  addToJSON('"name": "window.alert",\n');
 
 	  var print_value = block.getElementsByTagName("value")[0];
 	  //addToJSON("\nPrint ");
 
-	  addToJSON('"arg": {\n');
-	  createValue(print_value)
-	  addToJSON('}\n');
+	  addToJSON('"arg": ');
+	  createAllBlocks(print_value);
+	  //createValue(print_value)
 	}
 
 	 /*----------------------------------------------*/
@@ -350,9 +337,8 @@ function Generator(xmlText){
 	  var root_value = block.getElementsByTagName("value")[0];
 	  //addToJSON("\nPrint ");
 
-	  addToJSON('"arg": {\n');
-	  createValue(root_value)
-	  addToJSON('}\n');
+	  addToJSON('"arg": ');
+	  createAllBlocks(root_value)
 	}
 
 	 /*----------------------------------------------*/
@@ -364,9 +350,8 @@ function Generator(xmlText){
 
 	  var trig_value = block.getElementsByTagName("value")[0];
 
-	  addToJSON('"arg": {\n');
-	  createValue(trig_value)
-	  addToJSON('}\n');
+	  addToJSON('"arg": ');
+	  createAllBlocks(trig_value)
 	}
 
 	 /*----------------------------------------------*/
@@ -381,12 +366,11 @@ function Generator(xmlText){
 	  addToJSON('"type": "math_property",\n');
 
 	  var property = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
-	  addToJSON('"property": "' + property + '"\n');
+	  addToJSON('"property": "' + property + '",\n');
 
 	  var num_value = block.getElementsByTagName("value")[0];
-	  addToJSON('"value": {\n');
-	  createValue(num_value)
-	  addToJSON('}\n');
+	  addToJSON('"value": ');
+	  createAllBlocks(num_value)
 	}
 
 	 /*----------------------------------------------*/
@@ -404,9 +388,8 @@ function Generator(xmlText){
 
 	  var round_value = block.getElementsByTagName("value")[0];
 
-	  addToJSON('"arg": {\n');
-	  createValue(round_value)
-	  addToJSON('}\n');
+	  addToJSON('"arg": ');
+	  createAllBlocks(round_value)
 	}
 
 	 /*----------------------------------------------*/
@@ -415,15 +398,14 @@ function Generator(xmlText){
 
 	  addToJSON('"op": "MOD",\n');
 
-	  addToJSON('"lval": {\n');
+	  addToJSON('"lval": ');
 	  var lval_value = getElement(block, ELEMENT_NODE, "value", 1)
-	  createValue(lval_value);
-	  addToJSON('},\n');
+	  createAllBlocks(lval_value);
+	  addToJSON(',\n');
 
-	  addToJSON('"rval": {\n');
+	  addToJSON('"rval": ');
 	  var rval_value = getElement(block, ELEMENT_NODE, "value", 2)
-	  createValue(rval_value);
-	  addToJSON('}\n');
+	  createAllBlocks(rval_value);
 	}
 
 	 /*----------------------------------------------*/
@@ -431,20 +413,19 @@ function Generator(xmlText){
 	   //will look like: Math.min(Math.max(num1, num2), num3)
 	  addToJSON('"type": "math_constraint",\n');
 
-	  addToJSON('"value": {\n');
+	  addToJSON('"value": ');
 	  var constraint_value = getElement(block, ELEMENT_NODE, "value", 1)
-	  createValue(constraint_value)
-	  addToJSON('},\n');
+	  createAllBlocks(constraint_value)
+	  addToJSON(',\n');
 
-	  addToJSON('"low": {\n');
+	  addToJSON('"low": ');
 	  var low_value = getElement(block, ELEMENT_NODE, "value", 2)
-	  createValue(low_value)
-	  addToJSON('},\n');
+	  createAllBlocks(low_value)
+	  addToJSON(',\n');
 
-	  addToJSON('"high": {\n');
+	  addToJSON('"high": ');
 	  var high_value = getElement(block, ELEMENT_NODE, "value", 3)
-	  createValue(high_value)
-	  addToJSON('}\n');
+	  createAllBlocks(high_value)
 
 	  /*addToJSON('"type": "func_call",\n');
 	  addToJSON('"name": "Math.min",\n');
@@ -475,15 +456,14 @@ function Generator(xmlText){
 	 function makeMathRandomInt(block){
 	  addToJSON('"type": "math_rand_int",\n');
 
-	  addToJSON('"from": {\n');
-	  var random_from_value = getElement(block, ELEMENT_NODE, "value", 0)
-	  createValue(random_from_value)
-	  addToJSON('},\n');
+	  addToJSON('"from": ');
+	  var random_from_value = getElement(block, ELEMENT_NODE, "value", 1)
+	  createAllBlocks(random_from_value)
+	  addToJSON(',\n');
 
-	  addToJSON('"to": {\n');
-	  var random_to_value = getElement(block, ELEMENT_NODE, "value", 1)
-	  createValue(random_to_value)
-	  addToJSON('}\n');
+	  addToJSON('"to": ');
+	  var random_to_value = getElement(block, ELEMENT_NODE, "value", 2)
+	  createAllBlocks(random_to_value)
 	}
 
 	 /*----------------------------------------------*/
@@ -496,19 +476,30 @@ function Generator(xmlText){
 	 function makeMathAtan2(block){
 	  addToJSON('"type": "func_atan2",\n');
 
-	  var x_value = getElement(block, ELEMENT_NODE, "value", 0);
-	  addToJSON('"x": {\n');
-	  createValue(x_value)
-	  addToJSON('},\n');
+	  var x_value = getElement(block, ELEMENT_NODE, "value", 1);
+	  addToJSON('"x": ');
+	  createAllBlocks(x_value)
+	  addToJSON(',\n');
 
-	  var y_value = getElement(block, ELEMENT_NODE, "value", 1);
-	  addToJSON('"y": {\n');
-	  createValue(y_value)
-	  addToJSON('}\n');
+	  var y_value = getElement(block, ELEMENT_NODE, "value", 2);
+	  addToJSON('"y": ');
+	  createAllBlocks(y_value)
 	}
 
+	 /*----------------------------------------------*/
+	 function makeText(block){
+		addToJSON('"type": "text_const",\n');
+  
+		if (block.getElementsByTagName("field")[0].childNodes.length == 0){
+			addToJSON('"value": ""\n');
+		}else{
+			var text = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+			addToJSON('"value": "'+ text +'"\n');
+		}
+	  }
+
 	function getElement(blocks, type, name, occurance=1){
-	  if (blocks === undefined)
+	  if (blocks === undefined || blocks === null)
 		return null;
 
 	  var occ = 0;
