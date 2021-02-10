@@ -92,7 +92,7 @@ function Generator(xmlText){
 	function createAllBlocks(blocks){
 	  var name = blocksExist(blocks)
 	  if (name === null) //no blocks or shadow block exist
-		return;
+		return null;
 	  
 	  var block, occ = 1;
 	  block = getElement(blocks, ELEMENT_NODE, name, occ++);
@@ -249,7 +249,12 @@ function Generator(xmlText){
 
 		var if_value = block.getElementsByTagName("value")[0];
 		addToJSON('"cond": ');
-		createAllBlocks(if_value)
+		if (createAllBlocks(if_value) === null){ //no condition in the if statement. Default is false
+			addToJSON('{\n');
+			addToJSON('"type": "bool_const",\n');
+			addToJSON('"value": false\n');
+			addToJSON('}');
+		}
 		addToJSON(',\n');
 
 		addToJSON('"do": {\n');
@@ -328,7 +333,7 @@ function Generator(xmlText){
 		var field_name = field.getAttribute("name");
 		if (field_name == "BOOL"){
 		  var val = field.childNodes[0].nodeValue;
-		  addToJSON('"value": ' + val + '\n');
+		  addToJSON('"value": ' + val.toLowerCase() + '\n');
 		}else{
 		  console.log("\nError inside makeLogicBoolean")
 		  exit();
