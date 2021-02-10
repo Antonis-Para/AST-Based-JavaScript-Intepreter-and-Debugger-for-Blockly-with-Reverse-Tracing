@@ -432,18 +432,18 @@ function Generator(xmlText){
 	  addToJSON('"type": "math_constraint",\n');
 
 	  addToJSON('"value": {\n');
-	  var constraint_value = block.getElementsByTagName("value")[0];
+	  var constraint_value = getElement(block, ELEMENT_NODE, "value", 1)
 	  createValue(constraint_value)
 	  addToJSON('},\n');
 
 	  addToJSON('"low": {\n');
-	  constraint_value = block.getElementsByTagName("value")[1];
-	  createValue(constraint_value)
+	  var low_value = getElement(block, ELEMENT_NODE, "value", 2)
+	  createValue(low_value)
 	  addToJSON('},\n');
 
 	  addToJSON('"high": {\n');
-	  constraint_value = block.getElementsByTagName("value")[2];
-	  createValue(constraint_value)
+	  var high_value = getElement(block, ELEMENT_NODE, "value", 3)
+	  createValue(high_value)
 	  addToJSON('}\n');
 
 	  /*addToJSON('"type": "func_call",\n');
@@ -476,13 +476,13 @@ function Generator(xmlText){
 	  addToJSON('"type": "math_rand_int",\n');
 
 	  addToJSON('"from": {\n');
-	  var random_value = block.getElementsByTagName("value")[0];
-	  createValue(random_value)
+	  var random_from_value = getElement(block, ELEMENT_NODE, "value", 0)
+	  createValue(random_from_value)
 	  addToJSON('},\n');
 
 	  addToJSON('"to": {\n');
-	  random_value = block.getElementsByTagName("value")[1];
-	  createValue(random_value)
+	  var random_to_value = getElement(block, ELEMENT_NODE, "value", 1)
+	  createValue(random_to_value)
 	  addToJSON('}\n');
 	}
 
@@ -496,12 +496,12 @@ function Generator(xmlText){
 	 function makeMathAtan2(block){
 	  addToJSON('"type": "func_atan2",\n');
 
-	  var x_value = block.getElementsByTagName("value")[0];
+	  var x_value = getElement(block, ELEMENT_NODE, "value", 0);
 	  addToJSON('"x": {\n');
 	  createValue(x_value)
 	  addToJSON('},\n');
 
-	  var y_value = block.getElementsByTagName("value")[1];
+	  var y_value = getElement(block, ELEMENT_NODE, "value", 1);
 	  addToJSON('"y": {\n');
 	  createValue(y_value)
 	  addToJSON('}\n');
