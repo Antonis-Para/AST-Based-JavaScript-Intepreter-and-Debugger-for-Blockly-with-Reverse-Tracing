@@ -104,14 +104,29 @@ function Generator(xmlText){
 		  case "controls_if":
 			makeIf(block);
 			break;
+		  case "logic_compare":
+			makeLogicCompare(block);
+			break;
+		  case "logic_operation":
+			makeLogicOperation(block);
+			break;
+		  case "logic_negate":
+			makeLogicNegate(block);
+			break;
+		  case "logic_boolean":
+			makeLogicBoolean(block);
+			break;
+		  case "logic_null":
+			makeLogicNull(block);
+			break;
+		  case "logic_ternary":
+			makeLogicTemary(block);
+			break;
 		  case "variables_set":
 			makeVariableSet(block);
 			break;
 		  case "controls_repeat_ext":
 			makeRepeat(block);
-			break;
-		  case "logic_boolean":
-			makeLogicBoolean(block);
 			break;
 		  case "variables_get":
 			makeVariableGet(block);
@@ -270,6 +285,125 @@ function Generator(xmlText){
 		addToJSON('}\n'); //do
 	  }
 
+	  function makeLogicCompare(block){
+		addToJSON('"type": "logic_expr",\n');
+
+		var op = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"op": "' + op + '",\n');
+
+		addToJSON('"lval": ');
+		var lval_value = getElement(block, ELEMENT_NODE, "value", 1)
+		if (createAllBlocks(lval_value) === null){ //no value provided, default is 0
+			addToJSON('{\n');
+			addToJSON('"type": "number",\n');
+			addToJSON('"value": 0\n');
+			addToJSON('}');
+		}
+		addToJSON(',\n');
+
+		addToJSON('"rval": ');
+		var rval_value = getElement(block, ELEMENT_NODE, "value", 2);
+		if (createAllBlocks(rval_value) === null){ //no value provided, default is 0
+			addToJSON('{\n');
+			addToJSON('"type": "number",\n');
+			addToJSON('"value": 0\n');
+			addToJSON('}\n');
+		}
+		createAllBlocks(rval_value);
+	  }
+
+	/*----------------------------------------------*/
+	function makeLogicOperation(block){
+		addToJSON('"type": "logic_expr",\n');
+		var op = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"op": "' + op + '",\n');
+
+		addToJSON('"lval": ');
+		var lval_value = getElement(block, ELEMENT_NODE, "value", 1)
+		if (createAllBlocks(lval_value) === null){ //no value provided, default is true
+			addToJSON('{\n');
+			addToJSON('"type": "bool_const",\n');
+			addToJSON('"value": true\n');
+			addToJSON('}');
+		}
+		addToJSON(',\n');
+
+		addToJSON('"rval": ');
+		var rval_value = getElement(block, ELEMENT_NODE, "value", 2);
+		if (createAllBlocks(rval_value) === null){ //no value provided, default is true
+			addToJSON('{\n');
+			addToJSON('"type": "bool_const",\n');
+			addToJSON('"value": true\n');
+			addToJSON('}\n');
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeLogicNegate(block){
+		addToJSON('"type": "logic_expr",\n');
+		addToJSON('"op": "NOT",\n');
+
+		addToJSON('"val": ');
+		var val_value = getElement(block, ELEMENT_NODE, "value", 1);
+		if (createAllBlocks(val_value) === null){ //no value provided, default is true
+			addToJSON('{\n');
+			addToJSON('"type": "bool_const",\n');
+			addToJSON('"value": true\n');
+			addToJSON('}\n');
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeLogicBoolean(block){
+		addToJSON('"type": "bool_const",\n');
+		var field = block.getElementsByTagName("field")[0];
+		var field_name = field.getAttribute("name");
+		if (field_name == "BOOL"){
+		var val = field.childNodes[0].nodeValue;
+		addToJSON('"value": ' + val.toLowerCase() + '\n');
+		}else{
+		console.log("\nError inside makeLogicBoolean")
+		exit();
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeLogicNull(block){
+		addToJSON('"type": "null_const",\n');
+		addToJSON('"value": null\n');
+	}
+
+	/*----------------------------------------------*/
+	function makeLogicTemary(block){
+		addToJSON('"type": "tenary_expr",\n');
+		var if_value = getElement(block, ELEMENT_NODE, "value", 1);
+		addToJSON('"if": ');
+		if (createAllBlocks(if_value) === null){ //no condition in the if statement. Default is false
+			addToJSON('{\n');
+			addToJSON('"type": "bool_const",\n');
+			addToJSON('"value": false\n');
+			addToJSON('}');
+		}
+		addToJSON(',\n');
+
+		addToJSON('"then": ');
+		var then_value = getElement(block, ELEMENT_NODE, "value", 2);
+		if (createAllBlocks(then_value) === null){
+			addToJSON('{\n');
+			makeLogicNull()
+			addToJSON('}');
+		}
+		addToJSON(',\n');
+
+		addToJSON('"else": ');
+		var else_value = getElement(block, ELEMENT_NODE, "value", 3);
+		if (createAllBlocks(else_value) === null){
+			addToJSON('{\n');
+			makeLogicNull()
+			addToJSON('}\n');
+		}
+	}
+
 	 /*----------------------------------------------------*/
 	 function makeRepeat(block){
 	  addToJSON('"type": "repeat_stmt",\n');
@@ -325,20 +459,6 @@ function Generator(xmlText){
 			exit();
 		  }
 		}
-
-	/*----------------------------------------------*/
-	  function makeLogicBoolean(block){
-		addToJSON('"type": "bool_const",\n');
-		var field = block.getElementsByTagName("field")[0];
-		var field_name = field.getAttribute("name");
-		if (field_name == "BOOL"){
-		  var val = field.childNodes[0].nodeValue;
-		  addToJSON('"value": ' + val.toLowerCase() + '\n');
-		}else{
-		  console.log("\nError inside makeLogicBoolean")
-		  exit();
-		}
-	  }
 
 
 	 /*----------------------------------------------*/
@@ -592,7 +712,7 @@ function Generator(xmlText){
 
 	/*----------------------------------------------*/
 	function makeTextEmpty(block){
-		addToJSON('"type": "arithm_expr",\n');
+		addToJSON('"type": "logic_expr",\n');
 		addToJSON('"op": "EQ",\n');
 
 		addToJSON('"lval": ');
