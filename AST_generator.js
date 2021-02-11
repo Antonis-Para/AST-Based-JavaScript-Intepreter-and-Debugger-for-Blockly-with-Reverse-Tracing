@@ -1,51 +1,44 @@
 //Template example
 
+const { create } = require('domain');
+
 var xmlText = `<xml xmlns="https://developers.google.com/blockly/xml">
-<block type="controls_if" id="{2z}?sL?_HKyq|4wHvhT" x="-38" y="63">
-  <value name="IF0">
-	<block type="logic_boolean" id="d#LF2~keLags0O.NM$6D">
+<variables>
+  <variable id="go{Xyeurj$/g+c?WYf0">y</variable>
+  <variable id="d*UZ,]?}?)}vJn]oSSNZ">a</variable>
+  <variable id="VF~iBGr46^E?FP.L6@VY">b</variable>
+  <variable id="SM)$F2!L,~SsFO|_}Z?}">z</variable>
+  <variable id="Ef6eY,Ehoir}q,ZA,#q!">x</variable>
+</variables>
+<block type="procedures_defreturn" id="dMFm5YsC##y/=IbE+^Ig" x="-1012" y="-12">
+  <mutation statements="false">
+	<arg name="y" varid="go{Xyeurj$/g+c?WYf0"></arg>
+	<arg name="a" varid="d*UZ,]?}?)}vJn]oSSNZ"></arg>
+	<arg name="b" varid="VF~iBGr46^E?FP.L6@VY"></arg>
+	<arg name="z" varid="SM)$F2!L,~SsFO|_}Z?}"></arg>
+	<arg name="x" varid="Ef6eY,Ehoir}q,ZA,#q!"></arg>
+  </mutation>
+  <field name="NAME">do something</field>
+  <comment pinned="false" h="80" w="160">Describe this function...</comment>
+</block>
+<block type="procedures_callreturn" id="uc=TtKH}9_(gZ5RcOd5n" x="-987" y="163">
+  <mutation name="do something">
+	<arg name="y"></arg>
+	<arg name="a"></arg>
+	<arg name="b"></arg>
+	<arg name="z"></arg>
+	<arg name="x"></arg>
+  </mutation>
+  <value name="ARG1">
+	<block type="logic_boolean" id="R|BgLv[)pvLG#U^2sthm">
 	  <field name="BOOL">TRUE</field>
 	</block>
   </value>
-  <statement name="DO0">
-	<block type="text_print" id="yk13VnE|+uTqQElT@w~F">
-	  <value name="TEXT">
-		<shadow type="text" id="2p4MJ$*!)kNTeR~w$DO0">
-		  <field name="TEXT">abc</field>
-		</shadow>
-		<block type="math_number" id="{VupbQnS40v%1*ZYAuYx">
-		  <field name="NUM">123</field>
-		</block>
-	  </value>
-	  <next>
-		<block type="controls_if" id="#~lNfE=/?3m1TA^_+1uH">
-		  <value name="IF0">
-			<block type="logic_boolean" id="4,+AK)n@$CCFs=qXcd}?">
-			  <field name="BOOL">FALSE</field>
-			</block>
-		  </value>
-		  <statement name="DO0">
-			<block type="text_print" id="Vse;?em0f+Fl])P3L,$O">
-			  <value name="TEXT">
-				<shadow type="text" id="bHK}2HF($Ay[ZVj_]0?2">
-				  <field name="TEXT">abc</field>
-				</shadow>
-			  </value>
-			  <next>
-				<block type="text_print" id=";!G;LZ+i2U;T71~kmPpf">
-				  <value name="TEXT">
-					<shadow type="text" id=",5+9UY}tYKCT!4C1Ft=%">
-					  <field name="TEXT">5</field>
-					</shadow>
-				  </value>
-				</block>
-			  </next>
-			</block>
-		  </statement>
-		</block>
-	  </next>
+  <value name="ARG3">
+	<block type="math_number" id="pe:dA2LniZ#JziqL303w">
+	  <field name="NUM">123</field>
 	</block>
-  </statement>
+  </value>
 </block>
 </xml>`
 
@@ -278,6 +271,21 @@ function Generator(xmlText){
 		  case "math_change":
 			makeVariableMathChange(block);
 			break;
+		  case "procedures_defnoreturn":
+			makeVoidFunc(block);
+			break;
+		  case "procedures_ifreturn":
+			makeReturn(block);
+			break;
+		  case "procedures_defreturn":
+			makeFunc(block);
+			break;
+		  case "procedures_callnoreturn":
+			makeVoidFuncCall(block);
+			break;
+		  case "procedures_callreturn":
+			makeFuncCall(block);
+			break;
 		}
 
 		addToJSON('}'); //data
@@ -321,7 +329,6 @@ function Generator(xmlText){
 	  /*----------------------------------------------------*/
 	  function makeIf(block){
 		addToJSON('"type": "if_stmt",\n');
-		
 
 		var if_value = block.getElementsByTagName("value")[0];
 		addToJSON('"cond": ');
@@ -341,8 +348,6 @@ function Generator(xmlText){
 		addToJSON('"data": [\n');
 		createAllBlocks(do_statement)
 		addToJSON(']\n');
-
-		//nextBlock(do_block);
 		addToJSON('}\n'); //do
 	  }
 
@@ -581,7 +586,7 @@ function Generator(xmlText){
 	function makeControlFlowStmt(block){
 		addToJSON('"type": "keyword",\n');
 		var key_value = block.getElementsByTagName("field")[0].childNodes[0].nodeValue; //can not be empty
-		addToJSON('"value": "' + key_value.toLowerCase() + '"\n');
+		addToJSON('"name": "' + key_value.toLowerCase() + '"\n');
 	}
 
 
@@ -1385,8 +1390,6 @@ function Generator(xmlText){
 		if (lvalue == "VAR"){
 		  variable = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
 		  addToJSON('"lval": "' + variable + '",\n');
-		  //addToJSON(variable);
-		  //addToJSON(" = ");
 		}
 
 		if (rvalue == "VALUE"){
@@ -1422,8 +1425,165 @@ function Generator(xmlText){
 		createAllBlocks(change_value);
 	}
 
+	/*----------------------------------------------*/
+	function makeVoidFunc(block){
+		addToJSON('"type": "func_decl",\n');
+
+		addToJSON('"args": [\n');
+		var mutation = getElement(block, ELEMENT_NODE, "mutation", 1)
+		if (mutation !== null){
+			var occ = 1;
+			var arg = getElement(mutation, ELEMENT_NODE, "arg", occ++);
+			while (arg !== null){
+				addToJSON('"' + arg.getAttribute("name") + '",');
+				arg = getElement(mutation, ELEMENT_NODE, "arg", occ++);
+			}
+		}else{
+			addToJSON(','); //for consistency. will delete later
+		}
+		JSON = JSON.slice(0, -1);
+		addToJSON('],\n');
+
+		var name = getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+		addToJSON('"name": "' + name + '",\n');
+
+		var statements = getElement(block, ELEMENT_NODE, "statement", 1);
+
+		addToJSON('"do": {\n');
+			addToJSON('"type": "stmts",\n');
+			addToJSON('"data": [\n');
+				createAllBlocks(statements)
+			addToJSON(']\n');
+		addToJSON('}\n'); //do
+	}
+
+	/*----------------------------------------------*/
+	function makeReturn(block){
+		addToJSON('"type": "if_stmt",\n');
+
+		var child_no = 1;
+		var if_value = getElement(block, ELEMENT_NODE, "value", 1)
+		addToJSON('"cond": ');
+		if (if_value === null || if_value === undefined || if_value.getAttribute("name") != "CONDITION"){ //no condition in the if statement. Default is false
+			addToJSON('{\n');
+			addToJSON('"type": "bool_const",\n');
+			addToJSON('"value": false\n');
+			addToJSON('}');
+		}else{
+			createAllBlocks(if_value);
+			child_no++;
+		}
+		addToJSON(',\n');
+
+		var ret_value = getElement(block, ELEMENT_NODE, "value", child_no);
+		addToJSON('"do": {\n');
+			addToJSON('"type": "stmts",\n');
+			addToJSON('"data": [\n');
+				addToJSON('{\n');
+					addToJSON('"type": "keyword",\n');
+					addToJSON('"name": "return",\n');
+					addToJSON('"value": ');
+					if (createAllBlocks(ret_value) === null){
+						addToJSON('{\n');
+						makeLogicNull();
+						addToJSON('}\n');
+					}
+				addToJSON('}\n');
+			addToJSON(']\n');
+		addToJSON('}\n'); //do
+	}
 
 
+	/*----------------------------------------------*/
+	function makeFunc(block){
+		addToJSON('"type": "func_decl",\n');
+
+		addToJSON('"args": [\n');
+		var mutation = getElement(block, ELEMENT_NODE, "mutation", 1)
+		if (mutation !== null){
+			var occ = 1;
+			var arg = getElement(mutation, ELEMENT_NODE, "arg", occ++);
+			while (arg !== null){
+				addToJSON('"' + arg.getAttribute("name") + '",');
+				arg = getElement(mutation, ELEMENT_NODE, "arg", occ++);
+			}
+		}else{
+			addToJSON(','); //for consistency. will delete later
+		}
+		JSON = JSON.slice(0, -1);
+		addToJSON('],\n');
+
+		var name = getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+		addToJSON('"name": "' + name + '",\n');
+
+		var statements = getElement(block, ELEMENT_NODE, "statement", 1);
+
+		addToJSON('"do": {\n');
+			addToJSON('"type": "stmts",\n');
+			addToJSON('"data": [\n');
+				var return_value = getElement(block, ELEMENT_NODE, "value", 1);
+				if (createAllBlocks(statements) !== null && return_value !== null){
+					addToJSON(',\n')
+				}
+				if (return_value !== null){
+					addToJSON('{\n');
+						addToJSON('"type": "keyword",\n');
+						addToJSON('"name": "return",\n');
+						addToJSON('"value": ');
+						createAllBlocks(return_value);
+					addToJSON('}\n');
+				}
+
+			addToJSON(']\n');
+		addToJSON('}\n'); //do		
+	}
+
+	/*----------------------------------------------*/
+	function makeVoidFuncCall(block){
+		addToJSON('"type": "userfunc_call",\n');
+
+		var funcname = getElement(block, ELEMENT_NODE, "mutation", 1).getAttribute("name");
+		addToJSON('"name": "' + funcname + '",\n');
+		addToJSON('"args": [ ]\n');
+	}
+
+	/*----------------------------------------------*/
+	function makeFuncCall(block){
+		addToJSON('"type": "userfunc_call",\n');
+
+		var funcname = getElement(block, ELEMENT_NODE, "mutation", 1).getAttribute("name");
+		addToJSON('"name": "' + funcname + '",\n');
+
+		addToJSON('"args": [\n');
+
+		var mutation = getElement(block, ELEMENT_NODE, "mutation", 1);
+		var arg_len = 1;
+		if (mutation !== null){
+			while (getElement(mutation, ELEMENT_NODE, "arg", arg_len++) !== null); //find amount of args
+			arg_len += -2; //start counting from 0 and remove the extra ++ in the last iteration
+		}
+
+		var occ = 0, i=0;
+		var arg = getElement(block, ELEMENT_NODE, "value", ++occ);
+		while (i < arg_len){
+			if (arg !== null && arg.getAttribute("name") == ("ARG" + i.toString())){ //first arg should be ARG0. If we skip an arg make it null
+				createAllBlocks(arg);
+			}else{
+				addToJSON('{\n');
+				makeLogicNull();
+				addToJSON('}\n');
+				occ--;
+			}
+			arg = getElement(block, ELEMENT_NODE, "value", ++occ);
+			i++
+			if (i != arg_len)
+				addToJSON(',\n');
+			else
+				addToJSON('\n');
+		}
+
+		addToJSON(']\n');
+	}
 
 
 	function getElement(blocks, type, name, occurance=1){
