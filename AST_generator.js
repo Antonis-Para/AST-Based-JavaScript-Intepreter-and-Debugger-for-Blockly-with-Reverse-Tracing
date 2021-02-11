@@ -137,12 +137,6 @@ function Generator(xmlText){
 		  case "controls_flow_statements":
 			makeControlFlowStmt(block);
 			break;
-		  case "variables_set":
-			makeVariableSet(block);
-			break;
-		  case "variables_get":
-			makeVariableGet(block);
-			break;
 		  case "math_number":
 			makeMathNumber(block);
 			break;
@@ -242,9 +236,18 @@ function Generator(xmlText){
 		  case "lists_getSublist":
 			makeSublist(block);
 			break;
-		case "lists_split":
+		  case "lists_split":
 			makeListSplit(block);
-			break;			
+			break;
+		  case "variables_set":
+			makeVariableSet(block);
+			break;
+		  case "variables_get":
+			makeVariableGet(block);
+			break;
+		  case "math_change":
+			makeVariableMathChange(block);
+			break;
 		}
 
 		addToJSON('}'); //data
@@ -523,42 +526,6 @@ function Generator(xmlText){
 		var key_value = block.getElementsByTagName("field")[0].childNodes[0].nodeValue; //can not be empty
 		addToJSON('"value": "' + key_value.toLowerCase() + '"\n');
 	}
-
-	  /*----------------------------------------------*/
-	  function makeVariableSet(block){
-		addToJSON('"type": "assign_expr",\n');
-
-		var lvalue = block.getElementsByTagName("field")[0].getAttribute('name');
-		var rvalue = block.getElementsByTagName("value")[0].getAttribute('name');
-		var rvalue_value = block.getElementsByTagName("value")[0];
-
-		if (lvalue == "VAR"){
-		  variable = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
-		  addToJSON('"lval": "' + variable + '",\n');
-		  //addToJSON(variable);
-		  //addToJSON(" = ");
-		}
-
-		if (rvalue == "VALUE"){
-		  addToJSON('"rval": ');
-		  createAllBlocks(rvalue_value)
-		}
-	  }
-
-		/*----------------------------------------------*/
-		function makeVariableGet(block){
-		  addToJSON('"type": "var",\n');
-		  var lvalue = block.getElementsByTagName("field")[0].getAttribute('name');
-	  
-		  if (lvalue == "VAR"){
-			variable = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
-			//addToJSON(variable);
-			addToJSON('"name": "' + variable + '"\n');
-		  }else{
-			console.log("Error in makeVariabelGet")
-			exit();
-		  }
-		}
 
 
 	 /*----------------------------------------------*/
@@ -1230,6 +1197,57 @@ function Generator(xmlText){
 		var delim_value = getElement(block, ELEMENT_NODE, "value", child_no);
 		createAllBlocks(delim_value);
 	}
+
+	 /*----------------------------------------------*/
+	 function makeVariableSet(block){
+		addToJSON('"type": "assign_expr",\n');
+
+		var lvalue = block.getElementsByTagName("field")[0].getAttribute('name');
+		var rvalue = block.getElementsByTagName("value")[0].getAttribute('name');
+		var rvalue_value = block.getElementsByTagName("value")[0];
+
+		if (lvalue == "VAR"){
+		  variable = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		  addToJSON('"lval": "' + variable + '",\n');
+		  //addToJSON(variable);
+		  //addToJSON(" = ");
+		}
+
+		if (rvalue == "VALUE"){
+		  addToJSON('"rval": ');
+		  createAllBlocks(rvalue_value)
+		}
+	  }
+
+	/*----------------------------------------------*/
+	function makeVariableGet(block){
+		addToJSON('"type": "var",\n');
+		var lvalue = block.getElementsByTagName("field")[0].getAttribute('name');
+	
+		if (lvalue == "VAR"){
+			variable = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+			//addToJSON(variable);
+			addToJSON('"name": "' + variable + '"\n');
+		}else{
+			console.log("Error in makeVariabelGet")
+			exit();
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeVariableMathChange(block){
+		addToJSON('"type": "var_change",\n');
+		var var_value = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"var_name": "' + var_value + '",\n');
+
+
+		addToJSON('"value": \n');
+		var change_value = block.getElementsByTagName("value")[0];
+		createAllBlocks(change_value);
+	}
+
+
+
 
 
 	function getElement(blocks, type, name, occurance=1){
