@@ -150,7 +150,7 @@ function Generator(xmlText){
 			makeFor(block);
 			break;
 		  case "controls_forEach": //TODO
-			makeRepeat(block);
+			makeForEach(block);
 			break;
 		  case "controls_flow_statements":
 			makeControlFlowStmt(block);
@@ -176,8 +176,8 @@ function Generator(xmlText){
 		  case "math_round":
 			makeMathRound(block);
 			break;
-			case "math_on_list":
-			makeMathOnList(block); //TODO
+		  case "math_on_list":
+			makeMathOnList(block);
 			break;
 		  case "math_modulo":
 			makeMathModulo(block);
@@ -538,6 +538,32 @@ function Generator(xmlText){
 		addToJSON('}\n'); //do
 	}
 
+
+	/*----------------------------------------------------*/
+	function makeForEach(block){
+		addToJSON('"type": "forEach_stmt",\n');
+		var var_value = block.getElementsByTagName("field")[0].childNodes[0].nodeValue; //can not be empty
+		addToJSON('"var_name": "' + var_value + '",\n');
+
+		var in_list_value = getElement(block, ELEMENT_NODE, "value", 1);
+		addToJSON('"in": ');
+		if (createAllBlocks(in_list_value) === null){//no list provided-> default empty list
+			addToJSON('{\n');
+			addToJSON('"type": "list_create",\n');
+			addToJSON('"items": []\n');
+			addToJSON('}\n');
+		}
+		addToJSON(",\n");
+
+		addToJSON('"do": {\n');
+		addToJSON('"type": "stmts",\n');
+		var do_statement = block.getElementsByTagName("statement")[0];
+		addToJSON('"data": [\n');
+		createAllBlocks(do_statement)
+		addToJSON(']\n');
+		addToJSON('}\n'); //do
+	}
+
 	/*----------------------------------------------------*/
 	function makeControlFlowStmt(block){
 		addToJSON('"type": "keyword",\n');
@@ -652,6 +678,22 @@ function Generator(xmlText){
 	  createAllBlocks(round_value)
 	}
 
+	/*----------------------------------------------*/
+	function makeMathOnList(block){
+		addToJSON('"type": "list_math_expr",\n');
+		var op = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+		addToJSON('"op": "' + op.toLowerCase() + '",\n');
+  
+		var list_value = getElement(block, ELEMENT_NODE, "value", 1);
+		addToJSON('"list": ')
+		if (createAllBlocks(list_value) === null){ //no list provided -> default is empty list
+			addToJSON('{\n');
+			addToJSON('"type": "list_create",\n');
+			addToJSON('"items": []\n');
+			addToJSON('}\n');
+		}
+	  }
+  
 	 /*----------------------------------------------*/
 	 function makeMathModulo(block){
 	  addToJSON('"type": "arithm_expr",\n');
