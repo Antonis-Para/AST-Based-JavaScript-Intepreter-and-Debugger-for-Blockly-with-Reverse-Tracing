@@ -218,7 +218,33 @@ function Generator(xmlText){
 		  case "text_prompt_ext":
 			makeTextPromt(block);
 			break;
-			
+		  case "lists_create_with":
+			makeListCreateWith(block);
+			break;
+		  case "lists_repeat":
+			makeListRepeat(block);
+			break;
+		  case "lists_length":
+			makeListLength(block);
+			break;
+		  case "lists_isEmpty":
+			makeListIsEmpty(block);
+			break;
+		  case "lists_indexOf":
+			makeListIndexOf(block);
+			break;
+		  case "lists_getIndex":
+			makeListGetIndex(block);
+			break;
+		  case "lists_setIndex":
+			makeListSetIndex(block);
+			break;
+		  case "lists_getSublist":
+			makeSublist(block);
+			break;
+		case "lists_split":
+			makeListSplit(block);
+			break;			
 		}
 
 		addToJSON('}'); //data
@@ -901,7 +927,309 @@ function Generator(xmlText){
 		var text_value =  getElement(block, ELEMENT_NODE, "value", 1);
 		createAllBlocks(text_value);
 	}
+	/*----------------------------------------------*/
+	function makeListCreateWith(block){
+		addToJSON('"type": "list_create",\n');
+		addToJSON('"items": [\n');
 
+		var list_value = getElement(block, ELEMENT_NODE, "value", 1);
+		if (list_value === null){
+			addToJSON(']\n');
+			return;
+		}
+		
+		var occ = 1;
+		while (list_value !== null){
+			createAllBlocks(list_value);
+			list_value = getElement(block, ELEMENT_NODE, "value", ++occ);
+			addToJSON(',\n');
+		}
+		JSON = JSON.slice(0, -2); //remove the last ','
+		addToJSON(']\n');
+	}
+
+	/*----------------------------------------------*/
+	function makeListRepeat(block){
+		addToJSON('"type": "list_create_repeat",\n');
+
+		addToJSON('"item": ');
+		var item_value = getElement(block, ELEMENT_NODE, "value", 1);
+		if (item_value.getAttribute("name") == "NUM"){ //no item provided as first value-> default is null
+			addToJSON('{\n')
+			makeLogicNull();
+			addToJSON('}')
+		}else{
+			createAllBlocks(item_value);
+		}
+		addToJSON(',\n')
+
+		addToJSON('"repeat": ');
+		var repeat_value = getElement(block, ELEMENT_NODE, "value", 2);
+		if (repeat_value === null){ //no first value provided -> second value gets shifted to first
+			repeat_value = getElement(block, ELEMENT_NODE, "value", 1);
+		}
+		createAllBlocks(repeat_value);
+	}
+
+	/*----------------------------------------------*/
+	function makeListLength(block){
+		addToJSON('"type": "property",\n');
+		addToJSON('"name": ".length",\n');
+
+		addToJSON('"item": ');
+		var item_value = getElement(block, ELEMENT_NODE, "value", 1);
+		if (createAllBlocks(item_value) === null){ //no list provided-> default empty list
+			addToJSON('{\n');
+			addToJSON('"type": "list_create",\n');
+			addToJSON('"items": []\n');
+			addToJSON('}\n');
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeListIsEmpty(block){ //list.length == 0
+		addToJSON('"type": "logic_expr",\n');
+		addToJSON('"op": "EQ",\n');
+
+		addToJSON('"lval": {\n');
+			addToJSON('"type": "property",\n');
+			addToJSON('"name": ".length",\n');
+			addToJSON('"item": ');
+			var item_value = getElement(block, ELEMENT_NODE, "value", 1);
+			if (createAllBlocks(item_value) === null){ //no list provided -> default is empty list
+				addToJSON('{\n');
+				addToJSON('"type": "list_create",\n');
+				addToJSON('"items": []\n');
+				addToJSON('}\n');
+			}
+		addToJSON('},\n');
+
+		addToJSON('"rval": {\n');
+			addToJSON('"type": "number",\n');
+			addToJSON('"value": 0\n');
+		addToJSON('}\n');
+
+	}
+
+	/*----------------------------------------------*/
+	function makeListIndexOf(block){
+		addToJSON('"type": "arithm_expr",\n');
+		addToJSON('"op": "ADD",\n');
+
+		addToJSON('"lval": {\n');
+			addToJSON('"type": "property",\n');
+			if (getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue == "FIRST"){
+				addToJSON('"name": ".indexOf",\n');
+			}else{
+				addToJSON('"name": ".lastIndexOf",\n');
+			}
+			addToJSON('"item": ');
+			var child_no = 1;
+			var item_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE"){ //no list provided -> default is empty list
+				addToJSON('{\n');
+				addToJSON('"type": "list_create",\n');
+				addToJSON('"items": []\n');
+				addToJSON('}\n');
+			}else{
+				createAllBlocks(item_value);
+				child_no++;
+			}
+
+			addToJSON(',\n');
+			addToJSON('"arg": ');
+			var arg_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (createAllBlocks(arg_value) === null){ //no item to search for provided -> default is empty string
+				addToJSON('{\n');
+				addToJSON('"type": "text_const",\n');
+				addToJSON('"value": ""\n');
+				addToJSON('}\n');
+			}
+		addToJSON('},\n');
+
+		addToJSON('"rval": {\n');
+			addToJSON('"type": "number",\n');
+			addToJSON('"value": 1\n');
+		addToJSON('}\n');
+
+	}
+
+	/*----------------------------------------------*/
+	function makeListGetIndex(block){ 
+		addToJSON('"type": "list_get",\n');
+
+		var mode_value = getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+		addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
+
+		var where_value = getElement(block, ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
+		addToJSON('"where": "' + where_value.toLowerCase() + '",\n');
+
+		addToJSON('"list": \n');
+		var child_no = 1;
+		var item_value = getElement(block, ELEMENT_NODE, "value", child_no);
+		if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE"){ //no list to search in provided -> default is empty list
+			addToJSON('{\n');
+			addToJSON('"type": "list_create",\n');
+			addToJSON('"items": []\n');
+			addToJSON('}\n');
+		}else{
+			createAllBlocks(item_value);
+			child_no++;
+		}
+
+		if (where_value == "FROM_START" || where_value == "FROM_END"){
+			addToJSON(',\n');
+
+			addToJSON('"pos": \n');
+			var pos_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (createAllBlocks(pos_value) === null){ //no item to search for -> default is 0
+				addToJSON('{\n');
+				addToJSON('"type": "number",\n');
+				addToJSON('"value": 0\n');
+				addToJSON('}\n');
+			}
+		}
+		
+	}
+
+
+	/*----------------------------------------------*/
+	function makeListSetIndex(block){
+		var child_no = 1;
+		addToJSON('"type": "list_set",\n');
+
+		var mode_value = getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+		addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
+
+		var where_value = getElement(block, ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
+		addToJSON('"where": "' + where_value.toLowerCase() + '",\n');
+
+		addToJSON('"list": \n');
+			var item_value = getElement(block, ELEMENT_NODE, "value", 1);
+			if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "LIST"){ //no list to search in provided -> default is empty list
+				addToJSON('{\n');
+				addToJSON('"type": "list_create",\n');
+				addToJSON('"items": []\n');
+				addToJSON('}\n');
+			}else{
+				createAllBlocks(item_value);
+				child_no++;
+			}
+		addToJSON(',\n');
+
+		if (where_value == "FROM_START" || where_value == "FROM_END"){
+			addToJSON('"pos": \n');
+			var pos_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (pos_value === null || pos_value === undefined || pos_value.getAttribute("name") != "AT"){ //no item to search for -> default is 0
+				addToJSON('{\n');
+				addToJSON('"type": "number",\n');
+				addToJSON('"value": 0\n');
+				addToJSON('}\n');
+			}else{
+				createAllBlocks(pos_value);
+				child_no++;
+			}
+			addToJSON(',\n');
+		}
+
+		addToJSON('"item": \n');
+		var item_value = getElement(block, ELEMENT_NODE, "value", child_no);
+		if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "TO"){ //no item to create -> default is null
+			addToJSON('{\n');
+			makeLogicNull();
+			addToJSON('}\n');
+		}else{
+			createAllBlocks(item_value);
+			child_no++;
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeSublist(block){
+		var child_no = 1;
+		addToJSON('"type": "list_sublist",\n');
+
+		var where1_value = getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+		addToJSON('"where1": "' + where1_value.toLowerCase() + '",\n');
+
+		var where2_value = getElement(block, ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
+		addToJSON('"where2": "' + where2_value.toLowerCase() + '",\n');
+
+		addToJSON('"list": \n');
+		var item_value = getElement(block, ELEMENT_NODE, "value", 1);
+		if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "LIST"){ //no list to search in provided -> default is empty list
+			addToJSON('{\n');
+			addToJSON('"type": "list_create",\n');
+			addToJSON('"items": []\n');
+			addToJSON('}\n');
+		}else{
+			createAllBlocks(item_value);
+			child_no++;
+		}
+
+		if (where1_value != "FIRST"){ //first doesnt require an argument (its 0)
+			addToJSON(',\n');
+			addToJSON('"pos1": \n');
+			var pos_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (pos_value === null || pos_value === undefined || pos_value.getAttribute("name") != "AT1"){ //no item to search for -> default is 0
+				addToJSON('{\n');
+				addToJSON('"type": "number",\n');
+				addToJSON('"value": 0\n');
+				addToJSON('}\n');
+			}else{
+				createAllBlocks(pos_value);
+				child_no++;
+			}
+		}
+
+		if (where2_value != "LAST"){ //first doesnt require an argument (its the last)
+			addToJSON(',\n');
+			addToJSON('"pos2": \n');
+			var item_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "AT2"){ //no item to search for -> default is 0
+				addToJSON('{\n');
+				addToJSON('"type": "number",\n');
+				addToJSON('"value": 1\n');
+				addToJSON('}\n');
+			}else{
+				createAllBlocks(item_value);
+				child_no++;
+			}
+		}
+	}
+
+	/*----------------------------------------------*/
+	function makeListSplit(block){
+		addToJSON('"type": "list_split",\n');
+
+		var mode_value = getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+		addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
+
+		addToJSON('"item": ');
+		var child_no = 1;
+		var item_value = getElement(block, ELEMENT_NODE, "value", 1);
+		if (item_value === null || item_value === undefined || item_value.getAttribute("name") == "DELIM"){ 
+			if (mode_value == "SPLIT"){ //no text provided-> default empty string
+				addToJSON('{\n');
+				addToJSON('"type": "text_const",\n');
+				addToJSON('"value": ""\n');
+				addToJSON('}\n');
+			}else{ //no list provided-> default empty list
+				addToJSON('{\n');
+				addToJSON('"type": "list_create",\n');
+				addToJSON('"items": []\n');
+				addToJSON('}\n');
+			}
+		}else{
+			createAllBlocks(item_value);
+			child_no++;
+		}
+		addToJSON(',\n');
+
+		addToJSON('"delim": ');
+		var delim_value = getElement(block, ELEMENT_NODE, "value", child_no);
+		createAllBlocks(delim_value);
+	}
 
 
 	function getElement(blocks, type, name, occurance=1){
