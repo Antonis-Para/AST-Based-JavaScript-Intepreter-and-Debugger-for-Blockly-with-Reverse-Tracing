@@ -138,7 +138,7 @@ function Generator(xmlText){
 			makeLogicNull(block);
 			break;
 		  case "logic_ternary":
-			makeLogicTemary(block);
+			makeLogicTenary(block);
 			break;
 		  case "controls_repeat_ext":
 			makeRepeat(block);
@@ -302,18 +302,8 @@ function Generator(xmlText){
 		  return;
 		}
 
-		//var next_block = getElement(next, ELEMENT_NODE, "block");
-
 		addToJSON(',\n');
 		createAllBlocks(next)
-		//var next_block = block.getElementsByTagName("next")[0].getElementsByTagName("block")[0];
-		// var next_type = next_block.getAttribute('type');
-
-		// addToJSON('{\n');
-		// if (next_type == "text_print"){
-		//   makeTextPrint(next_block);
-		// }
-		// addToJSON('}\n');
 	  }
 
 	  /*----------------------------------------------------*/
@@ -350,25 +340,28 @@ function Generator(xmlText){
 		var op = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
 		addToJSON('"op": "' + op + '",\n');
 
+		var child_no = 1;
 		addToJSON('"lval": ');
 		var lval_value = getElement(block, ELEMENT_NODE, "value", 1)
-		if (createAllBlocks(lval_value) === null){ //no value provided, default is 0
+		if (lval_value === null || lval_value === undefined || lval_value.getAttribute("name") != "A"){ //no value provided, default is 0
 			addToJSON('{\n');
 			addToJSON('"type": "number",\n');
 			addToJSON('"value": 0\n');
 			addToJSON('}');
+		}else{
+			createAllBlocks(lval_value);
+			child_no++;
 		}
 		addToJSON(',\n');
 
 		addToJSON('"rval": ');
-		var rval_value = getElement(block, ELEMENT_NODE, "value", 2);
+		var rval_value = getElement(block, ELEMENT_NODE, "value", child_no);
 		if (createAllBlocks(rval_value) === null){ //no value provided, default is 0
 			addToJSON('{\n');
 			addToJSON('"type": "number",\n');
 			addToJSON('"value": 0\n');
 			addToJSON('}\n');
 		}
-		createAllBlocks(rval_value);
 	  }
 
 	/*----------------------------------------------*/
@@ -433,29 +426,37 @@ function Generator(xmlText){
 	}
 
 	/*----------------------------------------------*/
-	function makeLogicTemary(block){
+	function makeLogicTenary(block){
 		addToJSON('"type": "tenary_expr",\n');
+
+		var child_no = 1;
 		var if_value = getElement(block, ELEMENT_NODE, "value", 1);
 		addToJSON('"if": ');
-		if (createAllBlocks(if_value) === null){ //no condition in the if statement. Default is false
+		if (if_value === null || if_value === undefined || if_value.getAttribute("name") != "IF"){ //no condition in the if statement. Default is false
 			addToJSON('{\n');
 			addToJSON('"type": "bool_const",\n');
 			addToJSON('"value": false\n');
 			addToJSON('}');
+		}else{
+			createAllBlocks(if_value)
+			child_no++;
 		}
 		addToJSON(',\n');
 
 		addToJSON('"then": ');
-		var then_value = getElement(block, ELEMENT_NODE, "value", 2);
-		if (createAllBlocks(then_value) === null){
+		var then_value = getElement(block, ELEMENT_NODE, "value", child_no);
+		if (then_value === null || then_value === undefined || then_value.getAttribute("name") != "THEN"){
 			addToJSON('{\n');
 			makeLogicNull()
 			addToJSON('}');
+		}else{
+			child_no++;
+			createAllBlocks(then_value);
 		}
 		addToJSON(',\n');
 
 		addToJSON('"else": ');
-		var else_value = getElement(block, ELEMENT_NODE, "value", 3);
+		var else_value = getElement(block, ELEMENT_NODE, "value", child_no);
 		if (createAllBlocks(else_value) === null){
 			addToJSON('{\n');
 			makeLogicNull()
@@ -556,11 +557,11 @@ function Generator(xmlText){
 		addToJSON(",\n");
 
 		addToJSON('"do": {\n');
-		addToJSON('"type": "stmts",\n');
-		var do_statement = block.getElementsByTagName("statement")[0];
-		addToJSON('"data": [\n');
-		createAllBlocks(do_statement)
-		addToJSON(']\n');
+			addToJSON('"type": "stmts",\n');
+			var do_statement = block.getElementsByTagName("statement")[0];
+			addToJSON('"data": [\n');
+				createAllBlocks(do_statement)
+			addToJSON(']\n');
 		addToJSON('}\n'); //do
 	}
 
@@ -590,13 +591,11 @@ function Generator(xmlText){
 	  var operation = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
 	  addToJSON('"op": "' + operation + '",\n');
 
-	  
 	  var lval_value = getElement(block, ELEMENT_NODE, "value", 1)
 	  addToJSON('"lval": ');
 	  createAllBlocks(lval_value);
 	  addToJSON(',\n');
 
-	  
 	  var rval_value = getElement(block, ELEMENT_NODE, "value", 2)
 	  addToJSON('"rval": ');
 	  createAllBlocks(rval_value);
@@ -608,11 +607,9 @@ function Generator(xmlText){
 	  addToJSON('"name": "window.alert",\n');
 
 	  var print_value = block.getElementsByTagName("value")[0];
-	  //addToJSON("\nPrint ");
 
 	  addToJSON('"arg": ');
 	  createAllBlocks(print_value);
-	  //createValue(print_value)
 	}
 
 	 /*----------------------------------------------*/
@@ -621,7 +618,6 @@ function Generator(xmlText){
 	  addToJSON('"name": "Math.sqrt",\n');
 
 	  var root_value = block.getElementsByTagName("value")[0];
-	  //addToJSON("\nPrint ");
 
 	  addToJSON('"arg": ');
 	  createAllBlocks(root_value)
@@ -864,12 +860,22 @@ function Generator(xmlText){
 			addToJSON('"name": ".indexOf",\n');
 		}
 		
+		var child_no = 1;
 		var searchIn_value = getElement(block, ELEMENT_NODE, "value", 1);
 		addToJSON('"item": ');
-		createAllBlocks(searchIn_value)
+		if (searchIn_value === null || searchIn_value === undefined || searchIn_value.getAttribute("name") != "VALUE"){
+			addToJSON('{\n');
+			addToJSON('"type": "text_const",\n');
+			addToJSON('"value": ""\n');
+			addToJSON('}\n');
+		}else{
+			createAllBlocks(searchIn_value)
+			child_no++;
+		}
+		
 		addToJSON(',\n');
 		
-		var searchFor_value = getElement(block, ELEMENT_NODE, "value", 2)
+		var searchFor_value = getElement(block, ELEMENT_NODE, "value", child_no)
 		addToJSON('"arg": ');
 		createAllBlocks(searchFor_value);
 	}
@@ -881,19 +887,38 @@ function Generator(xmlText){
 		var where = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
 		addToJSON('"where": "' + where.toLowerCase() +'",\n');
 		
-
+		var child_no = 1;
 		addToJSON('"item": ');
 		var inttext_value =  getElement(block, ELEMENT_NODE, "value", 1);
-		createAllBlocks(inttext_value);
+		if (inttext_value === null || inttext_value === undefined || inttext_value.getAttribute("name") != "VALUE"){
+			addToJSON('{\n');
+			addToJSON('"type": "text_const",\n');
+			addToJSON('"value": ""\n');
+			addToJSON('}\n');
+		}else{
+			createAllBlocks(inttext_value);
+			child_no++;
+		}
 
-		var at_value =  getElement(block, ELEMENT_NODE, "value", 2);
-		if (at_value !== null){
-			addToJSON(',\n');
+		if (where == "RANDOM" || where == "FIRST" || where =="LAST") {
+			return;
+		}
+
+		addToJSON(',\n');
+
+		var at_value =  getElement(block, ELEMENT_NODE, "value", child_no);
+		if (at_value === null){
+			addToJSON('"at": {\n');
+				addToJSON('"type": "number",\n');
+				addToJSON('"value": 0\n');
+			addToJSON('}\n');
+		}else{
 			addToJSON('"at": ');
 			createAllBlocks(at_value);
 		}
 	}
 
+	
 	/*----------------------------------------------*/
 	function makeTextSubstring(block){
 		addToJSON('"type": "property_substr",\n');
@@ -904,19 +929,48 @@ function Generator(xmlText){
 		var where2 = block.getElementsByTagName("field")[1].childNodes[0].nodeValue;
 		addToJSON('"where2": "' + where2.toLowerCase() +'",\n');
 		
+		var child_no = 1;
 		addToJSON('"item": ');
 		var item_value =  getElement(block, ELEMENT_NODE, "value", 1);
-		createAllBlocks(item_value);
-		addToJSON(',\n');
+		if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "STRING"){ //no string to search in provided -> default is empty string
+			addToJSON('{\n');
+			addToJSON('"type": "text_const",\n');
+			addToJSON('"value": ""\n');
+			addToJSON('}\n');
+		}else{
+			createAllBlocks(item_value);
+			child_no++;
+		}
 
-		addToJSON('"arg1": ');
-		var arg1_value =  getElement(block, ELEMENT_NODE, "value", 2);
-		createAllBlocks(arg1_value);
-		addToJSON(',\n');
+		if (where1 != "FIRST"){ //first doesnt require an argument (its 0)
+			addToJSON(',\n');
+			addToJSON('"pos1": \n');
+			var pos1_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (pos1_value === null || pos1_value === undefined || pos1_value.getAttribute("name") != "AT1"){ //no item to search for -> default is 0
+				addToJSON('{\n');
+				addToJSON('"type": "number",\n');
+				addToJSON('"value": 0\n');
+				addToJSON('}\n');
+			}else{
+				createAllBlocks(pos1_value);
+				child_no++;
+			}
+		}
 
-		addToJSON('"arg2": ');
-		var arg2_value =  getElement(block, ELEMENT_NODE, "value", 3);
-		createAllBlocks(arg2_value);
+		if (where2 != "LAST"){ //first doesnt require an argument (its the last)
+			addToJSON(',\n');
+			addToJSON('"pos2": \n');
+			var pos2_value = getElement(block, ELEMENT_NODE, "value", child_no);
+			if (pos2_value === null || pos2_value === undefined || pos2_value.getAttribute("name") != "AT2"){ //no item to search for -> default is 0
+				addToJSON('{\n');
+				addToJSON('"type": "number",\n');
+				addToJSON('"value": 1\n');
+				addToJSON('}\n');
+			}else{
+				createAllBlocks(pos2_value);
+				child_no++;
+			}
+		}
 	}
 
 	/*----------------------------------------------*/
