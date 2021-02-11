@@ -122,11 +122,23 @@ function Generator(xmlText){
 		  case "logic_ternary":
 			makeLogicTemary(block);
 			break;
-		  case "variables_set":
-			makeVariableSet(block);
-			break;
 		  case "controls_repeat_ext":
 			makeRepeat(block);
+			break;
+		  case "controls_whileUntil":
+			makeWhile(block);
+			break;
+		  case "controls_for":
+			makeFor(block);
+			break;
+		  case "controls_forEach": //TODO
+			makeRepeat(block);
+			break;
+		  case "controls_flow_statements":
+			makeControlFlowStmt(block);
+			break;
+		  case "variables_set":
+			makeVariableSet(block);
 			break;
 		  case "variables_get":
 			makeVariableGet(block);
@@ -407,11 +419,12 @@ function Generator(xmlText){
 	 /*----------------------------------------------------*/
 	 function makeRepeat(block){
 	  addToJSON('"type": "repeat_stmt",\n');
-	  
+	  var mode_value = block.getElementsByTagName("field")[0].childNodes[0].nodeValue; //can not be empty
+	  addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
 
-	  var times_value = block.getElementsByTagName("value")[0];
-	  addToJSON('"times": ');
-	  createAllBlocks(times_value)
+	  var cond_value = block.getElementsByTagName("value")[0];
+	  addToJSON('"cond": ');
+	  createAllBlocks(cond_value)
 	  addToJSON(',\n');
 
 	  addToJSON('"do": {\n');
@@ -422,6 +435,67 @@ function Generator(xmlText){
 	  createAllBlocks(do_statement)
 	  addToJSON(']\n');
 	  addToJSON('}\n'); //do
+	}
+
+	/*----------------------------------------------------*/
+	function makeWhile(block){
+		addToJSON('"type": "while_stmt",\n');
+
+		var times_value = block.getElementsByTagName("value")[0];
+		addToJSON('"cond": ');
+		if (createAllBlocks(times_value) === null){
+			addToJSON('{\n');
+			addToJSON('"type": "bool_const",\n');
+			addToJSON('"value": false\n');
+			addToJSON('}');
+		}
+		addToJSON(',\n');
+
+		addToJSON('"do": {\n');
+		addToJSON('"type": "stmts",\n');
+		var do_statement = block.getElementsByTagName("statement")[0];
+		
+		addToJSON('"data": [\n');
+		createAllBlocks(do_statement)
+		addToJSON(']\n');
+		addToJSON('}\n'); //do
+	}
+
+	/*----------------------------------------------------*/
+	function makeFor(block){
+		addToJSON('"type": "for_stmt",\n');
+		var var_value = block.getElementsByTagName("field")[0].childNodes[0].nodeValue; //can not be empty
+		addToJSON('"var_name": "' + var_value + '",\n');
+
+		var from_value = getElement(block, ELEMENT_NODE, "value", 1)
+		addToJSON('"from": ');
+		createAllBlocks(from_value)
+		addToJSON(',\n');
+
+		var to_value = getElement(block, ELEMENT_NODE, "value", 2)
+		addToJSON('"to": ');
+		createAllBlocks(to_value)
+		addToJSON(',\n');
+
+		var by_value = getElement(block, ELEMENT_NODE, "value", 3)
+		addToJSON('"by": ');
+		createAllBlocks(by_value)
+		addToJSON(',\n');
+
+		addToJSON('"do": {\n');
+		addToJSON('"type": "stmts",\n');
+		var do_statement = block.getElementsByTagName("statement")[0];
+		addToJSON('"data": [\n');
+		createAllBlocks(do_statement)
+		addToJSON(']\n');
+		addToJSON('}\n'); //do
+	}
+
+	/*----------------------------------------------------*/
+	function makeControlFlowStmt(block){
+		addToJSON('"type": "keyword",\n');
+		var key_value = block.getElementsByTagName("field")[0].childNodes[0].nodeValue; //can not be empty
+		addToJSON('"value": "' + key_value.toLowerCase() + '"\n');
 	}
 
 	  /*----------------------------------------------*/
