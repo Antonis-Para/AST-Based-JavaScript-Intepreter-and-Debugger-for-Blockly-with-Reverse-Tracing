@@ -79,6 +79,7 @@ function Generator(xmlText){
 	
 	var elements = xmlDoc.childNodes[0];
 	addToJSON('"data": [\n');
+		createAllVariables(elements);
 		createAllBlocks(elements);
 	addToJSON(']\n');
 	
@@ -87,6 +88,23 @@ function Generator(xmlText){
 	return JSON;
 	//-----------------------------------------------//
 
+
+	function createAllVariables(blocks){
+		var variables = getElement(blocks, ELEMENT_NODE, "variables", 1);
+		if (variables === null) return;
+
+		var occ = 1;
+		var variable = getElement(variables, ELEMENT_NODE, "variable", occ++);
+		while (variable !== null){
+			if (variable.childNodes.length != 0){
+				addToJSON("{\n")
+				addToJSON('"type": "var_decl",\n');
+				addToJSON('"name": "' + variable.childNodes[0].nodeValue + '"\n');
+				addToJSON("},\n")
+			}
+			variable = getElement(variables, ELEMENT_NODE, "variable", occ++);
+		}
+	}
 
 	/*----------------------------------------------------*/
 	function createAllBlocks(blocks){
