@@ -149,7 +149,7 @@ function Generator(xmlText){
 		  case "controls_for":
 			makeFor(block);
 			break;
-		  case "controls_forEach": //TODO
+		  case "controls_forEach":
 			makeForEach(block);
 			break;
 		  case "controls_flow_statements":
@@ -257,6 +257,18 @@ function Generator(xmlText){
 		  case "lists_split":
 			makeListSplit(block);
 			break;
+		  case "colour_picker":
+			makeColourPicker(block);
+			break; 
+		  case "colour_random":
+			makeColourRandom(block);
+			break; 
+		  case "colour_rgb":
+			makeColourRGB(block);
+			break; 
+		  case "colour_blend":
+			makeColourBlend(block);
+			break; 
 		  case "variables_set":
 			makeVariableSet(block);
 			break;
@@ -1310,6 +1322,56 @@ function Generator(xmlText){
 		addToJSON('"delim": ');
 		var delim_value = getElement(block, ELEMENT_NODE, "value", child_no);
 		createAllBlocks(delim_value);
+	}
+
+	/*----------------------------------------------*/
+	function makeColourPicker(block){
+		addToJSON('"type": "colour_const",\n');
+		var colour = getElement(block, ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+		addToJSON('"value": "' + colour + '"\n');
+	}
+
+	/*----------------------------------------------*/
+	function makeColourRandom(block){
+		addToJSON('"type": "colour_random"\n');
+	}
+
+	/*----------------------------------------------*/
+	function makeColourRGB(block){
+		addToJSON('"type": "colour_rgb",\n');
+
+		var red_value = getElement(block, ELEMENT_NODE, "value", 1)
+		addToJSON('"red": ');
+		createAllBlocks(red_value)
+		addToJSON(',\n');
+
+		var green_value = getElement(block, ELEMENT_NODE, "value", 2)
+		addToJSON('"green": ');
+		createAllBlocks(green_value)
+		addToJSON(',\n');
+
+		var blue_value = getElement(block, ELEMENT_NODE, "value", 3)
+		addToJSON('"blue": ');
+		createAllBlocks(blue_value)
+	}
+
+	/*----------------------------------------------*/
+	function makeColourBlend(block){
+		addToJSON('"type": "colour_blend",\n');
+
+		var red_value = getElement(block, ELEMENT_NODE, "value", 1)
+		addToJSON('"colour1": ');
+		createAllBlocks(red_value)
+		addToJSON(',\n');
+
+		var green_value = getElement(block, ELEMENT_NODE, "value", 2)
+		addToJSON('"colour2": ');
+		createAllBlocks(green_value)
+		addToJSON(',\n');
+
+		var blue_value = getElement(block, ELEMENT_NODE, "value", 3)
+		addToJSON('"ratio": ');
+		createAllBlocks(blue_value)
 	}
 
 	 /*----------------------------------------------*/
