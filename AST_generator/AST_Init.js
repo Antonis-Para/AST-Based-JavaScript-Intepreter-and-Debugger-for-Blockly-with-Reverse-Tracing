@@ -109,9 +109,11 @@ function nextBlock(block) {
 	Will search for a spesific 'type' of tag, with a 'name' inside the 'blocks'.
 	If there are multiple children inside a tag that match these properties,
 	the child after 'child_no'. ELEMENT_NODE contains the id of the 'Element
+	It searches ONLY in the fist level of children
 	
 	Ex. <block>
 			<value name="A"> ... </value>
+				<value name="A.A"> ... </value>
 			<value name="B"> ... </value>
 			<value name="C"> ... </value>
 		</block>

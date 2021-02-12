@@ -2,9 +2,7 @@ var Blockly_gen = require('./AST_Init.js')
 
 AST_dispatch["controls_repeat_ext"] = function(block) {
     Blockly_gen.addToJSON('"type": "repeat_stmt",\n');
-    var mode_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue; //can not be empty
-    Blockly_gen.addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
-
+    
     var cond_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"cond": ');
     Blockly_gen.createAllBlocks(cond_value)
@@ -65,11 +63,11 @@ AST_dispatch["controls_for"] = function(block) {
     Blockly_gen.Blockly_gen.addToJSON(',\n');
 
     Blockly_gen.Blockly_gen.addToJSON('"do": {\n');
-    Blockly_gen.Blockly_gen.addToJSON('"type": "stmts",\n');
-    var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", 1);
-    Blockly_gen.Blockly_gen.addToJSON('"data": [\n');
-    Blockly_gen.createAllBlocks(do_statement)
-    Blockly_gen.Blockly_gen.addToJSON(']\n');
+		Blockly_gen.Blockly_gen.addToJSON('"type": "stmts",\n');
+		var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", 1);
+		Blockly_gen.Blockly_gen.addToJSON('"data": [\n');
+			Blockly_gen.createAllBlocks(do_statement)
+		Blockly_gen.Blockly_gen.addToJSON(']\n');
     Blockly_gen.Blockly_gen.addToJSON('}\n'); //do
 }
 
