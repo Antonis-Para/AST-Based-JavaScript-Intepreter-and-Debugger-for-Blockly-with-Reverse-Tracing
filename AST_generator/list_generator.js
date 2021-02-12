@@ -305,3 +305,28 @@ AST_dispatch["lists_split"] = function(block) {
     var delim_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
     Blockly_gen.createAllBlocks(delim_value);
 }
+
+/*----------------------------------------------*/
+AST_dispatch["lists_sort"] = function(block) {
+    Blockly_gen.addToJSON('"type": "lists_sort",\n');
+
+    var sort_type_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+    Blockly_gen.addToJSON('"sort_type": "' + sort_type_value.toLowerCase() + '",\n');
+	
+	var direction_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
+	if (direction_value == "-1"){
+		Blockly_gen.addToJSON('"direction": "descending",\n');
+	}else if(direction_value == "1"){
+		Blockly_gen.addToJSON('"direction": "ascending",\n');
+	}
+
+    Blockly_gen.addToJSON('"item": ');
+    var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
+    if (Blockly_gen.createAllBlocks(item_value) === null) { //no list provided-> default empty list
+		Blockly_gen.addToJSON('{\n');
+		Blockly_gen.addToJSON('"type": "list_create",\n');
+		Blockly_gen.addToJSON('"items": []\n');
+		Blockly_gen.addToJSON('}\n');
+        
+    }
+}
