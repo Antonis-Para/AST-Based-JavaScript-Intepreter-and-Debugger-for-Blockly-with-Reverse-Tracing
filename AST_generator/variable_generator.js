@@ -4,18 +4,17 @@ var Blockly_gen = require('./AST_Init.js')
 AST_dispatch["variables_set"] = function(block) {
     Blockly_gen.addToJSON('"type": "assign_expr",\n');
 
-    var lvalue = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).getAttribute('name');
-    var rvalue = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1).getAttribute('name');
-    var rvalue_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
+	var variable = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+	Blockly_gen.addToJSON('"lval": "' + variable + '",\n');
 
-    if (lvalue == "VAR") {
-        variable = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
-        Blockly_gen.addToJSON('"lval": "' + variable + '",\n');
-    }
-
-    if (rvalue == "VALUE") {
-        Blockly_gen.addToJSON('"rval": ');
-        Blockly_gen.createAllBlocks(rvalue_value)
+	
+	Blockly_gen.addToJSON('"rval": ');
+	var rvalue_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
+    if (Blockly_gen.createAllBlocks(rvalue_value) === null) { //no value to set it to -> default is 0
+		Blockly_gen.addToJSON('{\n');
+		Blockly_gen.addToJSON('"type": "number",\n');
+		Blockly_gen.addToJSON('"value": 0\n');
+		Blockly_gen.addToJSON('}\n');        
     }
 }
 

@@ -98,7 +98,7 @@ AST_dispatch["procedures_defreturn"] = function(block) {
 		Blockly_gen.addToJSON('"type": "stmts",\n');
 		Blockly_gen.addToJSON('"data": [\n');
 			var return_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
-			if (Blockly_gen.Blockly_gen.createAllBlocks(statements) !== null && return_value !== null) {
+			if (Blockly_gen.createAllBlocks(statements) !== null && return_value !== null) {
 				Blockly_gen.addToJSON(',\n')
 			}
 			if (return_value !== null) {
@@ -106,7 +106,7 @@ AST_dispatch["procedures_defreturn"] = function(block) {
 					Blockly_gen.addToJSON('"type": "keyword",\n');
 					Blockly_gen.addToJSON('"name": "return",\n');
 					Blockly_gen.addToJSON('"value": ');
-					Blockly_gen.Blockly_gen.createAllBlocks(return_value);
+					Blockly_gen.createAllBlocks(return_value);
 				Blockly_gen.addToJSON('}\n');
 			}
 		Blockly_gen.addToJSON(']\n');
@@ -143,7 +143,7 @@ AST_dispatch["procedures_callreturn"] = function(block) {
     var arg = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
     while (i < arg_len) {
         if (arg !== null && arg.getAttribute("name") == ("ARG" + i.toString())) { //first arg should be ARG0. If we skip an arg make it null
-            Blockly_gen.Blockly_gen.createAllBlocks(arg);
+            Blockly_gen.createAllBlocks(arg);
         } else {
             Blockly_gen.addToJSON('{\n');
             Blockly_gen.addToJSON('"type": "null_const",\n');
@@ -151,7 +151,7 @@ AST_dispatch["procedures_callreturn"] = function(block) {
             Blockly_gen.addToJSON('}\n');
             occ--;
         }
-        arg = Blockly_gen.Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
+        arg = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
         i++
         if (i != arg_len)
             Blockly_gen.addToJSON(',\n');

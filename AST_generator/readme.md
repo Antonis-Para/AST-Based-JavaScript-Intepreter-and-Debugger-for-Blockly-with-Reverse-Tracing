@@ -108,6 +108,10 @@
     + Has a `delim` : (string spesifying the delimeter)
 - list_create
     + Has an `items[]` : array of any types (items of the list)
+- lists_sort
+	+ Has a `sort_type` (numeric, text, igonre_case)
+	+ Has a `direction` (ascending, descending)
+	+ Has an `item` : list (the list to sort)
     
 ## Colours
 - colour_const
@@ -159,10 +163,3 @@
 - func_atan2
     + Has a `x` : any type leading to number
     + Has a `y` : any type leading to number
-
-    
-    
-
-    
-
-    

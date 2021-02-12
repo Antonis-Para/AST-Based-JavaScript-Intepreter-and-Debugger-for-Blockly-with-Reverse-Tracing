@@ -59,7 +59,14 @@ function createAllBlocks(blocks) {
         Blockly_gen.addToJSON("{\n")
 
         var type = block.getAttribute('type');
+		try {
         Blockly_gen.AST_dispatch[type](block); // Dispatch
+		}catch(e){
+			console.log("Error with type " + type)
+			console.log("-------------------------------")
+			console.log(e)
+			exit()
+		}
 
         Blockly_gen.addToJSON('}'); //data
         nextBlock(block);

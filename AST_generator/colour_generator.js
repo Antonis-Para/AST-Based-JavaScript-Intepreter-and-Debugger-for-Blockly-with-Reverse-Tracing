@@ -45,7 +45,7 @@ AST_dispatch["colour_blend"] = function(block) {
     Blockly_gen.createAllBlocks(green_value)
     Blockly_gen.addToJSON(',\n');
 
-    var blue_value = Blockly_gen.Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 3)
+    var blue_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 3)
     Blockly_gen.addToJSON('"ratio": ');
     Blockly_gen.createAllBlocks(blue_value)
 }
