@@ -4,7 +4,7 @@ Blockly_gen = require('./AST_Init.js')
 AST_dispatch["controls_if"] = function(block) {
     Blockly_gen.addToJSON('"type": "if_stmt",\n');
 
-    var if_value = block.getElementsByTagName("value")[0];
+    var if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"cond": ');
     if (Blockly_gen.createAllBlocks(if_value) === null) { //no condition in the if statement. Default is false
         Blockly_gen.addToJSON('{\n');
@@ -17,7 +17,7 @@ AST_dispatch["controls_if"] = function(block) {
     Blockly_gen.addToJSON('"do": {\n');
     Blockly_gen.addToJSON('"type": "stmts",\n');
 
-    var do_statement = block.getElementsByTagName("statement")[0];
+    var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", 1);
 
     Blockly_gen.addToJSON('"data": [\n');
     Blockly_gen.createAllBlocks(do_statement)
@@ -28,7 +28,7 @@ AST_dispatch["controls_if"] = function(block) {
 AST_dispatch["logic_compare"] = function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
 
-    var op = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+    var op = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"op": "' + op + '",\n');
 
     var child_no = 1;
@@ -58,7 +58,7 @@ AST_dispatch["logic_compare"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["logic_operation"] = function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
-    var op = block.getElementsByTagName("field")[0].childNodes[0].nodeValue;
+    var op = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"op": "' + op + '",\n');
 
     Blockly_gen.addToJSON('"lval": ');
@@ -99,7 +99,7 @@ AST_dispatch["logic_negate"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["logic_boolean"] = function(block) {
     Blockly_gen.addToJSON('"type": "bool_const",\n');
-    var field = block.getElementsByTagName("field")[0];
+    var field = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1);
     var field_name = field.getAttribute("name");
     if (field_name == "BOOL") {
         var val = field.childNodes[0].nodeValue;
