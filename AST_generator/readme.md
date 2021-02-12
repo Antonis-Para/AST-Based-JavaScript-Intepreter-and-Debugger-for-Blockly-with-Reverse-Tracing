@@ -38,7 +38,7 @@
     + Has a `value`
 - keyword
     + Has a `name` (i.e "return")
-    + +Might+ have a `value`. (i.e. return 1; has a value of 1)
+    + *Might* have a `value`. (i.e. return 1; has a value of 1)
      
 ## Expresions
 - logic_expr
@@ -89,19 +89,19 @@
     + Has a `mode` : (get, get and remove, remove)
     + Has a `where` : (from_start, from_end, first, last, random)
     + Has a `list` : list (Search is going to be conducted inside this list)
-    + +Might+ have a `pos` : any type leadint to number (this many positions from the 'where'. If where==first or last, pos is skipped)
+    + *Might* have a `pos` : any type leadint to number (this many positions from the 'where'. If where==first or last, pos is skipped)
 - list_set
     + Has a `mode` : (set, insert at)
     + Has a `where` : (from_start, from_end, first, last, random)
     + Has a `list` : list (the item will be set in this list)
-    + +Might+ have a `pos` : any type leading to number (this many positions from the 'where'. If where!=FROM_START or FROM_END, pos is skipped)
+    + *Might* have a `pos` : any type leading to number (this many positions from the 'where'. If where!=FROM_START or FROM_END, pos is skipped)
         + Has an `item` : any type leading to number (Will insert this item)
 - list_sublist
     + Has a `where1` : (from_start, from_end or first)
     + Has a `where2` : (from_start, from_end or last)
     + Has a `list` : list (the sublist will come from this list)
-    + +Might+ have a `pos1` : any type leading to number (this many positions from the 'where1'. If where1==first pos1 is skipped)
-    + +Might+ have a `pos2` : any type leading to number (this many positions from the 'where1'. If where2==last pos2 is skipped)
+    + *Might* have a `pos1` : any type leading to number (this many positions from the 'where1'. If where1==first pos1 is skipped)
+    + *Might* have a `pos2` : any type leading to number (this many positions from the 'where1'. If where2==last pos2 is skipped)
 - list_split
     + Has a `mode` : (split or join)
     + Has an `item` : text (the operation will be performed on that item)
@@ -131,13 +131,13 @@
 - property_charAt
     + Has a `where` : (from_start, from_end, first, last or random)
     + Has a `item` : text (search in this item)
-    + +Might+ have a `at` : number (this many positions from the 'where'. If where!=from_start or from_end, pos is skipped)
+    + *Might* have a `at` : number (this many positions from the 'where'. If where!=from_start or from_end, pos is skipped)
 - property_substr
     + Has a `where1` : (from_start, from_end or first)
     + Has a `where2` : (from_start, from_end or last)
     + Has a `item` : text (the substring will come from this itme)
-    + +Might+ have a `pos1` : number (this many positions from the 'where1'. If where1==first pos1 is skipped)
-    + +Might+ have a `pos2` : number (this many positions from the 'where1'. If where2==last pos2 is skipped)
+    + *Might* have a `pos1` : number (this many positions from the 'where1'. If where1==first pos1 is skipped)
+    + *Might* have a `pos2` : number (this many positions from the 'where1'. If where2==last pos2 is skipped)
 - property_changeCase
     + Has a `case` : (lowercase, uppercase, titlecase)
     + Has an `item` : text (the 'case' will be performed on this item)
