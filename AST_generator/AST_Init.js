@@ -22,6 +22,11 @@ const {
 } = require('process');
 
 
+
+/* --------------------------------------------------------------------------------
+	Will create all the variable declarations that are inside the <variables> tag.
+	Assumes that the tag is in the outer blocks
+-----------------------------------------------------------------------------------*/	
 function createAllVariables(blocks) {
     var variables = getElement(blocks, Blockly_gen.ELEMENT_NODE, "variables", 1);
     if (variables === null) return;
@@ -39,7 +44,10 @@ function createAllVariables(blocks) {
     }
 }
 
-/*----------------------------------------------------*/
+/* -----------------------------------------------------------------------------
+	Will create all the blocks recursively. Nested blocks will also be created.
+	Calls a dispatch table
+--------------------------------------------------------------------------------*/
 function createAllBlocks(blocks) {
     var name = blocksExist(blocks)
     if (name === null) //no blocks or shadow block exist
@@ -51,7 +59,7 @@ function createAllBlocks(blocks) {
         Blockly_gen.addToJSON("{\n")
 
         var type = block.getAttribute('type');
-        Blockly_gen.AST_dispatch[type](block); //
+        Blockly_gen.AST_dispatch[type](block); // Dispatch
 
         Blockly_gen.addToJSON('}'); //data
         nextBlock(block);
@@ -63,7 +71,9 @@ function createAllBlocks(blocks) {
 }
 
 
-/*----------------------------------------------------*/
+/* ------------------------------------------------------------------------------
+	Checks if a block or shadow block exists within the sub-block named 'blocks'
+---------------------------------------------------------------------------------*/
 function blocksExist(blocks) {
     var block = getElement(blocks, Blockly_gen.ELEMENT_NODE, "block", 1);
     var name = "block"
@@ -78,7 +88,11 @@ function blocksExist(blocks) {
     return name;
 }
 
-/*----------------------------------------------------*/
+/* ------------------------------------------------------------------------------
+	Blockly keeps the blocks connected to a previous block inside a <next> TAG.
+	This function will check if such a block exist and will create it.
+	Assums that there is at MOST one <next> tag in every block	
+---------------------------------------------------------------------------------*/
 function nextBlock(block) {
     var next = getElement(block, Blockly_gen.ELEMENT_NODE, "next");
 
@@ -91,8 +105,21 @@ function nextBlock(block) {
     createAllBlocks(next)
 }
 
-/*----------------------------------------------------*/
-function getElement(blocks, type, name, occurance = 1) {
+/* ------------------------------------------------------------------------------
+	Will search for a spesific 'type' of tag, with a 'name' inside the 'blocks'.
+	If there are multiple children inside a tag that match these properties,
+	the child after 'child_no'. ELEMENT_NODE contains the id of the 'Element
+	
+	Ex. <block>
+			<value name="A"> ... </value>
+			<value name="B"> ... </value>
+			<value name="C"> ... </value>
+		</block>
+		
+		value = getElement(blocks, ELEMENT_NODE, "value", 2)
+		value will have name == "B"
+---------------------------------------------------------------------------------*/
+function getElement(blocks, type, name, child_no = 1) {
     if (blocks === undefined || blocks === null)
         return null;
 
@@ -102,7 +129,7 @@ function getElement(blocks, type, name, occurance = 1) {
     for (var i = 0; i < elements.length; i++) {
         var block = elements[i];
         if (block.nodeType == type && block.nodeName == name) {
-            if (++occ == occurance)
+            if (++occ == child_no)
                 return block
         }
     }

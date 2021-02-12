@@ -11,12 +11,11 @@ AST_dispatch["controls_repeat_ext"] = function(block) {
     Blockly_gen.addToJSON(',\n');
 
     Blockly_gen.addToJSON('"do": {\n');
-    Blockly_gen.addToJSON('"type": "stmts",\n');
-    var do_statement = block.getElementsByTagName("statement")[0];
-
-    Blockly_gen.addToJSON('"data": [\n');
-    Blockly_gen.createAllBlocks(do_statement)
-    Blockly_gen.addToJSON(']\n');
+		Blockly_gen.addToJSON('"type": "stmts",\n');
+		var do_statement = block.getElementsByTagName("statement")[0];
+		Blockly_gen.addToJSON('"data": [\n');
+		Blockly_gen.createAllBlocks(do_statement)
+		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n'); //do
 }
 
