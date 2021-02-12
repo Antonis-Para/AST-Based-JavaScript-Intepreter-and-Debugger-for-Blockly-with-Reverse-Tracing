@@ -29,7 +29,7 @@
 - null_const
     + Has a `value` equal to `null` 
 - math_const
-    + Has a `value`
+    + Has a `value` : (pi, e, golden_ration, sqrt2, sqrt1_2, infinity)
 - text_const
     + Has a `value`
 - colour_const

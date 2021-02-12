@@ -56,7 +56,7 @@ AST_dispatch["math_trig"] = function(block) {
 AST_dispatch["math_constant"] = function(block) {
     var constant = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"type": "math_const",\n');
-    Blockly_gen.addToJSON('"value": "' + constant + '"\n');
+    Blockly_gen.addToJSON('"value": "' + constant.toLowerCase() + '"\n');
 }
 
 /*----------------------------------------------*/
