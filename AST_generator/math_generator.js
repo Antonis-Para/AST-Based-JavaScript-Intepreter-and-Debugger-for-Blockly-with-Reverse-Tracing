@@ -20,12 +20,12 @@ AST_dispatch["math_arithmetic"] = function(block) {
 
     var lval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
     Blockly_gen.addToJSON('"lval": ');
-    createAllBlocks(lval_value);
+    Blockly_gen.createAllBlocks(lval_value);
     Blockly_gen.addToJSON(',\n');
 
     var rval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2)
     Blockly_gen.addToJSON('"rval": ');
-    createAllBlocks(rval_value);
+    Blockly_gen.createAllBlocks(rval_value);
 }
 
 /*----------------------------------------------*/
@@ -36,7 +36,7 @@ AST_dispatch["math_single"] = function(block) {
     var root_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
 
     Blockly_gen.addToJSON('"arg": ');
-    createAllBlocks(root_value)
+    Blockly_gen.createAllBlocks(root_value)
 }
 
 /*----------------------------------------------*/
@@ -49,7 +49,7 @@ AST_dispatch["math_trig"] = function(block) {
     var trig_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
 
     Blockly_gen.addToJSON('"arg": ');
-    createAllBlocks(trig_value)
+    Blockly_gen.createAllBlocks(trig_value)
 }
 
 /*----------------------------------------------*/
@@ -68,7 +68,7 @@ AST_dispatch["math_number_property"] = function(block) {
 
     var num_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"value": ');
-    createAllBlocks(num_value)
+    Blockly_gen.createAllBlocks(num_value)
 }
 
 /*----------------------------------------------*/
@@ -87,7 +87,7 @@ AST_dispatch["math_round"] = function(block) {
     var round_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
 
     Blockly_gen.addToJSON('"arg": ');
-    createAllBlocks(round_value)
+    Blockly_gen.createAllBlocks(round_value)
 }
 
 /*----------------------------------------------*/
@@ -98,7 +98,7 @@ AST_dispatch["math_on_list"] = function(block) {
 
     var list_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"list": ')
-    if (createAllBlocks(list_value) === null) { //no list provided -> default is empty list
+    if (Blockly_gen.createAllBlocks(list_value) === null) { //no list provided -> default is empty list
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "list_create",\n');
         Blockly_gen.addToJSON('"items": []\n');
@@ -114,12 +114,12 @@ AST_dispatch["math_modulo"] = function(block) {
 
     Blockly_gen.addToJSON('"lval": ');
     var lval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
-    createAllBlocks(lval_value);
+    Blockly_gen.createAllBlocks(lval_value);
     Blockly_gen.addToJSON(',\n');
 
     Blockly_gen.addToJSON('"rval": ');
     var rval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2)
-    createAllBlocks(rval_value);
+    Blockly_gen.createAllBlocks(rval_value);
 }
 
 /*----------------------------------------------*/
@@ -129,17 +129,17 @@ AST_dispatch["math_constrain"] = function(block) {
 
     Blockly_gen.addToJSON('"value": ');
     var constraint_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
-    createAllBlocks(constraint_value)
+    Blockly_gen.createAllBlocks(constraint_value)
     Blockly_gen.addToJSON(',\n');
 
     Blockly_gen.addToJSON('"low": ');
     var low_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2)
-    createAllBlocks(low_value)
+    Blockly_gen.createAllBlocks(low_value)
     Blockly_gen.addToJSON(',\n');
 
     Blockly_gen.addToJSON('"high": ');
     var high_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 3)
-    createAllBlocks(high_value)
+    Blockly_gen.createAllBlocks(high_value)
 }
 
 /*----------------------------------------------*/
@@ -148,12 +148,12 @@ AST_dispatch["math_random_int"] = function(block) {
 
     Blockly_gen.addToJSON('"from": ');
     var random_from_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
-    createAllBlocks(random_from_value)
+    Blockly_gen.createAllBlocks(random_from_value)
     Blockly_gen.addToJSON(',\n');
 
     Blockly_gen.addToJSON('"to": ');
     var random_to_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2)
-    createAllBlocks(random_to_value)
+    Blockly_gen.createAllBlocks(random_to_value)
 }
 
 /*----------------------------------------------*/
@@ -168,10 +168,10 @@ AST_dispatch["math_atan2"] = function(block) {
 
     var x_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"x": ');
-    createAllBlocks(x_value)
+    Blockly_gen.createAllBlocks(x_value)
     Blockly_gen.addToJSON(',\n');
 
     var y_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2);
     Blockly_gen.addToJSON('"y": ');
-    createAllBlocks(y_value)
+    Blockly_gen.createAllBlocks(y_value)
 }

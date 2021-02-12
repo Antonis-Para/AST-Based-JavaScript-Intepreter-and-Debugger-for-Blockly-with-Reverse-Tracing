@@ -48,58 +48,58 @@ AST_dispatch["controls_for"] = function(block) {
     Blockly_gen.addToJSON('"var_name": "' + var_value + '",\n');
 
     var from_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
-    Blockly_gen.Blockly_gen.addToJSON('"from": ');
+    Blockly_gen.addToJSON('"from": ');
     Blockly_gen.createAllBlocks(from_value)
-    Blockly_gen.Blockly_gen.addToJSON(',\n');
+    Blockly_gen.addToJSON(',\n');
 
     var to_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2)
-    Blockly_gen.Blockly_gen.addToJSON('"to": ');
+    Blockly_gen.addToJSON('"to": ');
     Blockly_gen.createAllBlocks(to_value)
-    Blockly_gen.Blockly_gen.addToJSON(',\n');
+    Blockly_gen.addToJSON(',\n');
 
     var by_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 3)
-    Blockly_gen.Blockly_gen.addToJSON('"by": ');
+    Blockly_gen.addToJSON('"by": ');
     Blockly_gen.createAllBlocks(by_value)
-    Blockly_gen.Blockly_gen.addToJSON(',\n');
+    Blockly_gen.addToJSON(',\n');
 
-    Blockly_gen.Blockly_gen.addToJSON('"do": {\n');
-		Blockly_gen.Blockly_gen.addToJSON('"type": "stmts",\n');
+    Blockly_gen.addToJSON('"do": {\n');
+		Blockly_gen.addToJSON('"type": "stmts",\n');
 		var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", 1);
-		Blockly_gen.Blockly_gen.addToJSON('"data": [\n');
+		Blockly_gen.addToJSON('"data": [\n');
 			Blockly_gen.createAllBlocks(do_statement)
-		Blockly_gen.Blockly_gen.addToJSON(']\n');
-    Blockly_gen.Blockly_gen.addToJSON('}\n'); //do
+		Blockly_gen.addToJSON(']\n');
+    Blockly_gen.addToJSON('}\n'); //do
 }
 
 
 /*----------------------------------------------------*/
 AST_dispatch["controls_forEach"] = function(block) {
-    Blockly_gen.Blockly_gen.addToJSON('"type": "forEach_stmt",\n');
+    Blockly_gen.addToJSON('"type": "forEach_stmt",\n');
     var var_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue; //can not be empty
-    Blockly_gen.Blockly_gen.addToJSON('"var_name": "' + var_value + '",\n');
+    Blockly_gen.addToJSON('"var_name": "' + var_value + '",\n');
 
     var in_list_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
-    Blockly_gen.Blockly_gen.addToJSON('"in": ');
+    Blockly_gen.addToJSON('"in": ');
     if (Blockly_gen.createAllBlocks(in_list_value) === null) { //no list provided-> default empty list
-        Blockly_gen.Blockly_gen.addToJSON('{\n');
-        Blockly_gen.Blockly_gen.addToJSON('"type": "list_create",\n');
-        Blockly_gen.Blockly_gen.addToJSON('"items": []\n');
-        Blockly_gen.Blockly_gen.addToJSON('}\n');
+        Blockly_gen.addToJSON('{\n');
+        Blockly_gen.addToJSON('"type": "list_create",\n');
+        Blockly_gen.addToJSON('"items": []\n');
+        Blockly_gen.addToJSON('}\n');
     }
-    Blockly_gen.Blockly_gen.addToJSON(",\n");
+    Blockly_gen.addToJSON(",\n");
 
-    Blockly_gen.Blockly_gen.addToJSON('"do": {\n');
-		Blockly_gen.Blockly_gen.addToJSON('"type": "stmts",\n');
+    Blockly_gen.addToJSON('"do": {\n');
+		Blockly_gen.addToJSON('"type": "stmts",\n');
 		var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", 1);
-		Blockly_gen.Blockly_gen.addToJSON('"data": [\n');
+		Blockly_gen.addToJSON('"data": [\n');
 		Blockly_gen.createAllBlocks(do_statement)
-		Blockly_gen.Blockly_gen.addToJSON(']\n');
-	Blockly_gen.Blockly_gen.addToJSON('}\n'); //do
+		Blockly_gen.addToJSON(']\n');
+	Blockly_gen.addToJSON('}\n'); //do
 }
 
 /*----------------------------------------------------*/
 AST_dispatch["controls_flow_statements"] = function(block) {
-    Blockly_gen.Blockly_gen.addToJSON('"type": "keyword",\n');
+    Blockly_gen.addToJSON('"type": "keyword",\n');
     var key_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue; //can not be empty
-    Blockly_gen.Blockly_gen.addToJSON('"name": "' + key_value.toLowerCase() + '"\n');
+    Blockly_gen.addToJSON('"name": "' + key_value.toLowerCase() + '"\n');
 }
