@@ -5,10 +5,6 @@ function Generator(xmlText) {
     require('./javascript_compressed.js');
     require('./msg/messages.js');
     */
-
-    const { assert } = require('chai');
-    assert(typeof(JSON.parse) == "function", "JSON overwritten!");
-   
     var Blockly_gen = require('./AST_Init.js')
     require('./logic_generator.js');
     require('./loop_generator.js');
@@ -19,25 +15,22 @@ function Generator(xmlText) {
     require('./variable_generator.js');
     require('./function_generator.js');
 
-  assert(typeof(JSON.parse) == "function", "JSON overwritten!");
 
     //--------------------MAIN-----------------------//
-
-	  global.DOMParser = require('xmldom').DOMParser;
+	global.DOMParser = require('xmldom').DOMParser;
     parser = new DOMParser();
     var xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
     Blockly_gen.addToJSON("{\n");
 		Blockly_gen.addToJSON('"type": "stmts",\n');
-    Blockly_gen.addToJSON('"data": [\n');
-	
 		var elements = xmlDoc.childNodes[0];
-		Blockly_gen.createAllVariables(elements);
-		Blockly_gen.createAllBlocks(elements);
-		Blockly_gen.addToJSON(']\n}\n');
+		Blockly_gen.addToJSON('"data": [\n');
+			Blockly_gen.createAllVariables(elements);
+			Blockly_gen.createAllBlocks(elements);
+		Blockly_gen.addToJSON(']\n');
+    Blockly_gen.addToJSON('}\n');
 
     return Blockly_gen.getJSON();
-
     //-----------------------------------------------//
 }
 
