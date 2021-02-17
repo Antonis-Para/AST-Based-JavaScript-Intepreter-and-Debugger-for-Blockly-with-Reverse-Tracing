@@ -1,17 +1,18 @@
-JSON = ""
+
+var text = ""
 
 AST_dispatch = []
 
 function addToJSON(str) {
-    JSON += str;
+    text += str;
 }
 
-function getJSON(str) {
-    return JSON;
+function getJSON (str) {
+    return text;
 }
 
-function JSONremoveChars(amount) {
-    JSON = JSON.slice(0, -amount);
+function JSONremoveChars (amount) {
+    text = text.slice(0, -amount);
 }
 
 const ELEMENT_NODE = 1;
@@ -28,6 +29,7 @@ const {
 	Assumes that the tag is in the outer blocks
 -----------------------------------------------------------------------------------*/	
 function createAllVariables(blocks) {
+    
     var variables = getElement(blocks, Blockly_gen.ELEMENT_NODE, "variables", 1);
     if (variables === null) return;
 

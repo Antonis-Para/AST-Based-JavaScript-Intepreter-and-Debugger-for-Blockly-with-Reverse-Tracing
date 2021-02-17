@@ -401,6 +401,8 @@ var xmlText = `<xml xmlns="https://developers.google.com/blockly/xml">
   </block>
 </xml>`
 
+const { assert } = require('chai');
+assert(typeof(JSON.parse) == "function", "JSON overwritten!");
 
 var Blockly_genarator = require('./AST_generator.js')
 var ast = Blockly_genarator.Generator(xmlText)
