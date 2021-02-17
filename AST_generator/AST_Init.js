@@ -1,17 +1,17 @@
-JSON = ""
+text = ""
 
 AST_dispatch = []
 
 function addToJSON(str) {
-    JSON += str;
+    text += str;
 }
 
 function getJSON(str) {
-    return JSON;
+    return text;
 }
 
 function JSONremoveChars(amount) {
-    JSON = JSON.slice(0, -amount);
+    text = text.slice(0, -amount);
 }
 
 const ELEMENT_NODE = 1;

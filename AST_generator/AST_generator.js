@@ -17,7 +17,7 @@ function Generator(xmlText) {
 
 
     //--------------------MAIN-----------------------//
-	global.DOMParser = require('xmldom').DOMParser;
+	  global.DOMParser = require('xmldom').DOMParser;
     parser = new DOMParser();
     var xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
