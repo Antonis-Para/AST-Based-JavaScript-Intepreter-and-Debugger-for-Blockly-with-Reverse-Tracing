@@ -4,6 +4,7 @@ var Blockly_gen = require('./AST_Init.js')
 AST_dispatch["text_print"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_call",\n');
     Blockly_gen.addToJSON('"name": "window.alert",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var print_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
 
@@ -14,6 +15,7 @@ AST_dispatch["text_print"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text"] = function(block) {
     Blockly_gen.addToJSON('"type": "text_const",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     if (Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes.length == 0) { //DO THIS FOR EVERY AST_dispatch[""] = function
         Blockly_gen.addToJSON('"value": ""\n');
@@ -26,6 +28,7 @@ AST_dispatch["text"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text_join"] = function(block) {
     Blockly_gen.addToJSON('"type": "property_join",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     Blockly_gen.addToJSON('"items": [\n');
 
 
@@ -48,6 +51,7 @@ AST_dispatch["text_join"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text_append"] = function(block) {
     Blockly_gen.addToJSON('"type": "arithm_expr",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     Blockly_gen.addToJSON('"op": "PLUS_EQ",\n');
 
 
@@ -78,8 +82,9 @@ AST_dispatch["text_append"] = function(block) {
 AST_dispatch["text_length"] = function(block) {
     Blockly_gen.addToJSON('"type": "property",\n');
     Blockly_gen.addToJSON('"name": ".length",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+	
     Blockly_gen.addToJSON('"item": ');
-
     var len_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.createAllBlocks(len_value)
 }
@@ -88,6 +93,7 @@ AST_dispatch["text_length"] = function(block) {
 AST_dispatch["text_isEmpty"] = function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
     Blockly_gen.addToJSON('"op": "EQ",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"lval": ');
     var lval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
@@ -96,6 +102,7 @@ AST_dispatch["text_isEmpty"] = function(block) {
 
     Blockly_gen.addToJSON('"rval": {\n');
 		Blockly_gen.addToJSON('"type": "text_const",\n');
+		Blockly_gen.addToJSON('"id": null,\n');
 		Blockly_gen.addToJSON('"value": ""\n');
     Blockly_gen.addToJSON('}\n');
 }
@@ -103,6 +110,7 @@ AST_dispatch["text_isEmpty"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text_indexOf"] = function(block) {
     Blockly_gen.addToJSON('"type": "property",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var property = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     if (property == "LAST") {
@@ -117,6 +125,7 @@ AST_dispatch["text_indexOf"] = function(block) {
     if (searchIn_value === null || searchIn_value === undefined || searchIn_value.getAttribute("name") != "VALUE") {
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "text_const",\n');
+		Blockly_gen.addToJSON('"id": null,\n');
         Blockly_gen.addToJSON('"value": ""\n');
         Blockly_gen.addToJSON('}\n');
     } else {
@@ -134,6 +143,7 @@ AST_dispatch["text_indexOf"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text_charAt"] = function(block) {
     Blockly_gen.addToJSON('"type": "property_charAt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var where = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"where": "' + where.toLowerCase() + '",\n');
@@ -144,6 +154,7 @@ AST_dispatch["text_charAt"] = function(block) {
     if (inttext_value === null || inttext_value === undefined || inttext_value.getAttribute("name") != "VALUE") {
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "text_const",\n');
+		Blockly_gen.addToJSON('"id": null,\n');
         Blockly_gen.addToJSON('"value": ""\n');
         Blockly_gen.addToJSON('}\n');
     } else {
@@ -161,7 +172,8 @@ AST_dispatch["text_charAt"] = function(block) {
     if (at_value === null) {
         Blockly_gen.addToJSON('"at": {\n');
 			Blockly_gen.addToJSON('"type": "number",\n');
-			Blockly_gen.addToJSON('"value": 0\n');
+			Blockly_gen.addToJSON('"value": 0,\n');
+			Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     } else {
         Blockly_gen.addToJSON('"at": ');
@@ -173,6 +185,7 @@ AST_dispatch["text_charAt"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text_getSubstring"] = function(block) {
     Blockly_gen.addToJSON('"type": "property_substr",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var where1 = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"where1": "' + where1.toLowerCase() + '",\n');
@@ -186,7 +199,8 @@ AST_dispatch["text_getSubstring"] = function(block) {
     if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "STRING") { //no string to search in provided -> default is empty string
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "text_const",\n');
-        Blockly_gen.addToJSON('"value": ""\n');
+        Blockly_gen.addToJSON('"value": "",\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     } else {
         Blockly_gen.createAllBlocks(item_value);
@@ -200,7 +214,8 @@ AST_dispatch["text_getSubstring"] = function(block) {
         if (pos1_value === null || pos1_value === undefined || pos1_value.getAttribute("name") != "AT1") { //no item to search for -> default is 0
             Blockly_gen.addToJSON('{\n');
             Blockly_gen.addToJSON('"type": "number",\n');
-            Blockly_gen.addToJSON('"value": 0\n');
+            Blockly_gen.addToJSON('"value": 0,\n');
+			Blockly_gen.addToJSON('"id": null\n');
             Blockly_gen.addToJSON('}\n');
         } else {
             Blockly_gen.createAllBlocks(pos1_value);
@@ -215,7 +230,8 @@ AST_dispatch["text_getSubstring"] = function(block) {
         if (pos2_value === null || pos2_value === undefined || pos2_value.getAttribute("name") != "AT2") { //no item to search for -> default is 0
             Blockly_gen.addToJSON('{\n');
             Blockly_gen.addToJSON('"type": "number",\n');
-            Blockly_gen.addToJSON('"value": 1\n');
+            Blockly_gen.addToJSON('"value": 1,\n');
+			Blockly_gen.addToJSON('"id": null\n');
             Blockly_gen.addToJSON('}\n');
         } else {
             Blockly_gen.createAllBlocks(pos2_value);
@@ -227,6 +243,7 @@ AST_dispatch["text_getSubstring"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text_changeCase"] = function(block) {
     Blockly_gen.addToJSON('"type": "property_changeCase",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var case_type = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"case": "' + case_type.toLowerCase() + '",\n');
@@ -241,6 +258,7 @@ AST_dispatch["text_changeCase"] = function(block) {
 AST_dispatch["text_prompt_ext"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_call",\n');
     Blockly_gen.addToJSON('"name": "window.prompt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"arg": ');
     var arg_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
@@ -251,6 +269,7 @@ AST_dispatch["text_prompt_ext"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["text_trim"] = function(block) {
     Blockly_gen.addToJSON('"type": "property_trim",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     var side = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"side": "' + side.toLowerCase() + '",\n');
 

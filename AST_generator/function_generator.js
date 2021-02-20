@@ -3,6 +3,7 @@ var Blockly_gen = require('./AST_Init.js')
 /*----------------------------------------------*/
 AST_dispatch["procedures_defnoreturn"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_decl",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"args": [\n');
     var mutation = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1)
@@ -35,6 +36,7 @@ AST_dispatch["procedures_defnoreturn"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["procedures_ifreturn"] = function(block) {
     Blockly_gen.addToJSON('"type": "if_stmt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var child_no = 1;
     var if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
@@ -42,7 +44,8 @@ AST_dispatch["procedures_ifreturn"] = function(block) {
     if (if_value === null || if_value === undefined || if_value.getAttribute("name") != "CONDITION") { //no condition in the if statement. Default is false
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": false\n');
+        Blockly_gen.addToJSON('"value": false,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}');
     } else {
         Blockly_gen.createAllBlocks(if_value);
@@ -61,7 +64,8 @@ AST_dispatch["procedures_ifreturn"] = function(block) {
 			if (Blockly_gen.createAllBlocks(ret_value) === null) {
 				Blockly_gen.addToJSON('{\n');
 					Blockly_gen.addToJSON('"type": "null_const",\n');
-					Blockly_gen.addToJSON('"value": null\n');
+					Blockly_gen.addToJSON('"value": null,\n');
+					Blockly_gen.addToJSON('"id": null\n');
 				Blockly_gen.addToJSON('}\n');
 			}
 			Blockly_gen.addToJSON('}\n');
@@ -73,6 +77,7 @@ AST_dispatch["procedures_ifreturn"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["procedures_defreturn"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_decl",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"args": [\n');
     var mutation = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1)
@@ -116,6 +121,7 @@ AST_dispatch["procedures_defreturn"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["procedures_callnoreturn"] = function(block) {
     Blockly_gen.addToJSON('"type": "userfunc_call",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var funcname = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1).getAttribute("name");
     Blockly_gen.addToJSON('"name": "' + funcname + '",\n');
@@ -125,6 +131,7 @@ AST_dispatch["procedures_callnoreturn"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["procedures_callreturn"] = function(block) {
     Blockly_gen.addToJSON('"type": "userfunc_call",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var funcname = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1).getAttribute("name");
     Blockly_gen.addToJSON('"name": "' + funcname + '",\n');
@@ -147,7 +154,8 @@ AST_dispatch["procedures_callreturn"] = function(block) {
         } else {
             Blockly_gen.addToJSON('{\n');
             Blockly_gen.addToJSON('"type": "null_const",\n');
-            Blockly_gen.addToJSON('"value": null\n');
+            Blockly_gen.addToJSON('"value": null,\n');
+			Blockly_gen.addToJSON('"id": null\n');
             Blockly_gen.addToJSON('}\n');
             occ--;
         }
