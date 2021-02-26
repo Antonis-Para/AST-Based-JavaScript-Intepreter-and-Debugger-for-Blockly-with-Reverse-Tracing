@@ -55,6 +55,7 @@ function createAllVariables(blocks) {
         if (variable.childNodes.length != 0) {
             Blockly_gen.addToJSON("{\n")
             Blockly_gen.addToJSON('"type": "var_decl",\n');
+			Blockly_gen.addToJSON('"id": "' + variable.getAttribute("id") + '",\n');
             Blockly_gen.addToJSON('"name": "' + variable.childNodes[0].nodeValue + '"\n');
             Blockly_gen.addToJSON("},\n")
         }

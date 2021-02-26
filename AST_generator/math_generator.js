@@ -4,6 +4,7 @@ var Blockly_gen = require('./AST_Init.js')
 AST_dispatch["math_number"] = function(block) {
     var num_name = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).getAttribute('name');
     Blockly_gen.addToJSON('"type": "number",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     if (num_name == "NUM") {
         var num = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
@@ -14,6 +15,7 @@ AST_dispatch["math_number"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["math_arithmetic"] = function(block) {
     Blockly_gen.addToJSON('"type": "arithm_expr",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var operation = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"op": "' + operation + '",\n');
@@ -32,6 +34,7 @@ AST_dispatch["math_arithmetic"] = function(block) {
 AST_dispatch["math_single"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_call",\n');
     Blockly_gen.addToJSON('"name": "Math.sqrt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var root_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
 
@@ -42,6 +45,7 @@ AST_dispatch["math_single"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["math_trig"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_call",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var func = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"name": "Math.' + func.toLowerCase() + '",\n');
@@ -56,12 +60,14 @@ AST_dispatch["math_trig"] = function(block) {
 AST_dispatch["math_constant"] = function(block) {
     var constant = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"type": "math_const",\n');
-    Blockly_gen.addToJSON('"value": "' + constant.toLowerCase() + '"\n');
+    Blockly_gen.addToJSON('"value": "' + constant.toLowerCase() + '",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '"\n');
 }
 
 /*----------------------------------------------*/
 AST_dispatch["math_number_property"] = function(block) {
     Blockly_gen.addToJSON('"type": "math_property",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var property = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"property": "' + property + '",\n');
@@ -74,6 +80,7 @@ AST_dispatch["math_number_property"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["math_round"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_call",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var func = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     if (func == "ROUNDUP") {
@@ -93,6 +100,8 @@ AST_dispatch["math_round"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["math_on_list"] = function(block) {
     Blockly_gen.addToJSON('"type": "list_math_expr",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+	
     var op = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"op": "' + op.toLowerCase() + '",\n');
 
@@ -101,6 +110,7 @@ AST_dispatch["math_on_list"] = function(block) {
     if (Blockly_gen.createAllBlocks(list_value) === null) { //no list provided -> default is empty list
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "list_create",\n');
+		Blockly_gen.addToJSON('"id": null,\n');
         Blockly_gen.addToJSON('"items": []\n');
         Blockly_gen.addToJSON('}\n');
     }
@@ -109,8 +119,8 @@ AST_dispatch["math_on_list"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["math_modulo"] = function(block) {
     Blockly_gen.addToJSON('"type": "arithm_expr",\n');
-
     Blockly_gen.addToJSON('"op": "MOD",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"lval": ');
     var lval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
@@ -126,6 +136,7 @@ AST_dispatch["math_modulo"] = function(block) {
 AST_dispatch["math_constrain"] = function(block) {
     //will look like: Math.min(Math.max(num1, num2), num3)
     Blockly_gen.addToJSON('"type": "math_constraint",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"value": ');
     var constraint_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
@@ -145,6 +156,7 @@ AST_dispatch["math_constrain"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["math_random_int"] = function(block) {
     Blockly_gen.addToJSON('"type": "math_rand_int",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"from": ');
     var random_from_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
@@ -159,12 +171,14 @@ AST_dispatch["math_random_int"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["math_random_float"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_call",\n');
-    Blockly_gen.addToJSON('"name": "Math.random"\n');
+    Blockly_gen.addToJSON('"name": "Math.random",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '"\n');
 }
 
 /*----------------------------------------------*/
 AST_dispatch["math_atan2"] = function(block) {
     Blockly_gen.addToJSON('"type": "func_atan2",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var x_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"x": ');

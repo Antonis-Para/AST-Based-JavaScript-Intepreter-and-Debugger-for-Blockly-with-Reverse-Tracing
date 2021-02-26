@@ -3,18 +3,21 @@ var Blockly_gen = require('./AST_Init.js')
 /*----------------------------------------------*/
 AST_dispatch["colour_picker"] = function(block) {
     Blockly_gen.addToJSON('"type": "colour_const",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     var colour = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"value": "' + colour + '"\n');
 }
 
 /*----------------------------------------------*/
 AST_dispatch["colour_random"] = function(block) {
-    Blockly_gen.addToJSON('"type": "colour_random"\n');
+    Blockly_gen.addToJSON('"type": "colour_random",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '"\n');
 }
 
 /*----------------------------------------------*/
 AST_dispatch["colour_rgb"] = function(block) {
     Blockly_gen.addToJSON('"type": "colour_rgb",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var red_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
     Blockly_gen.addToJSON('"red": ');
@@ -34,6 +37,7 @@ AST_dispatch["colour_rgb"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["colour_blend"] = function(block) {
     Blockly_gen.addToJSON('"type": "colour_blend",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var red_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
     Blockly_gen.addToJSON('"colour1": ');

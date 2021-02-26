@@ -3,13 +3,15 @@ Blockly_gen = require('./AST_Init.js')
 /*----------------------------------------------------*/
 AST_dispatch["controls_if"] = function(block) {
     Blockly_gen.addToJSON('"type": "if_stmt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"cond": ');
     if (Blockly_gen.createAllBlocks(if_value) === null) { //no condition in the if statement. Default is false
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": false\n');
+        Blockly_gen.addToJSON('"value": false,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}');
     }
     Blockly_gen.addToJSON(',\n');
@@ -27,6 +29,7 @@ AST_dispatch["controls_if"] = function(block) {
 
 AST_dispatch["logic_compare"] = function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var op = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"op": "' + op + '",\n');
@@ -37,7 +40,8 @@ AST_dispatch["logic_compare"] = function(block) {
     if (lval_value === null || lval_value === undefined || lval_value.getAttribute("name") != "A") { //no value provided, default is 0
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "number",\n');
-        Blockly_gen.addToJSON('"value": 0\n');
+        Blockly_gen.addToJSON('"value": 0,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}');
     } else {
         Blockly_gen.createAllBlocks(lval_value);
@@ -50,7 +54,8 @@ AST_dispatch["logic_compare"] = function(block) {
     if (Blockly_gen.createAllBlocks(rval_value) === null) { //no value provided, default is 0
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "number",\n');
-        Blockly_gen.addToJSON('"value": 0\n');
+        Blockly_gen.addToJSON('"value": 0,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
 }
@@ -58,6 +63,8 @@ AST_dispatch["logic_compare"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["logic_operation"] = function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+	
     var op = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"op": "' + op + '",\n');
 
@@ -66,7 +73,8 @@ AST_dispatch["logic_operation"] = function(block) {
     if (Blockly_gen.createAllBlocks(lval_value) === null) { //no value provided, default is true
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": true\n');
+        Blockly_gen.addToJSON('"value": true,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}');
     }
     Blockly_gen.addToJSON(',\n');
@@ -76,7 +84,8 @@ AST_dispatch["logic_operation"] = function(block) {
     if (Blockly_gen.createAllBlocks(rval_value) === null) { //no value provided, default is true
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": true\n');
+        Blockly_gen.addToJSON('"value": true,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
 }
@@ -85,13 +94,15 @@ AST_dispatch["logic_operation"] = function(block) {
 AST_dispatch["logic_negate"] = function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
     Blockly_gen.addToJSON('"op": "NOT",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"val": ');
     var val_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     if (Blockly_gen.createAllBlocks(val_value) === null) { //no value provided, default is true
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": true\n');
+        Blockly_gen.addToJSON('"value": true,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
 }
@@ -99,6 +110,8 @@ AST_dispatch["logic_negate"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["logic_boolean"] = function(block) {
     Blockly_gen.addToJSON('"type": "bool_const",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+	
     var field = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1);
     var field_name = field.getAttribute("name");
     if (field_name == "BOOL") {
@@ -113,12 +126,14 @@ AST_dispatch["logic_boolean"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["logic_null"] = function(block) {
     Blockly_gen.addToJSON('"type": "null_const",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     Blockly_gen.addToJSON('"value": null\n');
 }
 
 /*----------------------------------------------*/
 AST_dispatch["logic_ternary"] = function(block) {
     Blockly_gen.addToJSON('"type": "tenary_expr",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var child_no = 1;
     var if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
@@ -126,7 +141,8 @@ AST_dispatch["logic_ternary"] = function(block) {
     if (if_value === null || if_value === undefined || if_value.getAttribute("name") != "IF") { //no condition in the if statement. Default is false
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": false\n');
+        Blockly_gen.addToJSON('"value": false,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}');
     } else {
         Blockly_gen.createAllBlocks(if_value)
@@ -139,7 +155,8 @@ AST_dispatch["logic_ternary"] = function(block) {
     if (then_value === null || then_value === undefined || then_value.getAttribute("name") != "THEN") {
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "null_const",\n');
-        Blockly_gen.addToJSON('"value": null\n');
+        Blockly_gen.addToJSON('"value": null,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}');
     } else {
         child_no++;
@@ -152,7 +169,8 @@ AST_dispatch["logic_ternary"] = function(block) {
     if (Blockly_gen.createAllBlocks(else_value) === null) {
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "null_const",\n');
-        Blockly_gen.addToJSON('"value": null\n');
+        Blockly_gen.addToJSON('"value": null,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
 }

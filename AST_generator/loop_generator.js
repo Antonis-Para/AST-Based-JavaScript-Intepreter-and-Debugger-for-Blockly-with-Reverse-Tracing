@@ -2,6 +2,7 @@ var Blockly_gen = require('./AST_Init.js')
 
 AST_dispatch["controls_repeat_ext"] = function(block) {
     Blockly_gen.addToJSON('"type": "repeat_stmt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     
     var cond_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"cond": ');
@@ -20,13 +21,15 @@ AST_dispatch["controls_repeat_ext"] = function(block) {
 /*----------------------------------------------------*/
 AST_dispatch["controls_whileUntil"] = function(block) {
     Blockly_gen.addToJSON('"type": "while_stmt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var times_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.addToJSON('"cond": ');
-    if (Blockly_gen.createAllBlocks(times_value) === null) {
+    if (Blockly_gen.createAllBlocks(times_value) === null) { //no value provided -> default false
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": false\n');
+        Blockly_gen.addToJSON('"value": false,\n');
+		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}');
     }
     Blockly_gen.addToJSON(',\n');
@@ -44,6 +47,8 @@ AST_dispatch["controls_whileUntil"] = function(block) {
 /*----------------------------------------------------*/
 AST_dispatch["controls_for"] = function(block) {
     Blockly_gen.addToJSON('"type": "for_stmt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+	
     var var_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue; //can not be empty
     Blockly_gen.addToJSON('"var_name": "' + var_value + '",\n');
 
@@ -75,6 +80,8 @@ AST_dispatch["controls_for"] = function(block) {
 /*----------------------------------------------------*/
 AST_dispatch["controls_forEach"] = function(block) {
     Blockly_gen.addToJSON('"type": "forEach_stmt",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+	
     var var_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue; //can not be empty
     Blockly_gen.addToJSON('"var_name": "' + var_value + '",\n');
 
@@ -83,6 +90,7 @@ AST_dispatch["controls_forEach"] = function(block) {
     if (Blockly_gen.createAllBlocks(in_list_value) === null) { //no list provided-> default empty list
         Blockly_gen.addToJSON('{\n');
         Blockly_gen.addToJSON('"type": "list_create",\n');
+		Blockly_gen.addToJSON('"id": null,\n');
         Blockly_gen.addToJSON('"items": []\n');
         Blockly_gen.addToJSON('}\n');
     }
@@ -101,5 +109,6 @@ AST_dispatch["controls_forEach"] = function(block) {
 AST_dispatch["controls_flow_statements"] = function(block) {
     Blockly_gen.addToJSON('"type": "keyword",\n');
     var key_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue; //can not be empty
-    Blockly_gen.addToJSON('"name": "' + key_value.toLowerCase() + '"\n');
+    Blockly_gen.addToJSON('"name": "' + key_value.toLowerCase() + '",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '"\n');
 }
