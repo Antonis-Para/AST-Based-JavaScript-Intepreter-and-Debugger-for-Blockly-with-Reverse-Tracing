@@ -1,3 +1,4 @@
+require('chai').assert(typeof(text) == 'undefined');    // make sure no conflict with aglobal var
 text = ""
 
 AST_dispatch = []
@@ -12,6 +13,23 @@ function getJSON(str) {
 
 function JSONremoveChars(amount) {
     text = text.slice(0, -amount);
+}
+
+// This is just one way  you make it a singleton;
+// then invoke as GetJsonText().<method>(<args>)
+
+function GetJsonText () {
+
+    if (typeof GetJsonText.self == 'undefined') {    // guarantee one initialisation
+        GetJsonText.text    = "";
+        var self            = {}
+        self.add            = (s)   => GetJsonText.text += s
+        self.get            = ()    => GetJsonText.text
+        self.remove_chars   = (n)   => GetJsonText.text = GetJsonText.text.slice(0, -n)
+        GetJsonText.self    = self
+    }
+
+    return GetJsonText.self;
 }
 
 const ELEMENT_NODE = 1;

@@ -25,12 +25,13 @@ function Generator(xmlText) {
 		Blockly_gen.addToJSON('"type": "stmts",\n');
 		var elements = xmlDoc.childNodes[0];
 		Blockly_gen.addToJSON('"data": [\n');
-			Blockly_gen.createAllVariables(elements);
-			Blockly_gen.createAllBlocks(elements);
+		Blockly_gen.createAllVariables(elements);
+		Blockly_gen.createAllBlocks(elements);
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n');
 
     return Blockly_gen.getJSON();
+    
     //-----------------------------------------------//
 }
 
