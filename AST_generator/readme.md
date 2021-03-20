@@ -85,20 +85,12 @@ then the id will be *null*
     + Has a `name` : (string with the function's name i.e. "NewFunction")
         
 ## Lists
-- list_create_repeat
-    + Has an `item` : any type (This item will be placed in the list)
-    + Has a `repeat` : number (How many times the item will be created)
-- list_get
-    + Has a `mode` : (get, get and remove, remove)
-    + Has a `where` : (from_start, from_end, first, last, random)
-    + Has a `list` : list (Search is going to be conducted inside this list)
-    + *Might* have a `pos` : any type leadint to number (this many positions from the 'where'. If where==first or last, pos is skipped)
 - list_set
     + Has a `mode` : (set, insert at)
     + Has a `where` : (from_start, from_end, first, last, random)
     + Has a `list` : list (the item will be set in this list)
     + *Might* have a `pos` : any type leading to number (this many positions from the 'where'. If where!=FROM_START or FROM_END, pos is skipped)
-        + Has an `item` : any type leading to number (Will insert this item)
+    + Has an `item` : any type leading to number (Will insert this item)
 - list_sublist
     + Has a `where1` : (from_start, from_end or first)
     + Has a `where2` : (from_start, from_end or last)

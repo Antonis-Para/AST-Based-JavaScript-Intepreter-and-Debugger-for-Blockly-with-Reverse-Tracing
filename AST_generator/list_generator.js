@@ -24,10 +24,11 @@ AST_dispatch["lists_create_with"] = function(block) {
 
 /*----------------------------------------------*/
 AST_dispatch["lists_repeat"] = function(block) {
-    Blockly_gen.addToJSON('"type": "list_create_repeat",\n');
+    Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+    Blockly_gen.addToJSON('"name": "lists_repeat",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
-    Blockly_gen.addToJSON('"item": ');
+    Blockly_gen.addToJSON('"args": [');
     var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     if (item_value.getAttribute("name") == "NUM") { //no item provided as first value-> default is null
         Blockly_gen.addToJSON('{\n')
@@ -40,12 +41,13 @@ AST_dispatch["lists_repeat"] = function(block) {
     }
     Blockly_gen.addToJSON(',\n')
 
-    Blockly_gen.addToJSON('"repeat": ');
+    //Blockly_gen.addToJSON('"repeat": ');
     var repeat_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2);
     if (repeat_value === null) { //no first value provided -> second value gets shifted to first
         repeat_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     }
     Blockly_gen.createAllBlocks(repeat_value);
+    Blockly_gen.addToJSON(']');
 }
 
 /*----------------------------------------------*/
@@ -142,43 +144,291 @@ AST_dispatch["lists_indexOf"] = function(block) {
 
 /*----------------------------------------------*/
 AST_dispatch["lists_getIndex"] = function(block) {
-    Blockly_gen.addToJSON('"type": "list_get",\n');
-	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
-
-    var mode_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
-
-    var where_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"where": "' + where_value.toLowerCase() + '",\n');
-
-    Blockly_gen.addToJSON('"list": \n');
+    var mode_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue.toLowerCase();
+    var where_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue.toLowerCase();
     var child_no = 1;
     var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
-    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
-        Blockly_gen.addToJSON('{\n');
-        Blockly_gen.addToJSON('"type": "list_create",\n');
-		Blockly_gen.addToJSON('"id": null,\n');
-        Blockly_gen.addToJSON('"items": []\n');
-        Blockly_gen.addToJSON('}\n');
-    } else {
-        Blockly_gen.createAllBlocks(item_value);
-        child_no++;
+
+    if(where_value == "random"){
+        Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+        Blockly_gen.addToJSON('"name": "list_random",\n');
+        Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+            Blockly_gen.addToJSON('"args": [\n');
+                if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                    Blockly_gen.addToJSON('{\n');
+                    Blockly_gen.addToJSON('"type": "list_create",\n');
+                    Blockly_gen.addToJSON('"id": null,\n');
+                    Blockly_gen.addToJSON('"items": []\n');
+                    Blockly_gen.addToJSON('}\n');
+                } else {
+                    Blockly_gen.createAllBlocks(item_value);
+                    child_no++;
+                }
+                Blockly_gen.addToJSON(',\n');
+                if (mode_value == "get") {
+                    Blockly_gen.addToJSON('{\n');
+                    Blockly_gen.addToJSON('"type": "bool_const",\n');
+                    Blockly_gen.addToJSON('"value": false,\n');
+                    Blockly_gen.addToJSON('"id": null\n');
+                    Blockly_gen.addToJSON('}');
+                }else{
+                    Blockly_gen.addToJSON('{\n');
+                    Blockly_gen.addToJSON('"type": "bool_const",\n');
+                    Blockly_gen.addToJSON('"value": true,\n');
+                    Blockly_gen.addToJSON('"id": null\n');
+                    Blockly_gen.addToJSON('}');
+                }
+            Blockly_gen.addToJSON(']\n');
+            return;
     }
 
-    if (where_value == "FROM_START" || where_value == "FROM_END") {
-        Blockly_gen.addToJSON(',\n');
+    switch(mode_value){
+        case "get":
+            if (where_value == 'from_start' || where_value == 'first'){
+                Blockly_gen.addToJSON('"list": \n');
+                if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                    Blockly_gen.addToJSON('{\n');
+                    Blockly_gen.addToJSON('"type": "list_create",\n');
+                    Blockly_gen.addToJSON('"id": null,\n');
+                    Blockly_gen.addToJSON('"items": []\n');
+                    Blockly_gen.addToJSON('}\n');
+                } else {
+                    Blockly_gen.createAllBlocks(item_value);
+                    child_no++;
+                }
 
-        Blockly_gen.addToJSON('"pos": \n');
-        var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
-        if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 0
-            Blockly_gen.addToJSON('{\n');
-            Blockly_gen.addToJSON('"type": "number",\n');
-            Blockly_gen.addToJSON('"value": 0,\n');
-			Blockly_gen.addToJSON('"id": null\n');
-            Blockly_gen.addToJSON('}\n');
-        }
+                Blockly_gen.addToJSON(',\n');
+                Blockly_gen.addToJSON('"type": "list_index",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+                
+                Blockly_gen.addToJSON('"index": \n');
+                var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
+                if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 0
+                    Blockly_gen.addToJSON('{\n');
+                    Blockly_gen.addToJSON('"type": "number",\n');
+                    Blockly_gen.addToJSON('"value": 0,\n');
+                    Blockly_gen.addToJSON('"id": null\n');
+                    Blockly_gen.addToJSON('}\n');
+                }
+            }else if (where_value == 'from_end' || where_value == 'last'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_getIndex_fromEnd",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                    Blockly_gen.addToJSON(',\n');
+                    var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
+                    if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 1
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "number",\n');
+                        Blockly_gen.addToJSON('"value": 1,\n');
+                        Blockly_gen.addToJSON('"id": null\n');
+                        Blockly_gen.addToJSON('}\n');
+                    }
+                Blockly_gen.addToJSON(']\n');
+
+            }
+            break;
+        case "get_remove":
+            if (where_value == 'from_start'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_fromStart",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                    Blockly_gen.addToJSON(',\n');
+                    var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
+                    if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 0 (1-1=0 because 0based)
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "number",\n');
+                        Blockly_gen.addToJSON('"value": 1,\n');
+                        Blockly_gen.addToJSON('"id": null\n');
+                        Blockly_gen.addToJSON('}\n');
+                    }
+                Blockly_gen.addToJSON(']\n');
+
+            }
+            else if (where_value == 'first'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_first",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                Blockly_gen.addToJSON(']\n');
+
+            }
+            else if (where_value == 'from_end'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_fromEnd",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                    Blockly_gen.addToJSON(',\n');
+                    var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
+                    if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 1
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "number",\n');
+                        Blockly_gen.addToJSON('"value": 1,\n');
+                        Blockly_gen.addToJSON('"id": null\n');
+                        Blockly_gen.addToJSON('}\n');
+                    }
+                Blockly_gen.addToJSON(']\n');
+            }
+            else if (where_value == 'last'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_last",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                Blockly_gen.addToJSON(']\n');
+            }
+            break;
+        case "remove":
+            if (where_value == 'from_start'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_fromStart",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                    Blockly_gen.addToJSON(',\n');
+                    var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
+                    if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 0
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "number",\n');
+                        Blockly_gen.addToJSON('"value": 0,\n');
+                        Blockly_gen.addToJSON('"id": null\n');
+                        Blockly_gen.addToJSON('}\n');
+                    }
+                Blockly_gen.addToJSON(']\n');
+            }
+            else if (where_value == 'first'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_first",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                Blockly_gen.addToJSON(']\n');
+
+            }
+            else if (where_value == 'from_end'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_fromEnd",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                    Blockly_gen.addToJSON(',\n');
+                    var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
+                    if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 1
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "number",\n');
+                        Blockly_gen.addToJSON('"value": 1,\n');
+                        Blockly_gen.addToJSON('"id": null\n');
+                        Blockly_gen.addToJSON('}\n');
+                    }
+                Blockly_gen.addToJSON(']\n');
+            }
+            else if (where_value == 'last'){
+                Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+                Blockly_gen.addToJSON('"name": "list_popIndex_last",\n');
+                Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+
+                Blockly_gen.addToJSON('"args": [\n');
+                    if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "VALUE") { //no list to search in provided -> default is empty list
+                        Blockly_gen.addToJSON('{\n');
+                        Blockly_gen.addToJSON('"type": "list_create",\n');
+                        Blockly_gen.addToJSON('"id": null,\n');
+                        Blockly_gen.addToJSON('"items": []\n');
+                        Blockly_gen.addToJSON('}\n');
+                    } else {
+                        Blockly_gen.createAllBlocks(item_value);
+                        child_no++;
+                    }
+                Blockly_gen.addToJSON(']\n');
+            }
+            break;
+
     }
-
 }
 
 

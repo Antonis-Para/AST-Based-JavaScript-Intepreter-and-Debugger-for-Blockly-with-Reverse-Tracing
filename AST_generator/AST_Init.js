@@ -22,6 +22,67 @@ const {
 } = require('process');
 
 
+var LibraryFuncs = {
+    "lists_repeat" : function (args) {
+
+        function listsRepeat(value, n) {
+            var array = [];
+            for (var i = 0; i < n; i++) {
+              array[i] = value;
+            }
+            return array;
+        }      
+
+        var list_arg = args[0];  
+        var list_val = args[1];
+
+        return listsRepeat(list_arg, list_val);
+    },
+    "list_random" : function (args) {
+
+        function listsGetRandomItem(list, remove) {
+            var x = Math.floor(Math.random() * list.length);
+            if (remove) {
+              return list.splice(x, 1)[0];
+            } else {
+              return list[x];
+            }
+        }    
+
+        var list_arg = args[0];  
+        var remove = args[1];
+
+        return listsGetRandomItem(list_arg, remove);
+    },
+    "list_getIndex_fromEnd" : function (args) {
+        var list_arg = args[0];  
+        var pos = -1 * args[1];
+
+        return list_arg.slice(pos)[0];
+    },
+    "list_popIndex_fromStart" : function (args) {
+        var list_arg = args[0];  
+        var pos = args[1] - 1;
+
+        return list_arg.splice(pos, 1)[0];
+    },
+    "list_popIndex_first" : function (args) {
+        var list_arg = args[0];  
+
+        return list_arg.shift();
+    },
+    "list_popIndex_fromEnd" : function (args) {
+        var list_arg = args[0];  
+        var pos = -1 * args[1];
+
+        return list_arg.splice(pos, 1)[0];
+    },
+    "list_popIndex_last" : function (args) {
+        var list_arg = args[0];  
+
+        return list_arg.pop();
+    }
+}
 
 /* --------------------------------------------------------------------------------
 	Will create all the variable declarations that are inside the <variables> tag.
