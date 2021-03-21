@@ -83,6 +83,9 @@ then the id will be *null*
 - userfunc_call
     + Has `args[]` : array of any types (the arguments passed)
     + Has a `name` : (string with the function's name i.e. "NewFunction")
+- libfunc_call
+    + Has `args[]` : array of any types (the arguments passed)
+    + Has a `name` : (string with the function's name i.e. "NewFunction")
         
 ## Lists
 - list_set

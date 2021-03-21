@@ -142,10 +142,29 @@ AST_dispatch["text_indexOf"] = function(block) {
 
 /*----------------------------------------------*/
 AST_dispatch["text_charAt"] = function(block) {
+    
+    var where = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+    
+    if (where == "RANDOM"){
+        Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+        Blockly_gen.addToJSON('"name": "textRandomLetter",\n');
+        Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+        Blockly_gen.addToJSON('"args": [\n');
+            var inttext_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
+            if (inttext_value === null || inttext_value === undefined || inttext_value.getAttribute("name") != "VALUE") {
+                Blockly_gen.addToJSON('{\n');
+                Blockly_gen.addToJSON('"type": "text_const",\n');
+                Blockly_gen.addToJSON('"id": null,\n');
+                Blockly_gen.addToJSON('"value": ""\n');
+                Blockly_gen.addToJSON('}\n');
+            } else {
+                Blockly_gen.createAllBlocks(inttext_value);
+            }
+        Blockly_gen.addToJSON(']\n');
+        return;
+    }
     Blockly_gen.addToJSON('"type": "property_charAt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
-
-    var where = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     Blockly_gen.addToJSON('"where": "' + where.toLowerCase() + '",\n');
 
     var child_no = 1;
@@ -162,7 +181,7 @@ AST_dispatch["text_charAt"] = function(block) {
         child_no++;
     }
 
-    if (where == "RANDOM" || where == "FIRST" || where == "LAST") {
+    if (where == "FIRST" || where == "LAST") {
         return;
     }
 
@@ -242,10 +261,22 @@ AST_dispatch["text_getSubstring"] = function(block) {
 
 /*----------------------------------------------*/
 AST_dispatch["text_changeCase"] = function(block) {
-    Blockly_gen.addToJSON('"type": "property_changeCase",\n');
-	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+    
 
     var case_type = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+    if (case_type == "TITLECASE"){
+        Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+        Blockly_gen.addToJSON('"name": "textToTitleCase",\n');
+        Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
+        Blockly_gen.addToJSON('"args": [\n');
+            var case_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
+            Blockly_gen.createAllBlocks(case_value);
+        Blockly_gen.addToJSON(']\n');
+        return;
+    }
+
+    Blockly_gen.addToJSON('"type": "property_changeCase",\n');
+	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     Blockly_gen.addToJSON('"case": "' + case_type.toLowerCase() + '",\n');
 
 

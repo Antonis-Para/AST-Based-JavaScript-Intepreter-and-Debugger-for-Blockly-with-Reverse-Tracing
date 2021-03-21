@@ -54,6 +54,24 @@ var LibraryFuncs = {
 
         return listsGetRandomItem(list_arg, remove);
     },
+    "textToTitleCase" : function (args) {
+        function textToTitleCase(str) {
+            return str.replace(/\S+/g,
+                function(txt) {return txt[0].toUpperCase() + txt.substring(1).toLowerCase();});
+        }
+
+        var str = args[0];
+        return textToTitleCase(str);
+    },
+    "textRandomLetter" : function (args) {
+        function textRandomLetter(text) {
+            var x = Math.floor(Math.random() * text.length);
+            return text[x];
+          }
+
+        var str = args[0];
+        return textRandomLetter(str);
+    },
     "list_getIndex_fromEnd" : function (args) {
         var list_arg = args[0];  
         var pos = -1 * args[1];
