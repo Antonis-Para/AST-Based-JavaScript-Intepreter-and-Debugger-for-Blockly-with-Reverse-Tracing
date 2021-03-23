@@ -43,6 +43,20 @@ var LibraryFuncs = {
             var remove = args[1];
     
             return listsGetRandomItem(list_arg, remove);
+        },
+        "repeat" : function (args) {
+            function listsRepeat(value, n) {
+                var array = [];
+                for (var i = 0; i < n; i++) {
+                  array[i] = value;
+                }
+                return array;
+            }      
+    
+            var list_arg = args[0];  
+            var list_val = args[1];
+    
+            return listsRepeat(list_arg, list_val);
         }
     },
 
@@ -50,21 +64,6 @@ var LibraryFuncs = {
         var methodName = args[0];
         var methodArgs = args.slice(1);
         return this.list_methods[methodName](methodArgs);
-    },
-
-    "lists_repeat" : function (args) {
-        function listsRepeat(value, n) {
-            var array = [];
-            for (var i = 0; i < n; i++) {
-              array[i] = value;
-            }
-            return array;
-        }      
-
-        var list_arg = args[0];  
-        var list_val = args[1];
-
-        return listsRepeat(list_arg, list_val);
     },
 
 
