@@ -23,8 +23,36 @@ const {
 
 
 var LibraryFuncs = {
-    "lists_repeat" : function (args) {
+    "list_methods":{
+        "getIndex_fromEnd"      : (args) => args[0].slice(-args[1])[0] ,
+        "popIndex_fromStart"    : (args) => args[0].splice(args[1]-1, 1)[0],
+        "popIndex_first"        : (args) => args[0].shift(),
+        "popIndex_fromEnd"      : (args) => args[0].splice(-args[1], 1)[0],
+        "popIndex_last"         : (args) => args[0].pop(),
+        "random" : function (args) {
+            function listsGetRandomItem(list, remove) {
+                var x = Math.floor(Math.random() * list.length);
+                if (remove) {
+                  return list.splice(x, 1)[0];
+                } else {
+                  return list[x];
+                }
+            }    
+    
+            var list_arg = args[0];  
+            var remove = args[1];
+    
+            return listsGetRandomItem(list_arg, remove);
+        }
+    },
 
+    "list_invoke": function (args){
+        var methodName = args[0];
+        var methodArgs = args.slice(1);
+        return this.list_methods[methodName](methodArgs);
+    },
+
+    "lists_repeat" : function (args) {
         function listsRepeat(value, n) {
             var array = [];
             for (var i = 0; i < n; i++) {
@@ -38,22 +66,8 @@ var LibraryFuncs = {
 
         return listsRepeat(list_arg, list_val);
     },
-    "list_random" : function (args) {
 
-        function listsGetRandomItem(list, remove) {
-            var x = Math.floor(Math.random() * list.length);
-            if (remove) {
-              return list.splice(x, 1)[0];
-            } else {
-              return list[x];
-            }
-        }    
 
-        var list_arg = args[0];  
-        var remove = args[1];
-
-        return listsGetRandomItem(list_arg, remove);
-    },
     "textToTitleCase" : function (args) {
         function textToTitleCase(str) {
             return str.replace(/\S+/g,
@@ -63,6 +77,7 @@ var LibraryFuncs = {
         var str = args[0];
         return textToTitleCase(str);
     },
+
     "textRandomLetter" : function (args) {
         function textRandomLetter(text) {
             var x = Math.floor(Math.random() * text.length);
@@ -71,35 +86,9 @@ var LibraryFuncs = {
 
         var str = args[0];
         return textRandomLetter(str);
-    },
-    "list_getIndex_fromEnd" : function (args) {
-        var list_arg = args[0];  
-        var pos = -1 * args[1];
-
-        return list_arg.slice(pos)[0];
-    },
-    "list_popIndex_fromStart" : function (args) {
-        var list_arg = args[0];  
-        var pos = args[1] - 1;
-
-        return list_arg.splice(pos, 1)[0];
-    },
-    "list_popIndex_first" : function (args) {
-        var list_arg = args[0];  
-
-        return list_arg.shift();
-    },
-    "list_popIndex_fromEnd" : function (args) {
-        var list_arg = args[0];  
-        var pos = -1 * args[1];
-
-        return list_arg.splice(pos, 1)[0];
-    },
-    "list_popIndex_last" : function (args) {
-        var list_arg = args[0];  
-
-        return list_arg.pop();
     }
+
+
 }
 
 /* --------------------------------------------------------------------------------
@@ -233,5 +222,6 @@ module.exports = {
     createAllBlocks,
     getElement,
     getJSON,
-    JSONremoveChars
+    JSONremoveChars,
+    LibraryFuncs
 }

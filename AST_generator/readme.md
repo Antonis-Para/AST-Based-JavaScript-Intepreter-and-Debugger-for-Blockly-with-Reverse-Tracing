@@ -103,13 +103,16 @@ then the id will be *null*
 - list_split
     + Has a `mode` : (split or join)
     + Has an `item` : text (the operation will be performed on that item)
-    + Has a `delim` : (string spesifying the delimeter)
+    + Has a `delim` : (string specifying the delimeter)
 - list_create
     + Has an `items[]` : array of any types (items of the list)
 - lists_sort
-	+ Has a `sort_type` (numeric, text, igonre_case)
+	+ Has a `sort_type` (numeric, text, igonre\_case)
 	+ Has a `direction` (ascending, descending)
 	+ Has an `item` : list (the list to sort)
+- list_index
+    + Has a `list` : list(will perform operation in this list)
+    + Has a `index` : any type leading to number (The index of the list)
     
 ## Colours
 - colour_const
