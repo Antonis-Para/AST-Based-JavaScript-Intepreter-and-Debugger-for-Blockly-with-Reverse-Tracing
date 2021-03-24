@@ -422,16 +422,16 @@ AST_dispatch["lists_getIndex"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["lists_setIndex"] = function(block) {
     var child_no = 1;
-    Blockly_gen.addToJSON('"type": "list_set",\n');
+    Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+    Blockly_gen.addToJSON('"name": "list_invoke",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
-    var mode_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
+    var mode_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue.toLowerCase();
+    var where_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue.toLowerCase();
+    var param = mode_value + "_" + where_value;
+    Blockly_gen.addToJSON('"param": "' + param + '",\n');
 
-    var where_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"where": "' + where_value.toLowerCase() + '",\n');
-
-    Blockly_gen.addToJSON('"list": \n');
+    Blockly_gen.addToJSON('"args": [');
     var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "LIST") { //no list to search in provided -> default is empty list
         Blockly_gen.addToJSON('{\n');
@@ -445,13 +445,12 @@ AST_dispatch["lists_setIndex"] = function(block) {
     }
     Blockly_gen.addToJSON(',\n');
 
-    if (where_value == "FROM_START" || where_value == "FROM_END") {
-        Blockly_gen.addToJSON('"pos": \n');
+    if (where_value == "from_start" || where_value == "from_end") {
         var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
-        if (pos_value === null || pos_value === undefined || pos_value.getAttribute("name") != "AT") { //no item to search for -> default is 0
+        if (pos_value === null || pos_value === undefined || pos_value.getAttribute("name") != "AT") { //no item to search for -> default is 1 (1 for blockly, 0 for js)
             Blockly_gen.addToJSON('{\n');
             Blockly_gen.addToJSON('"type": "number",\n');
-            Blockly_gen.addToJSON('"value": 0,\n');
+            Blockly_gen.addToJSON('"value": 1,\n');
 			Blockly_gen.addToJSON('"id": null\n');
             Blockly_gen.addToJSON('}\n');
         } else {
@@ -461,7 +460,6 @@ AST_dispatch["lists_setIndex"] = function(block) {
         Blockly_gen.addToJSON(',\n');
     }
 
-    Blockly_gen.addToJSON('"item": \n');
     var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
     if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "TO") { //no item to create -> default is null
         Blockly_gen.addToJSON('{\n');
@@ -473,21 +471,22 @@ AST_dispatch["lists_setIndex"] = function(block) {
         Blockly_gen.createAllBlocks(item_value);
         child_no++;
     }
+    Blockly_gen.addToJSON(']');
 }
 
 /*----------------------------------------------*/
 AST_dispatch["lists_getSublist"] = function(block) {
     var child_no = 1;
-    Blockly_gen.addToJSON('"type": "list_sublist",\n');
+    var where1_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue.toLowerCase();
+    var where2_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue.toLowerCase();
+    var param = "get_" + where1_value + "_" + where2_value;
+
+    Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+    Blockly_gen.addToJSON('"name": "list_invoke",\n');
+    Blockly_gen.addToJSON('"param": "' + param + '",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
-    var where1_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"where1": "' + where1_value.toLowerCase() + '",\n');
-
-    var where2_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"where2": "' + where2_value.toLowerCase() + '",\n');
-
-    Blockly_gen.addToJSON('"list": \n');
+    Blockly_gen.addToJSON('"args": [');
     var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "LIST") { //no list to search in provided -> default is empty list
         Blockly_gen.addToJSON('{\n');
@@ -500,9 +499,9 @@ AST_dispatch["lists_getSublist"] = function(block) {
         child_no++;
     }
 
-    if (where1_value != "FIRST") { //first doesnt require an argument (its 0)
+    if (where1_value != "first") { //first doesnt require an argument (its 0)
         Blockly_gen.addToJSON(',\n');
-        Blockly_gen.addToJSON('"pos1": \n');
+        //Blockly_gen.addToJSON('"pos1": \n');
         var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
         if (pos_value === null || pos_value === undefined || pos_value.getAttribute("name") != "AT1") { //no item to search for -> default is 0
             Blockly_gen.addToJSON('{\n');
@@ -516,9 +515,9 @@ AST_dispatch["lists_getSublist"] = function(block) {
         }
     }
 
-    if (where2_value != "LAST") { //first doesnt require an argument (its the last)
+    if (where2_value != "last") { //first doesnt require an argument (its the last)
         Blockly_gen.addToJSON(',\n');
-        Blockly_gen.addToJSON('"pos2": \n');
+        //Blockly_gen.addToJSON('"pos2": \n');
         var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
         if (item_value === null || item_value === undefined || item_value.getAttribute("name") != "AT2") { //no item to search for -> default is 0
             Blockly_gen.addToJSON('{\n');
@@ -531,17 +530,18 @@ AST_dispatch["lists_getSublist"] = function(block) {
             child_no++;
         }
     }
+    Blockly_gen.addToJSON(']');
 }
 
 /*----------------------------------------------*/
 AST_dispatch["lists_split"] = function(block) {
-    Blockly_gen.addToJSON('"type": "list_split",\n');
+    Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+    Blockly_gen.addToJSON('"name": "list_invoke",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
-
     var mode_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"mode": "' + mode_value.toLowerCase() + '",\n');
+    Blockly_gen.addToJSON('"param": "' + mode_value.toLowerCase() + '",\n');
 
-    Blockly_gen.addToJSON('"item": ');
+    Blockly_gen.addToJSON('"args":[\n');
     var child_no = 1;
     var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     if (item_value === null || item_value === undefined || item_value.getAttribute("name") == "DELIM") {
@@ -564,27 +564,26 @@ AST_dispatch["lists_split"] = function(block) {
     }
     Blockly_gen.addToJSON(',\n');
 
-    Blockly_gen.addToJSON('"delim": ');
     var delim_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
     Blockly_gen.createAllBlocks(delim_value);
+    Blockly_gen.addToJSON(']');
+
 }
 
 /*----------------------------------------------*/
 AST_dispatch["lists_sort"] = function(block) {
-    Blockly_gen.addToJSON('"type": "lists_sort",\n');
+    Blockly_gen.addToJSON('"type": "libfunc_call",\n');
+    Blockly_gen.addToJSON('"name": "list_invoke",\n');
+    Blockly_gen.addToJSON('"param": "sort",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     var sort_type_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
-    Blockly_gen.addToJSON('"sort_type": "' + sort_type_value.toLowerCase() + '",\n');
+    Blockly_gen.addToJSON('"sort_type": "' + sort_type_value + '",\n');
 	
 	var direction_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue;
-	if (direction_value == "-1"){
-		Blockly_gen.addToJSON('"direction": "descending",\n');
-	}else if(direction_value == "1"){
-		Blockly_gen.addToJSON('"direction": "ascending",\n');
-	}
+    Blockly_gen.addToJSON('"direction": "' + direction_value + '",\n');
 
-    Blockly_gen.addToJSON('"item": ');
+    Blockly_gen.addToJSON('"args": [');
     var item_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     if (Blockly_gen.createAllBlocks(item_value) === null) { //no list provided-> default empty list
 		Blockly_gen.addToJSON('{\n');
@@ -592,6 +591,6 @@ AST_dispatch["lists_sort"] = function(block) {
 		Blockly_gen.addToJSON('"id": null,\n');
 		Blockly_gen.addToJSON('"items": []\n');
 		Blockly_gen.addToJSON('}\n');
-        
     }
+    Blockly_gen.addToJSON(']');
 }

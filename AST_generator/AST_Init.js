@@ -24,11 +24,32 @@ const {
 
 var LibraryFuncs = {
     "list_methods":{
-        "getIndex_fromEnd"      : (args) => args[0].slice(-args[1])[0] ,
-        "popIndex_fromStart"    : (args) => args[0].splice(args[1]-1, 1)[0],
-        "popIndex_first"        : (args) => args[0].shift(),
-        "popIndex_fromEnd"      : (args) => args[0].splice(-args[1], 1)[0],
-        "popIndex_last"         : (args) => args[0].pop(),
+        "getIndex_fromEnd"          : (args) => args[0].slice(-args[1])[0] ,
+        "popIndex_fromStart"        : (args) => args[0].splice(args[1]-1, 1)[0],
+        "popIndex_first"            : (args) => args[0].shift(),
+        "popIndex_fromEnd"          : (args) => args[0].splice(-args[1], 1)[0],
+        "popIndex_last"             : (args) => args[0].pop(),
+        "set_from_start"            : (args) => (args[0])[args[1] - 1] = args[2],
+        "set_from_end"              : (args) => (args[0])[args[0].length - args[1]] = args[2],
+        "set_first"                 : (args) => (args[0])[0] = args[1],
+        "set_last"                  : (args) => (args[0])[args[0].length - 1] = args[1],
+        "set_random"                : (args) => (args[0])[Math.floor(Math.random() * args[0].length)] = args[1],
+        "insert_from_start"         : (args) => args[0].splice(args[1] - 1, 0, args[2]),
+        "insert_from_end"           : (args) => args[0].splice(args[0].length - args[1], 0, args[2]),
+        "insert_first"              : (args) => args[0].unshift(args[1]),
+        "insert_last"               : (args) => args[0].push(args[1]),
+        "insert_random"             : (args) => args[0].splice(Math.floor(Math.random() * args[0].length), 0, args[1]),
+        "get_from_start_from_start" : (args) => args[0].slice(args[1] - 1, args[2]),
+        "get_from_start_from_end"   : (args) => args[0].slice(args[1] - 1, args[0].length - args[2] - 1),
+        "get_from_start_last"       : (args) => args[0].slice(args[1] - 1, args[0].length1),
+        "get_from_end_from_start"   : (args) => args[0].slice(args[0].length - args[1], args[2]),
+        "get_from_end_from_end"     : (args) => args[0].slice(args[0].length - args[1], args[0].length - args[2] - 1),
+        "get_from_end_last"         : (args) => args[0].slice(args[0].length - args[1], args[0].length),
+        "get_first_from_start"      : (args) => args[0].slice(0, args[1]),
+        "get_first_from_end"        : (args) => args[0].slice(0, args[0].length - args[1] - 1),
+        "get_first_last"            : (args) => args[0].slice(0),
+        "split"                     : (args) => args[0].split(args[1]),
+        "join"                      : (args) => args[0].join(args[1]),
         "random" : function (args) {
             function listsGetRandomItem(list, remove) {
                 var x = Math.floor(Math.random() * list.length);
@@ -57,6 +78,25 @@ var LibraryFuncs = {
             var list_val = args[1];
     
             return listsRepeat(list_arg, list_val);
+        },
+        "sort" : function (args) {
+            function listsGetSortCompare(type, direction) {
+                var compareFuncs = {
+                  "NUMERIC": function(a, b) {
+                      return Number(a) - Number(b); },
+                  "TEXT": function(a, b) {
+                      return a.toString() > b.toString() ? 1 : -1; },
+                  "IGNORE_CASE": function(a, b) {
+                      return a.toString().toLowerCase() > b.toString().toLowerCase() ? 1 : -1; },
+                };
+                var compare = compareFuncs[type];
+                return function(a, b) { return compare(a, b) * direction; }
+              }
+              var list = args[0]
+              var sort_type = args[1];
+              var direction = args[2];
+              
+              list.slice().sort(listsGetSortCompare(sort_type, direction));
         }
     },
 

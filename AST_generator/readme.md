@@ -83,33 +83,14 @@ then the id will be *null*
 - userfunc_call
     + Has `args[]` : array of any types (the arguments passed)
     + Has a `name` : (string with the function's name i.e. "NewFunction")
-- libfunc_call
+- libfunc\_call
     + Has `args[]` : array of any types (the arguments passed)
     + Has a `name` : (string with the function's name i.e. "NewFunction")
+    + Has a `param`: (Will be used to specify a special case of a libfunc i.e get\_from\_start)
         
 ## Lists
-- list_set
-    + Has a `mode` : (set, insert at)
-    + Has a `where` : (from_start, from_end, first, last, random)
-    + Has a `list` : list (the item will be set in this list)
-    + *Might* have a `pos` : any type leading to number (this many positions from the 'where'. If where!=FROM_START or FROM_END, pos is skipped)
-    + Has an `item` : any type leading to number (Will insert this item)
-- list_sublist
-    + Has a `where1` : (from_start, from_end or first)
-    + Has a `where2` : (from_start, from_end or last)
-    + Has a `list` : list (the sublist will come from this list)
-    + *Might* have a `pos1` : any type leading to number (this many positions from the 'where1'. If where1==first pos1 is skipped)
-    + *Might* have a `pos2` : any type leading to number (this many positions from the 'where1'. If where2==last pos2 is skipped)
-- list_split
-    + Has a `mode` : (split or join)
-    + Has an `item` : text (the operation will be performed on that item)
-    + Has a `delim` : (string specifying the delimeter)
 - list_create
     + Has an `items[]` : array of any types (items of the list)
-- lists_sort
-	+ Has a `sort_type` (numeric, text, igonre\_case)
-	+ Has a `direction` (ascending, descending)
-	+ Has an `item` : list (the list to sort)
 - list_index
     + Has a `list` : list(will perform operation in this list)
     + Has a `index` : any type leading to number (The index of the list)
