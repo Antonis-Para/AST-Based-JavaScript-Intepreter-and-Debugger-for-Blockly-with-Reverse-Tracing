@@ -106,6 +106,154 @@ var LibraryFuncs = {
         return this.list_methods[methodName](methodArgs);
     },
 
+    "math_methods":{
+        "atan2"         :  (args) => Math.atan2(args[1], args[0]) / Math.PI * 180, //y,x
+        "constraint"    :  (args) => Math.min(Math.max(args[0], args[1]), args[2] ),
+        "even"          : (args) => args[0] % 2 == 0 ,
+        "odd"           : (args) => args[0] % 2 == 1,
+        "whole"         : (args) => args[0] % 1 == 0,
+        "positive"      : (args) => args[0] > 0,
+        "negative"      : (args) => args[0] < 0,
+        "divisible_by"  : (args) => args[0] % args[1] == 0,
+        "root"          : (args) => Math.sqrt(args[0]),
+        "abs"           : (args) => Math.abs(args[0]),
+        "neg"           : (args) => -args[0],
+        "ln"           : (args) => Math.log(args[0]),
+        "log10"         : (args) => Math.log(args[0]) / Math.log(10),
+        "exp"           : (args) => Math.exp(args[0]),
+        "pow10"         : (args) => Math.pow(10,args[0]),
+        "sin"           : (args) => Math.sin(args[0] / 180 * Math.PI),
+        "cos"           : (args) => Math.cos(args[0] / 180 * Math.PI),
+        "tan"           : (args) => Math.tan(args[0] / 180 * Math.PI),
+        "asin"          : (args) => Math.asin(args[0]) / Math.PI * 180,
+        "acos"          : (args) =>Math.acos(args[0]) / Math.PI * 180,
+        "atan"          : (args) => Math.atan(args[0]) / Math.PI * 180,
+        "pi"            : () => Math.PI,
+        "e"             : () => Math.E,
+        "golder_ratio"  : () => (1 + Math.sqrt(5)) / 2,
+        "sqrt2"         : () => Math.SQRT2,
+        "sqrt1_2"       : () => Math.SQRT1_2,
+        "infinity"      : () => Infinity,
+        "sum"           : (args) => args[0].reduce(function(x, y) {return x + y;}),
+        "min"           : (args) => Math.min.apply(null, args[0]),
+        "max"           : (args) => Math.max.apply(null, args[0]),
+        "average"       : function(args) {
+            function mathMean(myList) {
+                return myList.reduce(function(x, y) {return x + y;}) / myList.length;
+            }
+            return mathMean(args[0]);
+        },
+        "median"        : function(args) {
+            function mathMedian(myList) {
+                var localList = myList.filter(function (x) {return typeof x == 'number';});
+                if (!localList.length) return null;
+                localList.sort(function(a, b) {return b - a;});
+                if (localList.length % 2 == 0) {
+                    return (localList[localList.length / 2 - 1] + localList[localList.length / 2]) / 2;
+                } else {
+                    return localList[(localList.length - 1) / 2];
+                }
+            }
+
+            return mathMedian(args[0]);
+        },
+        "mode"          : function(args) {
+            function mathModes(values) {
+                var modes = [];
+                var counts = [];
+                var maxCount = 0;
+                for (var i = 0; i < values.length; i++) {
+                    var value = values[i];
+                    var found = false;
+                    var thisCount;
+                    for (var j = 0; j < counts.length; j++) {
+                    if (counts[j][0] === value) {
+                        thisCount = ++counts[j][1];
+                        found = true;
+                        break;
+                    }
+                    }
+                    if (!found) {
+                    counts.push([value, 1]);
+                    thisCount = 1;
+                    }
+                    maxCount = Math.max(thisCount, maxCount);
+                }
+                for (var j = 0; j < counts.length; j++) {
+                    if (counts[j][1] == maxCount) {
+                        modes.push(counts[j][0]);
+                    }
+                }
+                return modes;
+            }
+              
+            return mathModes(args[0]);
+        },
+        "std_dev"      : function(args) {
+            function mathStandardDeviation(numbers) {
+                var n = numbers.length;
+                if (!n) return null;
+                var mean = numbers.reduce(function(x, y) {return x + y;}) / n;
+                var variance = 0;
+                for (var j = 0; j < n; j++) {
+                    variance += Math.pow(numbers[j] - mean, 2);
+                }
+                variance = variance / n;
+                return Math.sqrt(variance);
+            }
+
+            return mathStandardDeviation(args[0]);
+        },
+        "random"      : function(args) {
+            function mathRandomList(list) {
+                var x = Math.floor(Math.random() * list.length);
+                return list[x];
+              }
+              
+            return mathRandomList(args[0]);
+        },
+
+        "prime"         : function (args) {
+            function mathIsPrime(n) {
+                // https://en.wikipedia.org/wiki/Primality_test#Naive_methods
+                if (n == 2 || n == 3) {
+                  return true;
+                }
+                // False if n is NaN, negative, is 1, or not whole.
+                // And false if n is divisible by 2 or 3.
+                if (isNaN(n) || n <= 1 || n % 1 != 0 || n % 2 == 0 || n % 3 == 0) {
+                  return false;
+                }
+                // Check all the numbers of form 6k +/- 1, up to sqrt(n).
+                for (var x = 6; x <= Math.sqrt(n) + 1; x += 6) {
+                  if (n % (x - 1) == 0 || n % (x + 1) == 0) {
+                    return false;
+                  }
+                }
+                return true;
+            }
+    
+            return mathIsPrime(args[0]);
+        },
+        "randomInt" : function(args){
+            function mathRandomInt(a, b) {
+                if (a > b) {
+                  // Swap a and b to ensure a is smaller.
+                  var c = a;
+                  a = b;
+                  b = c;
+                }
+                return Math.floor(Math.random() * (b - a + 1) + a);
+            }
+            return mathRandomInt(args[0], args[1]);
+        }
+    
+    },
+    "math_invoke": function (args){
+        var methodName = args[0];
+        var methodArgs = args.slice(1);
+        return this.math_methods[methodName](methodArgs);
+    },
 
     "textToTitleCase" : function (args) {
         function textToTitleCase(str) {
@@ -160,8 +308,7 @@ var LibraryFuncs = {
           }
           
           return colourBlend(args[0], args[1], args[2]); //color 1, clolor 2, ratio
-    }
-
+    },
 }
 
 /* --------------------------------------------------------------------------------

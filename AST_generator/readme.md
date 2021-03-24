@@ -31,8 +31,6 @@ then the id will be *null*
     + Has a `value`
 - null_const
     + Has a `value` equal to `null` 
-- math_const
-    + Has a `value` : (pi, e, golden_ration, sqrt2, sqrt1_2, infinity)
 - text_const
     + Has a `value`
 - colour_const
@@ -59,9 +57,6 @@ then the id will be *null*
     + Has an `op` : (add, minus, multiply, divide, power)
     + Has a `lval` : any type
     + Has a `rval` : any type
-- list_math_expr
-    + Has an `op` : (sum, min, max, averege, median, mode, std_dev, random)
-    + Has a `list` : any type of list (The opperation will be performed on this list)
      
 ## Variables
 - var_decl
@@ -75,7 +70,7 @@ then the id will be *null*
 ## Functions
 - func_call
     + Has a `name` : (string with the function's name i.e. "Math.sqrt")
-    + Has an `arg` : any type (the argument of the function)
+    + Has `args[]` : any type (the arguments of the function)
 - func_decl
     + Has `args[]` : array of text (the argument names of the function)
     + Has a `name` : (string with the function's name i.e. "NewFunction")
@@ -118,18 +113,3 @@ then the id will be *null*
 - property_trim
     + Has a `side` : (both, left, right)
     + Has an `item` : text (the trim will be performed on this item)
-    
-## Math
-- math_property
-    + Has a `property` (even, odd, prime, while, positive, negative, divisible_by)
-    + Has a `value` : any type leading to number (the 'property' will be performed on this value)
-- math_constraint
-    + Has a `value` : any type leading to number (the number to be constrained)
-    + Has a `low` : any type leading to number (the lowest possible number)
-    + Has a `high` : any type leading to number (the highest possible number)
-- math_rand_int
-    + Has a `from` : any type leading to number (the lowest possible number)
-    + Has a `to` : any type leading to number (the highest possible number)
-- func_atan2
-    + Has a `x` : any type leading to number
-    + Has a `y` : any type leading to number

@@ -8,8 +8,9 @@ AST_dispatch["text_print"] = function(block) {
 
     var print_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
 
-    Blockly_gen.addToJSON('"arg": ');
+    Blockly_gen.addToJSON('"args": [\n');
     Blockly_gen.createAllBlocks(print_value);
+    Blockly_gen.addToJSON(']\n');
 }
 
 /*----------------------------------------------*/
@@ -291,9 +292,10 @@ AST_dispatch["text_prompt_ext"] = function(block) {
     Blockly_gen.addToJSON('"name": "window.prompt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
-    Blockly_gen.addToJSON('"arg": ');
+    Blockly_gen.addToJSON('"args": [\n');
     var arg_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.createAllBlocks(arg_value);
+    Blockly_gen.addToJSON(']\n');
 }
 
 
