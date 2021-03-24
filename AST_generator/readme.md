@@ -87,6 +87,7 @@ then the id will be *null*
     + Has `args[]` : array of any types (the arguments passed)
     + Has a `name` : (string with the function's name i.e. "NewFunction")
     + Has a `param`: (Will be used to specify a special case of a libfunc i.e get\_from\_start)
+        * If the param is equal to sort, a direction and a sort type will be used as well
         
 ## Lists
 - list_create
@@ -94,19 +95,6 @@ then the id will be *null*
 - list_index
     + Has a `list` : list(will perform operation in this list)
     + Has a `index` : any type leading to number (The index of the list)
-    
-## Colours
-- colour_const
-    + Has a `value` : any type (variable's new value)
-- colour_random
-- colour_rgb
-    + Has a `red` : number
-    + Has a `green` : number
-    + Has a `blue` : number
-- colour_blend
-    + Has a `colour1` : colour_const
-    + Has a `colour2` : colour_const
-    + Has a `ratio` : number
     
 ## Properties
 - property_join
