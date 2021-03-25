@@ -92,24 +92,6 @@ then the id will be *null*
     + Has a `index` : any type leading to number (The index of the list)
     
 ## Properties
-- property_join
-    + Has `items[]` : array of text (Will combine items into one text)
 - property
     + Has a `name` : (i.e. ".length")
     + Has an `item` : text (the 'name' will be performed on this item)
-- property_charAt
-    + Has a `where` : (from_start, from_end, first, last or random)
-    + Has a `item` : text (search in this item)
-    + *Might* have a `at` : number (this many positions from the 'where'. If where!=from_start or from_end, pos is skipped)
-- property_substr
-    + Has a `where1` : (from_start, from_end or first)
-    + Has a `where2` : (from_start, from_end or last)
-    + Has a `item` : text (the substring will come from this itme)
-    + *Might* have a `pos1` : number (this many positions from the 'where1'. If where1==first pos1 is skipped)
-    + *Might* have a `pos2` : number (this many positions from the 'where1'. If where2==last pos2 is skipped)
-- property_changeCase
-    + Has a `case` : (lowercase, uppercase, titlecase)
-    + Has an `item` : text (the 'case' will be performed on this item)
-- property_trim
-    + Has a `side` : (both, left, right)
-    + Has an `item` : text (the trim will be performed on this item)

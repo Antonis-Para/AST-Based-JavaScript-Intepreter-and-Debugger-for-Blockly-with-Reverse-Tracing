@@ -254,25 +254,50 @@ var LibraryFuncs = {
         var methodArgs = args.slice(1);
         return this.math_methods[methodName](methodArgs);
     },
-
-    "textToTitleCase" : function (args) {
-        function textToTitleCase(str) {
-            return str.replace(/\S+/g,
-                function(txt) {return txt[0].toUpperCase() + txt.substring(1).toLowerCase();});
+    "text_methods":{
+        "getLetter_from_start"          : (args) => args[0].charAt(args[1] - 1),
+        "getLetter_from_end"            : (args) => args[0].slice(-args[1]).charAt(0),
+        "getLetter_first"               : (args) => args[0].charAt(0),
+        "getLetter_last"                : (args) => args[0].slice(-1),
+        "substr_from_start_from_start"  : (args) => args[0].slice(args[1]-1, args[2]),
+        "substr_from_start_from_end"    : (args) => args[0].slice(args[1]-1, args[0].length - args[2] - 1),
+        "substr_from_start_last"        : (args) => args[0].slice(args[1]-1, args[0].length),
+        "substr_from_end_from_start"    : (args) => args[0].slice(args[0].length - args[1], args[2]),
+        "substr_from_end_from_end"      : (args) => args[0].slice(args[0].length - args[1], args[0].length - args[2] - 1),
+        "substr_from_end_last"          : (args) => args[0].slice(args[0].length - args[1], args[0].length),
+        "substr_last_from_start"        : (args) => args[0].slice(0, args[1]),
+        "substr_last_from_end"          : (args) => args[0].slice(0, args[0].length - args[1] - 1),
+        "substr_last_last"              : (args) => args[0],
+        "trim_both"                     : (args) => args[0].trim(),
+        "trim_left"                     : (args) => args[0].replace(/^[\s\xa0]+/, ''),
+        "trim_right"                    : (args) => args[0].replace(/[\s\xa0]+$/, ''),
+        "index_first"                   : (args) => args[0].indexOf(args[1]) + 1,
+        "index_end"                     : (args) => args[0].lastIndexOf(args[1]) + 1,
+        "textJoin"                      : (args) => args.join(''),
+        "lowercase"                     : (args) => args[0].toLowerCase(),
+        "uppercase"                     : (args) => args[0].toUpperCase(),
+        "titlecase"                     : function (args) {
+            function textToTitleCase(str) {
+                return str.replace(/\S+/g,
+                    function(txt) {return txt[0].toUpperCase() + txt.substring(1).toLowerCase();});
+            }
+            var str = args[0];
+            return textToTitleCase(str);
+        },
+        "getLetter_random"              : function (args) {
+            function textRandomLetter(text) {
+                var x = Math.floor(Math.random() * text.length);
+                return text[x];
+            }
+    
+            var str = args[0];
+            return textRandomLetter(str);
         }
-
-        var str = args[0];
-        return textToTitleCase(str);
     },
-
-    "textRandomLetter" : function (args) {
-        function textRandomLetter(text) {
-            var x = Math.floor(Math.random() * text.length);
-            return text[x];
-          }
-
-        var str = args[0];
-        return textRandomLetter(str);
+    "text_invoke": function (args){
+        var methodName = args[0];
+        var methodArgs = args.slice(1);
+        return this.math_methods[methodName](methodArgs);
     },
 
     "colourRGB" : function (args) {
