@@ -100,12 +100,6 @@ var LibraryFuncs = {
         }
     },
 
-    "list_invoke": function (args){
-        var methodName = args[0];
-        var methodArgs = args.slice(1);
-        return this.list_methods[methodName](methodArgs);
-    },
-
     "math_methods":{
         "atan2"         :  (args) => Math.atan2(args[1], args[0]) / Math.PI * 180, //y,x
         "constraint"    :  (args) => Math.min(Math.max(args[0], args[1]), args[2] ),
@@ -249,11 +243,7 @@ var LibraryFuncs = {
         }
     
     },
-    "math_invoke": function (args){
-        var methodName = args[0];
-        var methodArgs = args.slice(1);
-        return this.math_methods[methodName](methodArgs);
-    },
+
     "text_methods":{
         "getLetter_from_start"          : (args) => args[0].charAt(args[1] - 1),
         "getLetter_from_end"            : (args) => args[0].slice(-args[1]).charAt(0),
@@ -294,12 +284,25 @@ var LibraryFuncs = {
             return textRandomLetter(str);
         }
     },
-    "text_invoke": function (args){
+
+    "list_invoke": function (args){
+        var methodName = args[0];
+        var methodArgs = args.slice(1);
+        return this.list_methods[methodName](methodArgs);
+    },
+
+    "math_invoke": function (args){
         var methodName = args[0];
         var methodArgs = args.slice(1);
         return this.math_methods[methodName](methodArgs);
     },
 
+    "text_invoke": function (args){
+        var methodName = args[0];
+        var methodArgs = args.slice(1);
+        return this.text_methods[methodName](methodArgs);
+    },
+    textJoin
     "colourRGB" : function (args) {
         function colourRgb(r, g, b) {
             r = Math.max(Math.min(Number(r), 100), 0) * 2.55;
