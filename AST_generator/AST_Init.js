@@ -50,7 +50,7 @@ var LibraryFuncs = {
         "get_first_last"            : (args) => args[0].slice(0),
         "split"                     : (args) => args[0].split(args[1]),
         "join"                      : (args) => args[0].join(args[1]),
-        "random" : function (args) {
+        "random"                    : function (args) {
             function listsGetRandomItem(list, remove) {
                 var x = Math.floor(Math.random() * list.length);
                 if (remove) {
@@ -65,7 +65,7 @@ var LibraryFuncs = {
     
             return listsGetRandomItem(list_arg, remove);
         },
-        "repeat" : function (args) {
+        "repeat"                    : function (args) {
             function listsRepeat(value, n) {
                 var array = [];
                 for (var i = 0; i < n; i++) {
@@ -79,7 +79,7 @@ var LibraryFuncs = {
     
             return listsRepeat(list_arg, list_val);
         },
-        "sort" : function (args) {
+        "sort"                      : function (args) {
             function listsGetSortCompare(type, direction) {
                 var compareFuncs = {
                   "NUMERIC": function(a, b) {
@@ -112,7 +112,7 @@ var LibraryFuncs = {
         "root"          : (args) => Math.sqrt(args[0]),
         "abs"           : (args) => Math.abs(args[0]),
         "neg"           : (args) => -args[0],
-        "ln"           : (args) => Math.log(args[0]),
+        "ln"            : (args) => Math.log(args[0]),
         "log10"         : (args) => Math.log(args[0]) / Math.log(10),
         "exp"           : (args) => Math.exp(args[0]),
         "pow10"         : (args) => Math.pow(10,args[0]),
