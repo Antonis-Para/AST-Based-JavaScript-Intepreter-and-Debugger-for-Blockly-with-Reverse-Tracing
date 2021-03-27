@@ -38,33 +38,33 @@ function Interpreter(ast){
 
     var LibraryFuncs = {
         "list_methods":{
-            "getIndex_fromEnd"          : (args) => args[0].slice(-args[1])[0] ,
-            "popIndex_fromStart"        : (args) => args[0].splice(args[1]-1, 1)[0],
-            "popIndex_first"            : (args) => args[0].shift(),
-            "popIndex_fromEnd"          : (args) => args[0].splice(-args[1], 1)[0],
-            "popIndex_last"             : (args) => args[0].pop(),
-            "set_from_start"            : (args) => (args[0])[args[1] - 1] = args[2],
-            "set_from_end"              : (args) => (args[0])[args[0].length - args[1]] = args[2],
-            "set_first"                 : (args) => (args[0])[0] = args[1],
-            "set_last"                  : (args) => (args[0])[args[0].length - 1] = args[1],
-            "set_random"                : (args) => (args[0])[Math.floor(Math.random() * args[0].length)] = args[1],
-            "insert_from_start"         : (args) => args[0].splice(args[1] - 1, 0, args[2]),
-            "insert_from_end"           : (args) => args[0].splice(args[0].length - args[1], 0, args[2]),
-            "insert_first"              : (args) => args[0].unshift(args[1]),
-            "insert_last"               : (args) => args[0].push(args[1]),
-            "insert_random"             : (args) => args[0].splice(Math.floor(Math.random() * args[0].length), 0, args[1]),
-            "get_from_start_from_start" : (args) => args[0].slice(args[1] - 1, args[2]),
-            "get_from_start_from_end"   : (args) => args[0].slice(args[1] - 1, args[0].length - args[2] - 1),
-            "get_from_start_last"       : (args) => args[0].slice(args[1] - 1, args[0].length1),
-            "get_from_end_from_start"   : (args) => args[0].slice(args[0].length - args[1], args[2]),
-            "get_from_end_from_end"     : (args) => args[0].slice(args[0].length - args[1], args[0].length - args[2] - 1),
-            "get_from_end_last"         : (args) => args[0].slice(args[0].length - args[1], args[0].length),
-            "get_first_from_start"      : (args) => args[0].slice(0, args[1]),
-            "get_first_from_end"        : (args) => args[0].slice(0, args[0].length - args[1] - 1),
-            "get_first_last"            : (args) => args[0].slice(0),
-            "split"                     : (args) => args[0].split(args[1]),
-            "join"                      : (args) => args[0].join(args[1]),
-            "random"                    : function (args) {
+            "getIndex_fromEnd"          : (list, pos)           => list.slice(-pos)[0] ,
+            "popIndex_fromStart"        : (list, pos)           => list.splice(pos-1, 1)[0],
+            "popIndex_first"            : (list)                => list.shift(),
+            "popIndex_fromEnd"          : (list, pos)           => list.splice(-pos, 1)[0],
+            "popIndex_last"             : (list)                => list.pop(),
+            "set_from_start"            : (list, pos, val)      => (list)[pos - 1] = val,
+            "set_from_end"              : (list, pos, val)      => (list)[list.length - pos] = val,
+            "set_first"                 : (list, val)           => (list)[0] = val,
+            "set_last"                  : (list, val)           => (list)[list.length - 1] = val,
+            "set_random"                : (list, val)           => (list)[Math.floor(Math.random() * list.length)] = val,
+            "insert_from_start"         : (list, pos, val)      => list.splice(pos - 1, 0, val),
+            "insert_from_end"           : (list, pos, val)      => list.splice(list.length - pos, 0, val),
+            "insert_first"              : (list, val)           => list.unshift(val),
+            "insert_last"               : (list, val)           => list.push(val),
+            "insert_random"             : (list, val)           => list.splice(Math.floor(Math.random() * list.length), 0, val),
+            "get_from_start_from_start" : (list, pos1, pos2)    => list.slice(pos1 - 1, pos2),
+            "get_from_start_from_end"   : (list, pos1, pos2)    => list.slice(pos1 - 1, list.length - pos2 - 1),
+            "get_from_start_last"       : (list, pos1)          => list.slice(pos1 - 1, list.length1),
+            "get_from_end_from_start"   : (list, pos1, pos2)    => list.slice(list.length - pos1, pos2),
+            "get_from_end_from_end"     : (list, pos1, pos2)    => list.slice(list.length - pos1, list.length - pos2 - 1),
+            "get_from_end_last"         : (list, pos1)          => list.slice(list.length - pos1, list.length),
+            "get_first_from_start"      : (list, pos2)          => list.slice(0, pos2),
+            "get_first_from_end"        : (list, pos2)          => list.slice(0, list.length - pos2 - 1),
+            "get_first_last"            : (list)                => list.slice(0),
+            "split"                     : (text, delim)         => text.split(delim),
+            "join"                      : (list, delim)         => list.join(delim),
+            "random"                    : function (list, remove) {
                 function listsGetRandomItem(list, remove) {
                     var x = Math.floor(Math.random() * list.length);
                     if (remove) {
@@ -74,12 +74,9 @@ function Interpreter(ast){
                     }
                 }    
         
-                var list_arg = args[0];  
-                var remove = args[1];
-        
-                return listsGetRandomItem(list_arg, remove);
+                return listsGetRandomItem(list, remove);
             },
-            "repeat"                    : function (args) {
+            "repeat"                    : function (list, val) {
                 function listsRepeat(value, n) {
                     var array = [];
                     for (var i = 0; i < n; i++) {
@@ -88,12 +85,10 @@ function Interpreter(ast){
                     return array;
                 }      
         
-                var list_arg = args[0];  
-                var list_val = args[1];
         
-                return listsRepeat(list_arg, list_val);
+                return listsRepeat(list, val);
             },
-            "sort"                      : function (args) {
+            "sort"                      : function (list, sort_type, direction) {
                 function listsGetSortCompare(type, direction) {
                     var compareFuncs = {
                       "NUMERIC": function(a, b) {
@@ -106,52 +101,49 @@ function Interpreter(ast){
                     var compare = compareFuncs[type];
                     return function(a, b) { return compare(a, b) * direction; }
                   }
-                  var list = args[0]
-                  var sort_type = args[1];
-                  var direction = args[2];
                   
                   list.slice().sort(listsGetSortCompare(sort_type, direction));
             }
         },
     
         "math_methods":{
-            "atan2"         :  (args) => Math.atan2(args[1], args[0]) / Math.PI * 180, //y,x
-            "constraint"    :  (args) => Math.min(Math.max(args[0], args[1]), args[2] ),
-            "even"          : (args) => args[0] % 2 == 0 ,
-            "odd"           : (args) => args[0] % 2 == 1,
-            "whole"         : (args) => args[0] % 1 == 0,
-            "positive"      : (args) => args[0] > 0,
-            "negative"      : (args) => args[0] < 0,
-            "divisible_by"  : (args) => args[0] % args[1] == 0,
-            "root"          : (args) => Math.sqrt(args[0]),
-            "abs"           : (args) => Math.abs(args[0]),
-            "neg"           : (args) => -args[0],
-            "ln"            : (args) => Math.log(args[0]),
-            "log10"         : (args) => Math.log(args[0]) / Math.log(10),
-            "exp"           : (args) => Math.exp(args[0]),
-            "pow10"         : (args) => Math.pow(10,args[0]),
-            "sin"           : (args) => Math.sin(args[0] / 180 * Math.PI),
-            "cos"           : (args) => Math.cos(args[0] / 180 * Math.PI),
-            "tan"           : (args) => Math.tan(args[0] / 180 * Math.PI),
-            "asin"          : (args) => Math.asin(args[0]) / Math.PI * 180,
-            "acos"          : (args) =>Math.acos(args[0]) / Math.PI * 180,
-            "atan"          : (args) => Math.atan(args[0]) / Math.PI * 180,
+            "atan2"         : (x, y) => Math.atan2(y, x) / Math.PI * 180, //y,x
+            "constraint"    : (arg1, arg2, arg3) => Math.min(Math.max(arg1, arg2), arg3 ),
+            "even"          : (arg) => arg % 2 == 0 ,
+            "odd"           : (arg) => arg % 2 == 1,
+            "whole"         : (arg) => arg % 1 == 0,
+            "positive"      : (arg) => arg > 0,
+            "negative"      : (arg) => arg < 0,
+            "divisible_by"  : (arg1, arg2) => arg1 % arg2 == 0,
+            "root"          : (arg) => Math.sqrt(arg),
+            "abs"           : (arg) => Math.abs(arg),
+            "neg"           : (arg) => -arg,
+            "ln"            : (arg) => Math.log(arg),
+            "log10"         : (arg) => Math.log(arg) / Math.log(10),
+            "exp"           : (arg) => Math.exp(arg),
+            "pow10"         : (arg) => Math.pow(10,arg),
+            "sin"           : (arg) => Math.sin(arg / 180 * Math.PI),
+            "cos"           : (arg) => Math.cos(arg / 180 * Math.PI),
+            "tan"           : (arg) => Math.tan(arg / 180 * Math.PI),
+            "asin"          : (arg) => Math.asin(arg) / Math.PI * 180,
+            "acos"          : (arg) =>Math.acos(arg) / Math.PI * 180,
+            "atan"          : (arg) => Math.atan(arg) / Math.PI * 180,
             "pi"            : () => Math.PI,
             "e"             : () => Math.E,
             "golder_ratio"  : () => (1 + Math.sqrt(5)) / 2,
             "sqrt2"         : () => Math.SQRT2,
             "sqrt1_2"       : () => Math.SQRT1_2,
             "infinity"      : () => Infinity,
-            "sum"           : (args) => args[0].reduce(function(x, y) {return x + y;}),
-            "min"           : (args) => Math.min.apply(null, args[0]),
-            "max"           : (args) => Math.max.apply(null, args[0]),
-            "average"       : function(args) {
+            "sum"           : (arg) => arg.reduce(function(x, y) {return x + y;}),
+            "min"           : (arg) => Math.min.apply(null, arg),
+            "max"           : (arg) => Math.max.apply(null, arg),
+            "average"       : function(list) {
                 function mathMean(myList) {
                     return myList.reduce(function(x, y) {return x + y;}) / myList.length;
                 }
-                return mathMean(args[0]);
+                return mathMean(list);
             },
-            "median"        : function(args) {
+            "median"        : function(list) {
                 function mathMedian(myList) {
                     var localList = myList.filter(function (x) {return typeof x == 'number';});
                     if (!localList.length) return null;
@@ -163,9 +155,9 @@ function Interpreter(ast){
                     }
                 }
     
-                return mathMedian(args[0]);
+                return mathMedian(list);
             },
-            "mode"          : function(args) {
+            "mode"          : function(arg) {
                 function mathModes(values) {
                     var modes = [];
                     var counts = [];
@@ -175,15 +167,15 @@ function Interpreter(ast){
                         var found = false;
                         var thisCount;
                         for (var j = 0; j < counts.length; j++) {
-                        if (counts[j][0] === value) {
-                            thisCount = ++counts[j][1];
-                            found = true;
-                            break;
-                        }
+                            if (counts[j][0] === value) {
+                                thisCount = ++counts[j][1];
+                                found = true;
+                                break;
+                            }
                         }
                         if (!found) {
-                        counts.push([value, 1]);
-                        thisCount = 1;
+                            counts.push([value, 1]);
+                            thisCount = 1;
                         }
                         maxCount = Math.max(thisCount, maxCount);
                     }
@@ -195,9 +187,9 @@ function Interpreter(ast){
                     return modes;
                 }
                   
-                return mathModes(args[0]);
+                return mathModes(arg);
             },
-            "std_dev"      : function(args) {
+            "std_dev"      : function(arg) {
                 function mathStandardDeviation(numbers) {
                     var n = numbers.length;
                     if (!n) return null;
@@ -210,18 +202,18 @@ function Interpreter(ast){
                     return Math.sqrt(variance);
                 }
     
-                return mathStandardDeviation(args[0]);
+                return mathStandardDeviation(arg);
             },
-            "random"      : function(args) {
+            "random"      : function(list) {
                 function mathRandomList(list) {
                     var x = Math.floor(Math.random() * list.length);
                     return list[x];
                   }
                   
-                return mathRandomList(args[0]);
+                return mathRandomList(list);
             },
     
-            "prime"         : function (args) {
+            "prime"         : function (arg) {
                 function mathIsPrime(n) {
                     // https://en.wikipedia.org/wiki/Primality_test#Naive_methods
                     if (n == 2 || n == 3) {
@@ -241,9 +233,9 @@ function Interpreter(ast){
                     return true;
                 }
         
-                return mathIsPrime(args[0]);
+                return mathIsPrime(arg);
             },
-            "randomInt" : function(args){
+            "randomInt" : function(min, max){
                 function mathRandomInt(a, b) {
                     if (a > b) {
                       // Swap a and b to ensure a is smaller.
@@ -253,54 +245,53 @@ function Interpreter(ast){
                     }
                     return Math.floor(Math.random() * (b - a + 1) + a);
                 }
-                return mathRandomInt(args[0], args[1]);
+                return mathRandomInt(min, max);
             }
         
         },
     
         "text_methods":{
-            "getLetter_from_start"          : (args) => args[0].charAt(args[1] - 1),
-            "getLetter_from_end"            : (args) => args[0].slice(-args[1]).charAt(0),
-            "getLetter_first"               : (args) => args[0].charAt(0),
-            "getLetter_last"                : (args) => args[0].slice(-1),
-            "substr_from_start_from_start"  : (args) => args[0].slice(args[1]-1, args[2]),
-            "substr_from_start_from_end"    : (args) => args[0].slice(args[1]-1, args[0].length - args[2] - 1),
-            "substr_from_start_last"        : (args) => args[0].slice(args[1]-1, args[0].length),
-            "substr_from_end_from_start"    : (args) => args[0].slice(args[0].length - args[1], args[2]),
-            "substr_from_end_from_end"      : (args) => args[0].slice(args[0].length - args[1], args[0].length - args[2] - 1),
-            "substr_from_end_last"          : (args) => args[0].slice(args[0].length - args[1], args[0].length),
-            "substr_last_from_start"        : (args) => args[0].slice(0, args[1]),
-            "substr_last_from_end"          : (args) => args[0].slice(0, args[0].length - args[1] - 1),
-            "substr_last_last"              : (args) => args[0],
-            "trim_both"                     : (args) => args[0].trim(),
-            "trim_left"                     : (args) => args[0].replace(/^[\s\xa0]+/, ''),
-            "trim_right"                    : (args) => args[0].replace(/[\s\xa0]+$/, ''),
-            "index_first"                   : (args) => args[0].indexOf(args[1]) + 1,
-            "index_end"                     : (args) => args[0].lastIndexOf(args[1]) + 1,
-            "textJoin"                      : (args) => args.join(''),
-            "lowercase"                     : (args) => args[0].toLowerCase(),
-            "uppercase"                     : (args) => args[0].toUpperCase(),
-            "titlecase"                     : function (args) {
+            "getLetter_from_start"          : (text, pos) => text.charAt(pos - 1),
+            "getLetter_from_end"            : (text, pos) => text.slice(-pos).charAt(0),
+            "getLetter_first"               : (text) => text.charAt(0),
+            "getLetter_last"                : (text) => text.slice(-1),
+            "substr_from_start_from_start"  : (text, pos1, pos2) => text.slice(pos1-1, pos2),
+            "substr_from_start_from_end"    : (text, pos1, pos2) => text.slice(pos1-1, text.length - pos2 - 1),
+            "substr_from_start_last"        : (text, pos1) => text.slice(pos1-1, text.length),
+            "substr_from_end_from_start"    : (text, pos1, pos2) => text.slice(text.length - pos1, pos2),
+            "substr_from_end_from_end"      : (text, pos1, pos2) => text.slice(text.length - pos1, text.length - pos2 - 1),
+            "substr_from_end_last"          : (text, pos1) => text.slice(text.length - pos1, text.length),
+            "substr_last_from_start"        : (text, pos2) => text.slice(0, pos2),
+            "substr_last_from_end"          : (text, pos2) => text.slice(0, text.length - pos2 - 1),
+            "substr_last_last"              : (text) => text,
+            "trim_both"                     : (text) => text.trim(),
+            "trim_left"                     : (text) => text.replace(/^[\s\xa0]+/, ''),
+            "trim_right"                    : (text) => text.replace(/[\s\xa0]+$/, ''),
+            "index_first"                   : (text, char) => text.indexOf(char) + 1,
+            "index_end"                     : (text, char) => text.lastIndexOf(char) + 1,
+            "textJoin"                      : (text) => text.join(''),
+            "lowercase"                     : (text) => text.toLowerCase(),
+            "uppercase"                     : (text) => text.toUpperCase(),
+            "titlecase"                     : function (text) {
                 function textToTitleCase(str) {
                     return str.replace(/\S+/g,
                         function(txt) {return txt[0].toUpperCase() + txt.substring(1).toLowerCase();});
                 }
-                var str = args[0];
-                return textToTitleCase(str);
+
+                return textToTitleCase(text);
             },
-            "getLetter_random"              : function (args) {
+            "getLetter_random"              : function (text) {
                 function textRandomLetter(text) {
                     var x = Math.floor(Math.random() * text.length);
                     return text[x];
                 }
         
-                var str = args[0];
-                return textRandomLetter(str);
+                return textRandomLetter(text);
             }
         },
     
         "colour_methods":{
-            "colourRGB" : function (args) {
+            "colourRGB" : function (r,g,b) {
                 function colourRgb(r, g, b) {
                     r = Math.max(Math.min(Number(r), 100), 0) * 2.55;
                     g = Math.max(Math.min(Number(g), 100), 0) * 2.55;
@@ -311,9 +302,9 @@ function Interpreter(ast){
                     return '#' + r + g + b;
                 }
                 
-                return colourRgb(args[0], args[1], args[2]); //rgb
+                return colourRgb(r, g, b); //rgb
             },
-            "colourBlend" : function (args) {
+            "colourBlend" : function (c1, c2, ratio) {
                 function colourBlend(c1, c2, ratio) {
                     ratio = Math.max(Math.min(Number(ratio), 1), 0);
                     var r1 = parseInt(c1.substring(1, 3), 16);
@@ -331,32 +322,32 @@ function Interpreter(ast){
                     return '#' + r + g + b;
                   }
                   
-                  return colourBlend(args[0], args[1], args[2]); //color 1, clolor 2, ratio
+                  return colourBlend(c1, c2, ratio); //color 1, clolor 2, ratio
             }
         },
 
         "list_invoke": function (args){
             var methodName = args[0];
             var methodArgs = args.slice(1);
-            return this.list_methods[methodName](methodArgs);
+            return this.list_methods[methodName].apply(null, methodArgs);
         },
     
         "math_invoke": function (args){
             var methodName = args[0];
             var methodArgs = args.slice(1);
-            return this.math_methods[methodName](methodArgs);
+            return this.math_methods[methodName].apply(null, methodArgs);
         },
     
         "text_invoke": function (args){
             var methodName = args[0];
             var methodArgs = args.slice(1);
-            return this.text_methods[methodName](methodArgs);
+            return this.text_methods[methodName].apply(null, methodArgs);
         },
         
         "colour_invoke": function (args){
             var methodName = args[0];
             var methodArgs = args.slice(1);
-            return this.colour_methods[methodName](methodArgs);
+            return this.colour_methods[methodName].apply(null, methodArgs);
         },
     }
     identify_all_user_funcs(ast);
