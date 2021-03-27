@@ -302,7 +302,6 @@ var LibraryFuncs = {
         var methodArgs = args.slice(1);
         return this.text_methods[methodName](methodArgs);
     },
-    textJoin
     "colourRGB" : function (args) {
         function colourRgb(r, g, b) {
             r = Math.max(Math.min(Number(r), 100), 0) * 2.55;
