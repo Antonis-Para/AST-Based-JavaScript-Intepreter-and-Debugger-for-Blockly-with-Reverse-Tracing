@@ -30,7 +30,7 @@ function Generator(xmlText) {
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n');
 
-    return Blockly_gen.getJSON();
+    return JSON.parse(Blockly_gen.getJSON());
     //-----------------------------------------------//
 }
 

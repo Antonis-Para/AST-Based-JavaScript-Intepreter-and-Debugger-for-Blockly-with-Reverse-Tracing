@@ -18,7 +18,8 @@ AST_dispatch["colour_random"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["colour_rgb"] = function(block) {
     Blockly_gen.addToJSON('"type": "libfunc_call",\n');
-    Blockly_gen.addToJSON('"name": "colourRGB",\n');
+    Blockly_gen.addToJSON('"name": "colour_invoke",\n');
+    Blockly_gen.addToJSON('"param": "colourRGB",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"args": [\n');
@@ -38,7 +39,8 @@ AST_dispatch["colour_rgb"] = function(block) {
 /*----------------------------------------------*/
 AST_dispatch["colour_blend"] = function(block) {
     Blockly_gen.addToJSON('"type": "libfunc_call",\n');
-    Blockly_gen.addToJSON('"name": "colourBlend",\n');
+    Blockly_gen.addToJSON('"name": "colour_invoke",\n');
+    Blockly_gen.addToJSON('"param": "colourBlend",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.addToJSON('"args": [\n');
