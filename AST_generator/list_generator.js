@@ -15,7 +15,7 @@ AST_dispatch["lists_create_with"] = function(block) {
     var occ = 1;
     while (list_value !== null) {
         Blockly_gen.createAllBlocks(list_value);
-        list_value = getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
+        list_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
         Blockly_gen.addToJSON(',\n');
     }
     Blockly_gen.JSONremoveChars(2); //remove the last ','
@@ -201,10 +201,10 @@ AST_dispatch["lists_getIndex"] = function(block) {
         
         Blockly_gen.addToJSON('"index": \n');
         var pos_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
-        if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 0
+        if (Blockly_gen.createAllBlocks(pos_value) === null) { //no item to search for -> default is 1
             Blockly_gen.addToJSON('{\n');
             Blockly_gen.addToJSON('"type": "number",\n');
-            Blockly_gen.addToJSON('"value": 0,\n');
+            Blockly_gen.addToJSON('"value": 1,\n');
             Blockly_gen.addToJSON('"id": null\n');
             Blockly_gen.addToJSON('}\n');
         }
