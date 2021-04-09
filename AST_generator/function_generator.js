@@ -125,7 +125,49 @@ AST_dispatch["procedures_callnoreturn"] = function(block) {
 
     var funcname = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1).getAttribute("name");
     Blockly_gen.addToJSON('"name": "' + funcname + '",\n');
-    Blockly_gen.addToJSON('"args": [ ]\n');
+
+
+    var mutation = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1);
+    var arg_len = 1;
+    var tmp, arg_names =[];
+    if (mutation !== null) {
+        while ((tmp=Blockly_gen.getElement(mutation, Blockly_gen.ELEMENT_NODE, "arg", arg_len++)) !== null){ //find amount of args
+            arg_names.push(tmp.getAttribute("name"))
+        }
+        arg_len += -2; //start counting from 0 (-1) and remove the extra ++ in the last iteration (-1) == -2
+    }
+    Blockly_gen.addToJSON('"arg_names": [');
+    for(arg in arg_names){
+        Blockly_gen.addToJSON('"' + arg_names[arg] + '",');
+    }
+    if (arg_names.length != 0)
+        Blockly_gen.JSONremoveChars(1);
+    Blockly_gen.addToJSON('],\n');
+
+    Blockly_gen.addToJSON('"args": [\n');
+    var occ = 0,
+    i = 0;
+    var arg = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
+    while (i < arg_len) {
+        if (arg !== null && arg.getAttribute("name") == ("ARG" + i.toString())) { //first arg should be ARG0. If we skip an arg make it null
+            Blockly_gen.createAllBlocks(arg);
+        } else {
+            Blockly_gen.addToJSON('{\n');
+            Blockly_gen.addToJSON('"type": "null_const",\n');
+            Blockly_gen.addToJSON('"value": null,\n');
+			Blockly_gen.addToJSON('"id": null\n');
+            Blockly_gen.addToJSON('}\n');
+            occ--;
+        }
+        arg = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
+        i++
+        if (i != arg_len)
+            Blockly_gen.addToJSON(',\n');
+        else
+            Blockly_gen.addToJSON('\n');
+    }
+
+    Blockly_gen.addToJSON(']\n');
 }
 
 /*----------------------------------------------*/
@@ -136,17 +178,27 @@ AST_dispatch["procedures_callreturn"] = function(block) {
     var funcname = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1).getAttribute("name");
     Blockly_gen.addToJSON('"name": "' + funcname + '",\n');
 
-    Blockly_gen.addToJSON('"args": [\n');
 
     var mutation = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1);
     var arg_len = 1;
+    var tmp, arg_names =[];
     if (mutation !== null) {
-        while (Blockly_gen.getElement(mutation, Blockly_gen.ELEMENT_NODE, "arg", arg_len++) !== null); //find amount of args
+        while ((tmp=Blockly_gen.getElement(mutation, Blockly_gen.ELEMENT_NODE, "arg", arg_len++)) !== null){ //find amount of args
+            arg_names.push(tmp.getAttribute("name"))
+        }
         arg_len += -2; //start counting from 0 (-1) and remove the extra ++ in the last iteration (-1) == -2
     }
+    Blockly_gen.addToJSON('"arg_names": [');
+    for(arg in arg_names){
+        Blockly_gen.addToJSON('"' + arg_names[arg] + '",');
+    }
+    if (arg_names.length != 0)
+        Blockly_gen.JSONremoveChars(1);
+    Blockly_gen.addToJSON('],\n');
 
+    Blockly_gen.addToJSON('"args": [\n');
     var occ = 0,
-        i = 0;
+    i = 0;
     var arg = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
     while (i < arg_len) {
         if (arg !== null && arg.getAttribute("name") == ("ARG" + i.toString())) { //first arg should be ARG0. If we skip an arg make it null
