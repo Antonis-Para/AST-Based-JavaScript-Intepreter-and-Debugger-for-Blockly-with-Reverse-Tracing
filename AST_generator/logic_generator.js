@@ -4,27 +4,63 @@ Blockly_gen = require('./AST_Init.js')
 AST_dispatch["controls_if"] = function(block) {
     Blockly_gen.addToJSON('"type": "if_stmt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
-
-    var if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
-    Blockly_gen.addToJSON('"cond": ');
-    if (Blockly_gen.createAllBlocks(if_value) === null) { //no condition in the if statement. Default is false
-        Blockly_gen.addToJSON('{\n');
-        Blockly_gen.addToJSON('"type": "bool_const",\n');
-        Blockly_gen.addToJSON('"value": false,\n');
-		Blockly_gen.addToJSON('"id": null\n');
-        Blockly_gen.addToJSON('}');
+    
+    var if_else_count = Number(Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1).getAttribute("elseif"));
+    var occ_else = 1
+    var if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", occ_else++);
+    Blockly_gen.addToJSON('"cond": [');
+    for (var i = 0; i <= if_else_count; i++){
+        if (Blockly_gen.createAllBlocks(if_value) === null || if_value.getAttribute('name') != 'IF' + i) { //no condition in the if statement. Default is false
+            Blockly_gen.addToJSON('{\n');
+            Blockly_gen.addToJSON('"type": "bool_const",\n');
+            Blockly_gen.addToJSON('"value": false,\n');
+            Blockly_gen.addToJSON('"id": null\n');
+            Blockly_gen.addToJSON('}');
+            occ_else--;
+        }
+        Blockly_gen.addToJSON(',');
+        if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", occ_else++);
     }
-    Blockly_gen.addToJSON(',\n');
+    Blockly_gen.JSONremoveChars(1)
+    Blockly_gen.addToJSON('],\n');
 
-    Blockly_gen.addToJSON('"do": {\n');
-    Blockly_gen.addToJSON('"type": "stmts",\n');
+    var occ_do = 1
+    Blockly_gen.addToJSON('"do": [\n');
+    for (var i = 0; i <= if_else_count; i++){
+        Blockly_gen.addToJSON('{\n');
+        Blockly_gen.addToJSON('"type": "stmts",\n');
 
-    var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", 1);
+        var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", occ_do++);
+        if (do_statement.getAttribute("name") != 'DO' + i){
+            occ_do--;
+            Blockly_gen.addToJSON('"data": []\n');
+            Blockly_gen.addToJSON('},\n');
+            continue;
+        }
 
-    Blockly_gen.addToJSON('"data": [\n');
-    Blockly_gen.createAllBlocks(do_statement)
-    Blockly_gen.addToJSON(']\n');
-    Blockly_gen.addToJSON('}\n'); //do
+        Blockly_gen.addToJSON('"data": [\n');
+        Blockly_gen.createAllBlocks(do_statement)
+        Blockly_gen.addToJSON(']\n');
+        Blockly_gen.addToJSON('},\n'); //do
+    }
+    Blockly_gen.JSONremoveChars(2)
+    Blockly_gen.addToJSON('],\n');
+
+    
+    var else_count = Number(Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1).getAttribute("else"));
+    Blockly_gen.addToJSON('"default":{\n');
+    if (else_count == 1){
+        Blockly_gen.addToJSON('"type": "stmts",\n');
+        var do_statement = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "statement", occ_do++);
+        Blockly_gen.addToJSON('"data": [\n');
+        Blockly_gen.createAllBlocks(do_statement)
+        Blockly_gen.addToJSON(']\n');
+    }else{
+        Blockly_gen.addToJSON('"type": "stmts",\n');
+        Blockly_gen.addToJSON('"data": []\n');
+    }
+    Blockly_gen.addToJSON('}\n');
+    //var else_if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2);
 }
 
 AST_dispatch["logic_compare"] = function(block) {
