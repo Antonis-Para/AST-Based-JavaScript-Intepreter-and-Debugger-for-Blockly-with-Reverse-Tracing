@@ -102,7 +102,7 @@ function blocksExist(blocks) {
 function nextBlock(block) {
     var next = getElement(block, Blockly_gen.ELEMENT_NODE, "next");
 
-    if (next == null) {
+    if (next === null) {
         Blockly_gen.addToJSON('\n');
         return;
     }
