@@ -30,8 +30,12 @@ function Generator(xmlText) {
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n');
 
+<<<<<<< HEAD
     return Blockly_gen.getJSON();
     
+=======
+    return JSON.parse(Blockly_gen.getJSON());
+>>>>>>> 783524d2514e49b0a73b33d7cba199985d089839
     //-----------------------------------------------//
 }
 

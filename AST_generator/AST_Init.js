@@ -39,8 +39,6 @@ const {
     exit
 } = require('process');
 
-
-
 /* --------------------------------------------------------------------------------
 	Will create all the variable declarations that are inside the <variables> tag.
 	Assumes that the tag is in the outer blocks
@@ -122,7 +120,7 @@ function blocksExist(blocks) {
 function nextBlock(block) {
     var next = getElement(block, Blockly_gen.ELEMENT_NODE, "next");
 
-    if (next == null) {
+    if (next === null) {
         Blockly_gen.addToJSON('\n');
         return;
     }
@@ -172,5 +170,5 @@ module.exports = {
     createAllBlocks,
     getElement,
     getJSON,
-    JSONremoveChars
+    JSONremoveChars,
 }

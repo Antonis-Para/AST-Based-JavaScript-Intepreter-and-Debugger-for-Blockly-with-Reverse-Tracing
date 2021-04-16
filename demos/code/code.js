@@ -558,8 +558,8 @@ Code.runJS = function() {
       throw MSG['timeout'];
     }
   };
-  //var code = Blockly.JavaScript.workspaceToCode(Code.workspace);
-  var code = 'alert("Hello World!")';
+  var code = Blockly.JavaScript.workspaceToCode(Code.workspace);
+  //var code = 'alert("Hello World!")';
   Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
   try {
     eval(code);
