@@ -28,9 +28,12 @@ export var Blockly_gen = {
         text = text.slice(0, -amount);
     },
 
+    resetJSON : function (){
+        text = "";
+    },
+
     // This is just one way  you make it a singleton;
     // then invoke as GetJsonText().<method>(<args>)
-
     GetJsonText: function  () {
 
         if (typeof GetJsonText.self == 'undefined') {    // guarantee one initialisation
@@ -83,7 +86,6 @@ export var Blockly_gen = {
 
             var type = block.getAttribute('type');
             try {
-                console.log(AST_dispatch)
                 AST_dispatch[type](block); // Dispatch
             }catch(e){
                 console.log("Error with type " + type)
