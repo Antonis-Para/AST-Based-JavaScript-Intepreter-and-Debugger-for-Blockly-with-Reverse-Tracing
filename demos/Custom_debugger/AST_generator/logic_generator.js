@@ -74,7 +74,7 @@ AST_dispatch.install("controls_if", function(block) {
     //var else_if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 2);
 })
 
-AST_dispatch["logic_compare"] = function(block) {
+AST_dispatch.install("logic_compare", function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -105,10 +105,10 @@ AST_dispatch["logic_compare"] = function(block) {
 		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["logic_operation"] = function(block) {
+AST_dispatch.install("logic_operation", function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 	
@@ -135,10 +135,10 @@ AST_dispatch["logic_operation"] = function(block) {
 		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["logic_negate"] = function(block) {
+AST_dispatch.install("logic_negate", function(block) {
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
     Blockly_gen.addToJSON('"op": "NOT",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
@@ -152,10 +152,10 @@ AST_dispatch["logic_negate"] = function(block) {
 		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["logic_boolean"] = function(block) {
+AST_dispatch.install("logic_boolean", function(block) {
     Blockly_gen.addToJSON('"type": "bool_const",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 	
@@ -168,17 +168,17 @@ AST_dispatch["logic_boolean"] = function(block) {
         console.log("\nError inside makeLogicBoolean")
         exit();
     }
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["logic_null"] = function(block) {
+AST_dispatch.install("logic_null", function(block) {
     Blockly_gen.addToJSON('"type": "null_const",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     Blockly_gen.addToJSON('"value": null\n');
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["logic_ternary"] = function(block) {
+AST_dispatch.install("logic_ternary", function(block) {
     Blockly_gen.addToJSON('"type": "tenary_expr",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -220,4 +220,4 @@ AST_dispatch["logic_ternary"] = function(block) {
 		Blockly_gen.addToJSON('"id": null\n');
         Blockly_gen.addToJSON('}\n');
     }
-}
+})

@@ -1,7 +1,7 @@
 import {Blockly_gen, AST_dispatch} from './AST_Init.js';
 
 /*----------------------------------------------*/
-AST_dispatch["procedures_defnoreturn"] = function(block) {
+AST_dispatch.install("procedures_defnoreturn", function(block) {
     Blockly_gen.addToJSON('"type": "func_decl",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -31,10 +31,10 @@ AST_dispatch["procedures_defnoreturn"] = function(block) {
 			Blockly_gen.createAllBlocks(statements)
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n'); //do
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["procedures_ifreturn"] = function(block) {
+AST_dispatch.install("procedures_ifreturn", function(block) {
     Blockly_gen.addToJSON('"type": "if_stmt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -71,11 +71,11 @@ AST_dispatch["procedures_ifreturn"] = function(block) {
 			Blockly_gen.addToJSON('}\n');
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n'); //do
-}
+})
 
 
 /*----------------------------------------------*/
-AST_dispatch["procedures_defreturn"] = function(block) {
+AST_dispatch.install("procedures_defreturn", function(block) {
     Blockly_gen.addToJSON('"type": "func_decl",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -116,10 +116,10 @@ AST_dispatch["procedures_defreturn"] = function(block) {
 			}
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n'); //do		
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["procedures_callnoreturn"] = function(block) {
+AST_dispatch.install("procedures_callnoreturn", function(block) {
     Blockly_gen.addToJSON('"type": "userfunc_call",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -168,10 +168,10 @@ AST_dispatch["procedures_callnoreturn"] = function(block) {
     }
 
     Blockly_gen.addToJSON(']\n');
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["procedures_callreturn"] = function(block) {
+AST_dispatch.install("procedures_callreturn", function(block) {
     Blockly_gen.addToJSON('"type": "userfunc_call",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -220,4 +220,4 @@ AST_dispatch["procedures_callreturn"] = function(block) {
     }
 
     Blockly_gen.addToJSON(']\n');
-}
+})

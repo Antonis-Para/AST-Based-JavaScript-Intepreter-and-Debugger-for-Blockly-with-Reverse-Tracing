@@ -1,7 +1,7 @@
 import {Blockly_gen, AST_dispatch} from './AST_Init.js';
 
 /*----------------------------------------------*/
-AST_dispatch["lists_create_with"] = function(block) {
+AST_dispatch.install("lists_create_with", function(block) {
     Blockly_gen.addToJSON('"type": "list_create",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     Blockly_gen.addToJSON('"items": [\n');
@@ -20,10 +20,10 @@ AST_dispatch["lists_create_with"] = function(block) {
     }
     Blockly_gen.JSONremoveChars(2); //remove the last ','
     Blockly_gen.addToJSON(']\n');
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_repeat"] = function(block) {
+AST_dispatch.install("lists_repeat", function(block) {
     Blockly_gen.addToJSON('"type": "libfunc_call",\n');
     Blockly_gen.addToJSON('"name": "list_invoke",\n');
     Blockly_gen.addToJSON('"param": "repeat",\n');
@@ -48,10 +48,10 @@ AST_dispatch["lists_repeat"] = function(block) {
     }
     Blockly_gen.createAllBlocks(repeat_value);
     Blockly_gen.addToJSON(']');
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_length"] = function(block) {
+AST_dispatch.install("lists_length", function(block) {
     Blockly_gen.addToJSON('"type": "property",\n');
     Blockly_gen.addToJSON('"name": ".length",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
@@ -65,10 +65,10 @@ AST_dispatch["lists_length"] = function(block) {
         Blockly_gen.addToJSON('"items": []\n');
         Blockly_gen.addToJSON('}\n');
     }
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_isEmpty"] = function(block) { //list.length == 0
+AST_dispatch.install("lists_isEmpty", function(block) { //list.length == 0
     Blockly_gen.addToJSON('"type": "logic_expr",\n');
     Blockly_gen.addToJSON('"op": "EQ",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
@@ -93,10 +93,10 @@ AST_dispatch["lists_isEmpty"] = function(block) { //list.length == 0
 		Blockly_gen.addToJSON('"id": null\n');
     Blockly_gen.addToJSON('}\n');
 
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_indexOf"] = function(block) {
+AST_dispatch.install("lists_indexOf", function(block) {
     Blockly_gen.addToJSON('"type": "arithm_expr",\n');
     Blockly_gen.addToJSON('"op": "ADD",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
@@ -140,10 +140,10 @@ AST_dispatch["lists_indexOf"] = function(block) {
 		Blockly_gen.addToJSON('"id": null\n');
     Blockly_gen.addToJSON('}\n');
 
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_getIndex"] = function(block) {
+AST_dispatch.install("lists_getIndex", function(block) {
     var mode_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue.toLowerCase();
     var where_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue.toLowerCase();
     var child_no = 1;
@@ -416,11 +416,11 @@ AST_dispatch["lists_getIndex"] = function(block) {
             break;
 
     }
-}
+})
 
 
 /*----------------------------------------------*/
-AST_dispatch["lists_setIndex"] = function(block) {
+AST_dispatch.install("lists_setIndex", function(block) {
     var child_no = 1;
     Blockly_gen.addToJSON('"type": "libfunc_call",\n');
     Blockly_gen.addToJSON('"name": "list_invoke",\n');
@@ -472,10 +472,10 @@ AST_dispatch["lists_setIndex"] = function(block) {
         child_no++;
     }
     Blockly_gen.addToJSON(']');
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_getSublist"] = function(block) {
+AST_dispatch.install("lists_getSublist", function(block) {
     var child_no = 1;
     var where1_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue.toLowerCase();
     var where2_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 2).childNodes[0].nodeValue.toLowerCase();
@@ -531,10 +531,10 @@ AST_dispatch["lists_getSublist"] = function(block) {
         }
     }
     Blockly_gen.addToJSON(']');
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_split"] = function(block) {
+AST_dispatch.install("lists_split", function(block) {
     Blockly_gen.addToJSON('"type": "libfunc_call",\n');
     Blockly_gen.addToJSON('"name": "list_invoke",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
@@ -568,10 +568,10 @@ AST_dispatch["lists_split"] = function(block) {
     Blockly_gen.createAllBlocks(delim_value);
     Blockly_gen.addToJSON(']');
 
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["lists_sort"] = function(block) {
+AST_dispatch.install("lists_sort", function(block) {
     Blockly_gen.addToJSON('"type": "libfunc_call",\n');
     Blockly_gen.addToJSON('"name": "list_invoke",\n');
     Blockly_gen.addToJSON('"param": "sort",\n');
@@ -593,4 +593,4 @@ AST_dispatch["lists_sort"] = function(block) {
 		Blockly_gen.addToJSON('}\n');
     }
     Blockly_gen.addToJSON(']');
-}
+})

@@ -597,7 +597,7 @@ Code.debugJS = function() {
   //var code = 'alert("Hello World!")';
   Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
   try {
-    eval(code);
+    //eval(code);
 	  Debuggee_Worker(xml)
   } catch (e) {
     alert(MSG['badCode'].replace('%1', e));

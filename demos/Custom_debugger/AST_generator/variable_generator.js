@@ -1,7 +1,7 @@
 import {Blockly_gen, AST_dispatch} from './AST_Init.js';
 
 /*----------------------------------------------*/
-AST_dispatch["variables_set"] = function(block) {
+AST_dispatch.install("variables_set", function(block) {
     Blockly_gen.addToJSON('"type": "assign_expr",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -18,10 +18,10 @@ AST_dispatch["variables_set"] = function(block) {
 		Blockly_gen.addToJSON('"id": null\n');
 		Blockly_gen.addToJSON('}\n');        
     }
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["variables_get"] = function(block) {
+AST_dispatch.install("variables_get", function(block) {
     Blockly_gen.addToJSON('"type": "var",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 	
@@ -34,10 +34,10 @@ AST_dispatch["variables_get"] = function(block) {
         console.log("Error in makeVariabelGet")
         exit();
     }
-}
+})
 
 /*----------------------------------------------*/
-AST_dispatch["math_change"] = function(block) {
+AST_dispatch.install("math_change", function(block) {
     Blockly_gen.addToJSON('"type": "var_change",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 	
@@ -48,4 +48,4 @@ AST_dispatch["math_change"] = function(block) {
     Blockly_gen.addToJSON('"value": \n');
     var change_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     Blockly_gen.createAllBlocks(change_value);
-}
+})

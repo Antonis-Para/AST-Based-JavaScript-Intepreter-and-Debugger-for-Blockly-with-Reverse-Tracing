@@ -136,7 +136,7 @@ export var Blockly_gen = {
         }
 
         Blockly_gen.addToJSON(',\n');
-        createAllBlocks(next)
+        this.createAllBlocks(next)
     },
 
     /* ------------------------------------------------------------------------------

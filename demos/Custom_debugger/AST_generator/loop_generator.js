@@ -1,6 +1,6 @@
 import {Blockly_gen, AST_dispatch} from './AST_Init.js';
 
-AST_dispatch["controls_repeat_ext"] = function(block) {
+AST_dispatch.install("controls_repeat_ext", function(block) {
     Blockly_gen.addToJSON('"type": "repeat_stmt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
     
@@ -16,10 +16,10 @@ AST_dispatch["controls_repeat_ext"] = function(block) {
 		Blockly_gen.createAllBlocks(do_statement)
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n'); //do
-}
+})
 
 /*----------------------------------------------------*/
-AST_dispatch["controls_whileUntil"] = function(block) {
+AST_dispatch.install("controls_whileUntil", function(block) {
     var mode = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
     if (mode == 'WHILE')
         Blockly_gen.addToJSON('"type": "while_stmt",\n');
@@ -46,10 +46,10 @@ AST_dispatch["controls_whileUntil"] = function(block) {
     Blockly_gen.createAllBlocks(do_statement)
     Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n'); //do
-}
+})
 
 /*----------------------------------------------------*/
-AST_dispatch["controls_for"] = function(block) {
+AST_dispatch.install("controls_for", function(block) {
     Blockly_gen.addToJSON('"type": "for_stmt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 	
@@ -78,11 +78,11 @@ AST_dispatch["controls_for"] = function(block) {
 			Blockly_gen.createAllBlocks(do_statement)
 		Blockly_gen.addToJSON(']\n');
     Blockly_gen.addToJSON('}\n'); //do
-}
+})
 
 
 /*----------------------------------------------------*/
-AST_dispatch["controls_forEach"] = function(block) {
+AST_dispatch.install("controls_forEach", function(block) {
     Blockly_gen.addToJSON('"type": "forEach_stmt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 	
@@ -107,12 +107,12 @@ AST_dispatch["controls_forEach"] = function(block) {
 		Blockly_gen.createAllBlocks(do_statement)
 		Blockly_gen.addToJSON(']\n');
 	Blockly_gen.addToJSON('}\n'); //do
-}
+})
 
 /*----------------------------------------------------*/
-AST_dispatch["controls_flow_statements"] = function(block) {
+AST_dispatch.install("controls_flow_statements", function(block) {
     Blockly_gen.addToJSON('"type": "keyword",\n');
     var key_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue; //can not be empty
     Blockly_gen.addToJSON('"name": "' + key_value.toLowerCase() + '",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '"\n');
-}
+})
