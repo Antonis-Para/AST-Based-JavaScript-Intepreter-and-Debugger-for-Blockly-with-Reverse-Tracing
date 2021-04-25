@@ -467,6 +467,8 @@ Code.init = function() {
   Code.bindClick('runButton', Code.runJS);
   
   Code.bindClick('debugButton', Code.debugJS);
+
+  Code.bindClick('stepInButton', Code.stepIn);
   // Disable the link button if page isn't backed by App Engine storage.
   var linkButton = document.getElementById('linkButton');
   if ('BlocklyStorage' in window) {
@@ -590,19 +592,25 @@ Code.debugJS = function() {
       throw MSG['timeout'];
     }
   };
-  var code = Blockly.JavaScript.workspaceToCode(Code.workspace);
+  //var code = Blockly.JavaScript.workspaceToCode(Code.workspace);
   var xml = Blockly.Xml.workspaceToDom(Code.workspace);
   xml = new XMLSerializer().serializeToString(xml);
 
   //var code = 'alert("Hello World!")';
   Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
   try {
-    //eval(code);
-	  Debuggee_Worker(xml)
+    var json = Debuggee_Worker.blocklyXmlToJson(xml)
+    Debuggee_Worker.initWorkspace(Code.workspace) //or Blockly.mainWorkspace
+	  Debuggee_Worker.getInstance().postMessage({type : "code", data: {code : json}})
+
   } catch (e) {
     alert(MSG['badCode'].replace('%1', e));
   }
 };
+
+Code.stepIn = function() {
+  Debuggee_Worker.getInstance().postMessage({type : "stepIn"})
+}
 
 /**
  * Discard all blocks from the workspace.

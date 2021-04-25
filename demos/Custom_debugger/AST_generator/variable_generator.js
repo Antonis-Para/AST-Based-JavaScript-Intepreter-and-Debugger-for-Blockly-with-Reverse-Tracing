@@ -28,7 +28,7 @@ AST_dispatch.install("variables_get", function(block) {
     var lvalue = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).getAttribute('name');
 
     if (lvalue == "VAR") {
-        variable = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+        let variable = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
         Blockly_gen.addToJSON('"name": "' + variable + '"\n');
     } else {
         console.log("Error in makeVariabelGet")

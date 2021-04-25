@@ -1,6 +1,11 @@
+import {blockly_debuggee} from "./init.js";
+export {blockly_debuggee};
+
+
 var Interpreter = {
     "userVars"              : [],
     "userFuncs"             : [],
+    flag                    : true,
 
     "init" : function(ast){
         for(var attributename in ast.data){
@@ -12,14 +17,27 @@ var Interpreter = {
         }
     },
 
-    "eval" : function (node) {
+    "sleep" : async function(ms){
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
+
+    "eval" : async function (node) {
+        if (node.id !== null && node.id !== undefined){
+            while (this.flag){
+                await this.sleep(0);
+            }
+
+            postMessage({type:"highlight_block", data:{ id : node.id } })
+        }
+        this.flag = true;
+        //console.log(node)
         return this["eval_" + node.type](node);
     },
 
     "eval_stmts" : function (node) {
         var res;
-        for (stmt in node.data){
-            var res = this.eval(node.data[stmt]);
+        for (var stmt in node.data){
+            res = this.eval(node.data[stmt]);
         }
         return res; //return the last command (used for userfuncs, for example return 5;)
     },
@@ -190,10 +208,11 @@ var Interpreter = {
         this.userVars[node.var_name] += this.eval(node.value);
     },
 
-    "eval_func_call" : function (node) {
+    "eval_func_call" : async function (node) {
         var args = []
-        for (arg in node.args){
-            args.push(this.eval(node.args[arg]));
+        for (var arg in node.args){
+            await this.eval(node.args[arg]).then((val) =>args.push(val))
+            //args.push(this.eval(node.args[arg]));
         }
         if (node.name == 'window.alert') //for testing. correct is window.alert
             console.log('' + args[0])
@@ -207,16 +226,16 @@ var Interpreter = {
 
     "eval_userfunc_call" : function (node) {
         var func    = this.userFuncs[node.name];
-        old_vars    = []
+        var old_vars    = []
 
-        for (arg in node.arg_names){
+        for (var arg in node.arg_names){
             var arg_name = node.arg_names[arg]
             old_vars[arg_name] = this.userVars[arg_name];
             this.userVars[arg_name] = this.eval(node.args.shift())
         }
 
         var result  = this.eval(func);
-        for (arg in node.arg_names){ //restore old user variables
+        for (var arg in node.arg_names){ //restore old user variables
             var arg_name = node.arg_names[arg]
             this.userVars[arg_name] = old_vars[arg_name];
         }
@@ -226,7 +245,7 @@ var Interpreter = {
     "eval_libfunc_call": function(node){
         var func    = LibraryFuncs[node.name];
         var args    = []; // as an array
-        for (arg in node.args){
+        for (var arg in node.args){
             args.push(this.eval(node.args[arg]));
         }
         args.unshift(node.param);
@@ -237,7 +256,7 @@ var Interpreter = {
 
     "eval_list_create" : function (node) {
         var list = []
-        for (item in node.items){
+        for (var item in node.items){
             list.push(this.eval(node.items[item]))
         }
         return list;
@@ -574,7 +593,4 @@ var LibraryFuncs = {
     }
 }
 
-
-module.exports = {
-    Interpreter
-}
+blockly_debuggee.Interpreter = Interpreter;
