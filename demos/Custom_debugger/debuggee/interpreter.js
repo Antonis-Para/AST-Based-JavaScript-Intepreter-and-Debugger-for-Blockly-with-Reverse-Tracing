@@ -11,6 +11,8 @@ var Interpreter = {
             if (type == "func_decl"){
                 var name = ast.data[attributename].name
                 this.userFuncs[name] = ast.data[attributename].do;
+                this.userFuncs[name].id = ast.data[attributename].id;
+                delete ast.data[attributename]
             }
         }
     },
@@ -210,7 +212,7 @@ var Interpreter = {
         }
     },
 
-    "eval_func_decl" : function (node) {}, //nothing needs to be done, we already declared this func in init
+    //"eval_func_decl" : function (node) {}, //nothing needs to be done, we already declared this func in init
 
     "eval_userfunc_call" : async function (node) {
         var func    = this.userFuncs[node.name];
