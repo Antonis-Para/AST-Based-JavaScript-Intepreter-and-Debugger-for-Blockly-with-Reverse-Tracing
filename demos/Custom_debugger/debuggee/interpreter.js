@@ -1,11 +1,9 @@
 import {blockly_debuggee} from "./init.js";
 export {blockly_debuggee};
 
-
 var Interpreter = {
     "userVars"              : [],
     "userFuncs"             : [],
-    flag                    : true,
 
     "init" : function(ast){
         for(var attributename in ast.data){
@@ -17,51 +15,41 @@ var Interpreter = {
         }
     },
 
-    "sleep" : async function(ms){
-        return new Promise(resolve => setTimeout(resolve, ms));
-    },
-
     "eval" : async function (node) {
-        if (node.id !== null && node.id !== undefined){
-            while (this.flag){
-                await this.sleep(0);
-            }
-
-            postMessage({type:"highlight_block", data:{ id : node.id } })
-        }
-        this.flag = true;
-        //console.log(node)
+        //console.log(blockly_debuggee.state.flag)
+        await blockly_debuggee.TraceCommandHandler.wait(node)
+        
         return this["eval_" + node.type](node);
     },
 
-    "eval_stmts" : function (node) {
+    "eval_stmts" : async function (node) {
         var res;
         for (var stmt in node.data){
-            res = this.eval(node.data[stmt]);
+            res = await this.eval(node.data[stmt]);
         }
         return res; //return the last command (used for userfuncs, for example return 5;)
     },
 
-    "eval_if_stmt" : function (node) {
+    "eval_if_stmt" : async function (node) {
         var i = 0;
         for (var cond in node.cond){
-            if (this.eval(node.cond[cond])){
-                this.eval(node.do[i])
+            if (await this.eval(node.cond[cond])){
+                await this.eval(node.do[i])
                 return null;
             }
             i++
         }
 
-        this.eval(node.default)
+        await this.eval(node.default)
 
         return null;
     },
     "eval_if_else_stmt" : (node) => this.eval_if_stmt(node),
 
-    "eval_while_stmt" : function (node) {
-        while (this.eval(node.cond)){
+    "eval_while_stmt" : async function (node) {
+        while (await this.eval(node.cond)){
             try {
-                this.eval(node.do)
+                await this.eval(node.do)
             }catch (msg) {
                 if (msg == 'break') break;
                 //continue doesn't need a special case
@@ -69,10 +57,10 @@ var Interpreter = {
         }
     },
 
-    "eval_untill_stmt" : function (node) {
-        while (!this.eval(node.cond)){
+    "eval_untill_stmt" : async function (node) {
+        while (!await this.eval(node.cond)){
             try {
-                this.eval(node.do)
+                await this.eval(node.do)
             }catch (msg) {
                 if (msg == 'break') break;
                 //continue doesn't need a special case
@@ -80,15 +68,15 @@ var Interpreter = {
         }
     },
 
-    "eval_for_stmt" : function (node) {
-       var from = this.eval(node.from)
-       var to   = this.eval(node.to)
-       var step = this.eval(node.by)
+    "eval_for_stmt" : async function (node) {
+       var from = await this.eval(node.from)
+       var to   = await this.eval(node.to)
+       var step = await this.eval(node.by)
        var i    = (this.userVars[node.var_name] = from);
 
        for (i = from; i <= to; i = (this.userVars[node.var_name] += step) ){
             try {
-                this.eval(node.do)
+                await this.eval(node.do)
             }catch (msg) {
                 if (msg == 'break') break;
                 //continue doesn't need a special case
@@ -96,13 +84,13 @@ var Interpreter = {
        }
     },
 
-    "eval_forEach_stmt" : function (node) {
-        var list = this.eval(node.in)
+    "eval_forEach_stmt" : async function (node) {
+        var list = await this.eval(node.in)
 
         for (var i in list){
             this.userVars[node.var_name] = list[i]
             try {
-                this.eval(node.do)
+                await this.eval(node.do)
             }catch (msg) {
                 if (msg == 'break') break;
                 //continue doesn't need a special case
@@ -110,12 +98,12 @@ var Interpreter = {
         }
      },
 
-     "eval_repeat_stmt" : function (node) {
-        var repeat = this.eval(node.cond)
+     "eval_repeat_stmt" : async function (node) {
+        var repeat = await this.eval(node.cond)
 
         for (i = 0; i < repeat; i++){
             try {
-                this.eval(node.do)
+                await this.eval(node.do)
             }catch (msg) {
                 if (msg == 'break') break;
                 //continue doesn't need a special case
@@ -138,10 +126,10 @@ var Interpreter = {
     "eval_number" : function (node) {
         return node.value
     },
-    "eval_keyword" : function (node) {
+    "eval_keyword" : async function (node) {
         switch(node.name){
             case 'return':
-                return this.eval(node.value)
+                return await this.eval(node.value)
             case 'break':
                 throw 'break';
             case 'continue':
@@ -150,47 +138,47 @@ var Interpreter = {
           
     },
 
-    "eval_logic_expr" : function (node) {
+    "eval_logic_expr" : async function (node) {
         switch(node.op){
             case "AND":
-                return this.eval(node.lval) && this.eval(node.rval);
+                return await this.eval(node.lval) && await this.eval(node.rval);
             case "OR":
-                return this.eval(node.lval) || this.eval(node.rval);
+                return await this.eval(node.lval) || await this.eval(node.rval);
             case "EQ":
-                return this.eval(node.lval) == this.eval(node.rval);
+                return await this.eval(node.lval) == await this.eval(node.rval);
             case "NEQ":
-                return this.eval(node.lval) != this.eval(node.rval);
+                return await this.eval(node.lval) != await this.eval(node.rval);
             case "LT":
-                return this.eval(node.lval) < this.eval(node.rval);
+                return await this.eval(node.lval) < await this.eval(node.rval);
             case "LTE":
-                return this.eval(node.lval) <= this.eval(node.rval);
+                return await this.eval(node.lval) <= await this.eval(node.rval);
             case "GT":
-                return this.eval(node.lval) > this.eval(node.rval);
+                return await this.eval(node.lval) > await this.eval(node.rval);
             case "GTE":
-                return this.eval(node.lval) >= this.eval(node.rval);
+                return await this.eval(node.lval) >= await this.eval(node.rval);
         }
     },
 
-    "eval_tenary_expr" : function (node) {
-        return this.eval(node.if) ? this.eval(node.then): this.eval(node.else);
+    "eval_tenary_expr" : async function (node) {
+        return await this.eval(node.if) ? await this.eval(node.then): await this.eval(node.else);
     },
 
-    "eval_assign_expr" : function (node) {
-        this.userVars[node.lval] = this.eval(node.rval)
+    "eval_assign_expr" : async function (node) {
+        this.userVars[node.lval] = await this.eval(node.rval)
     },
 
-    "eval_arithm_expr" : function (node) {
+    "eval_arithm_expr" : async function (node) {
         switch(node.op){
             case 'ADD':
-                return this.eval(node.lval) + this.eval(node.rval)
+                return await this.eval(node.lval) + await this.eval(node.rval)
             case 'MINUS':
-                return this.eval(node.lval.value) - this.eval(node.rval.value)
+                return await this.eval(node.lval.value) - await this.eval(node.rval.value)
             case 'MULTIPLY':
-                return this.eval(node.lval.value) * this.eval(node.rval.value)
+                return await this.eval(node.lval.value) * await this.eval(node.rval.value)
             case 'DIVIDE':
-                return this.eval(node.lval.value) / this.eval(node.rval.value)
+                return await this.eval(node.lval.value) / await this.eval(node.rval.value)
             case 'POWER':
-                return Math.pow(this.eval(node.lval.value), this.eval(node.rval.value));
+                return Math.pow(this.eval(node.lval.value), await this.eval(node.rval.value));
         }
     },
 
@@ -202,17 +190,17 @@ var Interpreter = {
         return this.userVars[node.name];
     },
 
-    "eval_var_change" : function (node) {
+    "eval_var_change" : async function (node) {
         if (this.userVars[node.var_name] === undefined)
             this.userVars[node.var_name] = 0;
-        this.userVars[node.var_name] += this.eval(node.value);
+        this.userVars[node.var_name] += await this.eval(node.value);
     },
 
     "eval_func_call" : async function (node) {
         var args = []
         for (var arg in node.args){
-            await this.eval(node.args[arg]).then((val) =>args.push(val))
-            //args.push(this.eval(node.args[arg]));
+            //await this.eval(node.args[arg]).then((val) =>args.push(val))
+            args.push(await this.eval(node.args[arg]));
         }
         if (node.name == 'window.alert') //for testing. correct is window.alert
             console.log('' + args[0])
@@ -224,17 +212,17 @@ var Interpreter = {
 
     "eval_func_decl" : function (node) {}, //nothing needs to be done, we already declared this func in init
 
-    "eval_userfunc_call" : function (node) {
+    "eval_userfunc_call" : async function (node) {
         var func    = this.userFuncs[node.name];
         var old_vars    = []
 
         for (var arg in node.arg_names){
             var arg_name = node.arg_names[arg]
             old_vars[arg_name] = this.userVars[arg_name];
-            this.userVars[arg_name] = this.eval(node.args.shift())
+            this.userVars[arg_name] = await this.eval(node.args.shift())
         }
 
-        var result  = this.eval(func);
+        var result  = await this.eval(func);
         for (var arg in node.arg_names){ //restore old user variables
             var arg_name = node.arg_names[arg]
             this.userVars[arg_name] = old_vars[arg_name];
@@ -242,11 +230,11 @@ var Interpreter = {
         return result
     },
 
-    "eval_libfunc_call": function(node){
+    "eval_libfunc_call": async function(node){
         var func    = LibraryFuncs[node.name];
         var args    = []; // as an array
         for (var arg in node.args){
-            args.push(this.eval(node.args[arg]));
+            args.push(await this.eval(node.args[arg]));
         }
         args.unshift(node.param);
 
@@ -254,19 +242,19 @@ var Interpreter = {
         return result;
     },
 
-    "eval_list_create" : function (node) {
+    "eval_list_create" : async function (node) {
         var list = []
         for (var item in node.items){
-            list.push(this.eval(node.items[item]))
+            list.push(await this.eval(node.items[item]))
         }
         return list;
     },
-    "eval_list_index" : function (node) {
-        var list = this.eval(node.list)
-        return list[this.eval(node.index) - 1];
+    "eval_list_index" : async function (node) {
+        var list = await this.eval(node.list)
+        return list[await this.eval(node.index) - 1];
     },
-    "eval_property" : function (node) {
-        var item = this.eval(node.item)
+    "eval_property" : async function (node) {
+        var item = await this.eval(node.item)
         var command = "'" + item + "'" + node.name
         var res = eval(command)
         return res;

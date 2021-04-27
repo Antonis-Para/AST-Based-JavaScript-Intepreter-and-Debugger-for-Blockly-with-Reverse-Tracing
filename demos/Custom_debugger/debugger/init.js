@@ -29,6 +29,7 @@ export var Debuggee_Worker = {
                 }
             }
         }
+
         return this.instance
     },
 
