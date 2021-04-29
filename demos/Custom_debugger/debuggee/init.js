@@ -1,12 +1,45 @@
 export var blockly_debuggee = { }
 
+const NO_COMMAND        = 'undef';
+const TRACE_TYPE        = "trace"
+
+const CONTINUE_COMMAND  = "continue";
+const STEP_COMMAND      = "step";
+const STEP_IN_COMMAND   = "step_in";
+const STEP_OUT_COMMAND  = "step_out";
+const RUN_TO_COMMAND    = "run_to";
+const BREAK_COMMAND     = "break";
+const EXIT_COMMAND      = "exit";
+
+
+
+blockly_debuggee = {
+    matches_to_stop_dispatcher : function (command){
+        var commands = {}
+
+        commands[STEP_OUT_COMMAND]  = () => blockly_debuggee.state.currNest < blockly_debuggee.state.stopNodeNesting;
+        commands[STEP_IN_COMMAND]   = () => true;
+        commands[NO_COMMAND]        = () => false;
+
+        return commands[command]();
+    },
+
+    matches_to_stop : ()   => blockly_debuggee.matches_to_stop_dispatcher(blockly_debuggee.state.traceCommand),
+
+    has_command     : ()   => blockly_debuggee.state.traceCommand != NO_COMMAND,
+    set_command     : function (cmd){
+        //
+        //
+        this.state.traceCommand = cmd;
+    }
+}
+
 blockly_debuggee.state = {
     currNest        : 0,
-    traceCommand    : "",
+    traceCommand    : NO_COMMAND,
     stopNodeNesting : -1,
     debugMode       : false,
     isStopped       : false,
-    flag            : true,
 
     set_stopped     : function(){
         this.reset();
@@ -14,23 +47,8 @@ blockly_debuggee.state = {
         this.stopNodeNesting = this.currNest
     },
 
-    matches_to_stop_dispatcher : {
-        "stepOut"   : () => blockly_debuggee.state.currNest < blockly_debuggee.state.stopNodeNesting,
-        "stepIn"    : () => true,
-        ""          : () => false
-    },
-
-    matches_to_stop : ()   => blockly_debuggee.state.matches_to_stop_dispatcher[blockly_debuggee.state.traceCommand](),
-
-    has_command     : ()   => blockly_debuggee.state.traceCommand != "",
-    set_command     : function (cmd){
-        //
-        //
-        this.traceCommand = cmd;
-    },
-
     reset           : function(){
-        this.traceCommand = "";
+        this.traceCommand = NO_COMMAND;
         this.isStopped = false;
         //
         //
@@ -46,7 +64,7 @@ var TraceCommandHandler = {
             //
             //
         }else{
-            return blockly_debuggee.state.matches_to_stop();
+            return blockly_debuggee.matches_to_stop();
         }
     },
 
@@ -75,16 +93,10 @@ var TraceCommandHandler = {
                 set_stopped(node.id)
             
             if (TraceCommandHandler.is_stopped()){
-                while (!blockly_debuggee.state.has_command()){
+                while (!blockly_debuggee.has_command()){
                     await sleep(0);
                 }
             }
-
-            
-            //highlightBlock(node.id)
-            //blockly_debuggee.state.reset();
-            //blockly_debuggee.state.traceCommand = '';
-            //blockly_debuggee.state.flag = true;
             
         }
 
@@ -93,8 +105,8 @@ var TraceCommandHandler = {
 };
 
 TraceCommandHandler.handle_message = function (type, cmd){
-    if (type == "trace"){
-        blockly_debuggee.state.set_command(cmd);
+    if (type == TRACE_TYPE){
+        blockly_debuggee.set_command(cmd);
     }
 }
 

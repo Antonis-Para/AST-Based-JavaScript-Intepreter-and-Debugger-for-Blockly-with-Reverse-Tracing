@@ -602,7 +602,7 @@ Code.debugJS = function() {
   try {
     var json = Debuggee_Worker.blocklyXmlToJson(xml)
     Debuggee_Worker.initWorkspace(Code.workspace) //or Blockly.mainWorkspace
-	  Debuggee_Worker.getInstance().postMessage({type : "code", data: {code : json}})
+	  Debuggee_Worker.getInstance().postMessage({type : "eval", data: {code : json}})
 
   } catch (e) {
     alert(MSG['badCode'].replace('%1', e));
@@ -610,11 +610,11 @@ Code.debugJS = function() {
 };
 
 Code.stepIn = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "stepIn"})
+  Debuggee_Worker.getInstance().postMessage({type : "step_in"})
 }
 
 Code.stepOut = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "stepOut"})
+  Debuggee_Worker.getInstance().postMessage({type : "step_out"})
 }
 
 /**
