@@ -221,7 +221,7 @@ var Interpreter = {
         for (var arg in node.arg_names){
             var arg_name = node.arg_names[arg]
             old_vars[arg_name] = this.userVars[arg_name];
-            this.userVars[arg_name] = await this.eval(node.args.shift())
+            this.userVars[arg_name] = await this.eval(node.args[0])
         }
 
         blockly_debuggee.state.currNest++;
