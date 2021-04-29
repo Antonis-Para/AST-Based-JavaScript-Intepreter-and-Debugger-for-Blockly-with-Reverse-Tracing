@@ -1,6 +1,7 @@
 import {blockly_debuggee} from "./init.js";
 export {blockly_debuggee};
 
+
 var Interpreter = {
     "userVars"              : [],
     "userFuncs"             : [],
@@ -18,7 +19,6 @@ var Interpreter = {
     },
 
     "eval" : async function (node) {
-        //console.log(blockly_debuggee.state.flag)
         await blockly_debuggee.TraceCommandHandler.wait(node)
         
         return this["eval_" + node.type](node);
@@ -224,11 +224,13 @@ var Interpreter = {
             this.userVars[arg_name] = await this.eval(node.args.shift())
         }
 
+        blockly_debuggee.state.currNest++;
         var result  = await this.eval(func);
         for (var arg in node.arg_names){ //restore old user variables
             var arg_name = node.arg_names[arg]
             this.userVars[arg_name] = old_vars[arg_name];
         }
+        blockly_debuggee.state.currNest--;
         return result
     },
 
