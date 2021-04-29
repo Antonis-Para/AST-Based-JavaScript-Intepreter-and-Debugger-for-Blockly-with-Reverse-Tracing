@@ -17,8 +17,9 @@ blockly_debuggee = {
     matches_to_stop_dispatcher : function (command){
         var commands = {}
 
-        commands[STEP_OUT_COMMAND]  = () => blockly_debuggee.state.currNest < blockly_debuggee.state.stopNodeNesting;
+        commands[STEP_OUT_COMMAND]  = () => blockly_debuggee.state.currNest <  blockly_debuggee.state.stopNodeNesting;
         commands[STEP_OVER_COMMAND] = () => blockly_debuggee.state.currNest <= blockly_debuggee.state.stopNodeNesting;
+        commands[STEP_IN_COMMAND]   = () => blockly_debuggee.state.currNest >  blockly_debuggee.state.stopNodeNesting;
         commands[NO_COMMAND]        = () => false;
 
         return commands[command]();
