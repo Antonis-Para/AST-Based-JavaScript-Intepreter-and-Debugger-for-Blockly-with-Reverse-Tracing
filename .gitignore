@@ -21,3 +21,4 @@ dist/
 AST_generator/all.txt
 AST_generator/blockly_blocks_xml.txt
 AST_generator/test.js
+demos/Custom_debugger/.vscode/launch.json

@@ -468,7 +468,7 @@ Code.init = function() {
   
   Code.bindClick('debugButton', Code.debugJS);
 
-  Code.bindClick('stepInButton', Code.stepIn);
+  Code.bindClick('stepOverButton', Code.stepOver);
   Code.bindClick('stepOutButton', Code.stepOut);
   // Disable the link button if page isn't backed by App Engine storage.
   var linkButton = document.getElementById('linkButton');
@@ -609,8 +609,8 @@ Code.debugJS = function() {
   }
 };
 
-Code.stepIn = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "step_in"})
+Code.stepOver = function() {
+  Debuggee_Worker.getInstance().postMessage({type : "step_over"})
 }
 
 Code.stepOut = function() {

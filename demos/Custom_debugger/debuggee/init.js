@@ -4,7 +4,7 @@ const NO_COMMAND        = 'undef';
 const TRACE_TYPE        = "trace"
 
 const CONTINUE_COMMAND  = "continue";
-const STEP_COMMAND      = "step";
+const STEP_OVER_COMMAND = "step_over";
 const STEP_IN_COMMAND   = "step_in";
 const STEP_OUT_COMMAND  = "step_out";
 const RUN_TO_COMMAND    = "run_to";
@@ -18,7 +18,7 @@ blockly_debuggee = {
         var commands = {}
 
         commands[STEP_OUT_COMMAND]  = () => blockly_debuggee.state.currNest < blockly_debuggee.state.stopNodeNesting;
-        commands[STEP_IN_COMMAND]   = () => true;
+        commands[STEP_OVER_COMMAND] = () => blockly_debuggee.state.currNest <= blockly_debuggee.state.stopNodeNesting;
         commands[NO_COMMAND]        = () => false;
 
         return commands[command]();

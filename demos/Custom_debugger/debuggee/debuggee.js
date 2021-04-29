@@ -11,7 +11,7 @@ onmessage = function (msg) {
             blockly_debuggee.Interpreter.eval(json);
             
             blockly_debuggee.state.set_stopped(); //for testing always stop on the first command
-            blockly_debuggee.TraceCommandHandler.handle_message("trace", "step_in")
+            blockly_debuggee.TraceCommandHandler.handle_message("trace", "step_over")
 
             break;
         default:
