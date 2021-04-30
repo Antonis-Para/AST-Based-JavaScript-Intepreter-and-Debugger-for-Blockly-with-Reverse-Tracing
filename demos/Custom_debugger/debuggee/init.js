@@ -68,7 +68,6 @@ blockly_debuggee.state = {
         this.isStopped              = false;
         this.stopNodeNesting        = -1;
         this.explicitTargetBlock    = UNDEF_STRING
-        //
     }
 }
 

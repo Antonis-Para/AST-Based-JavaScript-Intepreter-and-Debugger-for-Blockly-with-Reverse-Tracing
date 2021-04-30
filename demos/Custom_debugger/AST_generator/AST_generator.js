@@ -25,10 +25,9 @@ function Generator(xmlText) {
 
     //return Blockly_gen.getJSON();
     var json = JSON.parse(Blockly_gen.getJSON());
-    Blockly_gen.resetJSON();
+    Blockly_gen.resetJSON(); //in case it get's run multiple times
     return json;
     //-----------------------------------------------//
 }
 
-//module.exports = { Generator }
 export default Generator

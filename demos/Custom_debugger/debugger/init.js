@@ -54,6 +54,7 @@ export var Debuggee_Worker = {
         if (this.instance !== undefined){
             this.instance.terminate();
             this.instance = undefined;
+            Debuggee_Worker.workspace.highlightBlock(null)
         }
     },
 
