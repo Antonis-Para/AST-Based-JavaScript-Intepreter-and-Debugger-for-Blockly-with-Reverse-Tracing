@@ -1,23 +1,24 @@
 import Generator from '../AST_generator/AST_generator.js'
+import {BreakpointHolder} from './breakpoints.js'
 
 export var Debuggee_Worker = {
     instance    : undefined,
     workspace   : undefined,
 
     getInstance : function (){
-        if (this.instance === undefined) {
+        if (Debuggee_Worker.instance === undefined) {
             try{
-                this.instance = new Worker("http://127.0.0.1:5500/debuggee/debuggee.js",{
+                Debuggee_Worker.instance = new Worker("http://127.0.0.1:5500/debuggee/debuggee.js",{
                     type: 'module'
                 });
             }catch(e){
                 try{
-                    this.instance = new Worker("http://localhost:5500/debuggee/debuggee.js",{
+                    Debuggee_Worker.instance = new Worker("http://localhost:5500/debuggee/debuggee.js",{
                         type: 'module'
                     });
                 }catch(e){}
             }
-            this.instance.onmessage = function (msg) {
+            Debuggee_Worker.instance.onmessage = function (msg) {
                 let obj = msg.data;
             
                 switch(obj.type){
@@ -29,11 +30,31 @@ export var Debuggee_Worker = {
             }
         }
 
-        return this.instance
+        return Debuggee_Worker.instance
     },
 
-    initWorkspace : function (ws){
-        this.workspace = ws;
+    init    : function(ws){
+        function initWorkspace(ws){
+            Debuggee_Worker.workspace = ws;
+        }
+
+        function initBreakpoints(){ //send all the breakpoints again. If the worker was stopped once he doesn't have the breakpoints any more
+            console.assert(Debuggee_Worker.instance !== undefined, {number : 0, errorMsg : "Debuggee hasn't been instanciated yet"})
+            for (var breakpoint in BreakpointHolder.breakpoints){
+                Debuggee_Worker.instance.postMessage({type : "breakpoint", data : {id : breakpoint, op : 'add'}})
+            }
+        }
+
+        Debuggee_Worker.getInstance(); //create it
+        initWorkspace(ws)   //or Blockly.mainWorkspace
+        initBreakpoints()
+    },
+
+    kill : function (){
+        if (this.instance !== undefined){
+            this.instance.terminate();
+            this.instance = undefined;
+        }
     },
 
     blocklyXmlToJson : function(xml){

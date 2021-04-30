@@ -468,10 +468,11 @@ Code.init = function() {
   
   Code.bindClick('debugButton', Code.debugJS);
 
-  Code.bindClick('continueButton', Code.continue);
-  Code.bindClick('stepOverButton', Code.stepOver);
-  Code.bindClick('stepInButton', Code.stepIn);
-  Code.bindClick('stepOutButton', Code.stepOut);
+  Code.bindClick('continueButton' , Code.continue);
+  Code.bindClick('stepOverButton' , Code.stepOver);
+  Code.bindClick('stepInButton'   , Code.stepIn);
+  Code.bindClick('stepOutButton'  , Code.stepOut);
+  Code.bindClick('stopButton'     , Code.stop);
   // Disable the link button if page isn't backed by App Engine storage.
   var linkButton = document.getElementById('linkButton');
   if ('BlocklyStorage' in window) {
@@ -602,7 +603,7 @@ Code.debugJS = function() {
   Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
   try {
     var json = Debuggee_Worker.blocklyXmlToJson(xml)
-    Debuggee_Worker.initWorkspace(Code.workspace) //or Blockly.mainWorkspace
+    Debuggee_Worker.init(Code.workspace) //or Blockly.mainWorkspace
 	  Debuggee_Worker.getInstance().postMessage({type : "eval", data: {code : json}})
 
   } catch (e) {
@@ -611,19 +612,23 @@ Code.debugJS = function() {
 };
 
 Code.continue = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "continue"} })
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "continue"} });
 }
 
 Code.stepOver = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_over"} })
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_over"} });
 }
 
 Code.stepIn = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_in"} })
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_in"} });
 }
 
 Code.stepOut = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_out"} })
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_out"} });
+}
+
+Code.stop = function() {
+  Debuggee_Worker.kill();
 }
 
 /**
