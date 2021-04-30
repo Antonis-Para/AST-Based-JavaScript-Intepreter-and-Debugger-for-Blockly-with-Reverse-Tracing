@@ -468,6 +468,7 @@ Code.init = function() {
   
   Code.bindClick('debugButton', Code.debugJS);
 
+  Code.bindClick('continueButton', Code.continue);
   Code.bindClick('stepOverButton', Code.stepOver);
   Code.bindClick('stepInButton', Code.stepIn);
   Code.bindClick('stepOutButton', Code.stepOut);
@@ -583,7 +584,6 @@ Code.runJS = function() {
 /**
  * Debug the user's code.
  */
- //var blockly_debugger = require('../debugger/debugger.js')
 import {Debuggee_Worker} from './debugger/debugger.js';
 
 Code.debugJS = function() {
@@ -610,16 +610,20 @@ Code.debugJS = function() {
   }
 };
 
+Code.continue = function() {
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "continue"} })
+}
+
 Code.stepOver = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "step_over"})
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_over"} })
 }
 
 Code.stepIn = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "step_in"})
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_in"} })
 }
 
 Code.stepOut = function() {
-  Debuggee_Worker.getInstance().postMessage({type : "step_out"})
+  Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_out"} })
 }
 
 /**

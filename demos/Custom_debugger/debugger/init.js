@@ -5,15 +5,14 @@ export var Debuggee_Worker = {
     workspace   : undefined,
 
     getInstance : function (){
-        var workspace = this.workspace;
         if (this.instance === undefined) {
             try{
-                this.instance = 	new Worker("http://127.0.0.1:5500/debuggee/debuggee.js",{
+                this.instance = new Worker("http://127.0.0.1:5500/debuggee/debuggee.js",{
                     type: 'module'
                 });
             }catch(e){
                 try{
-                    this.instance = 	new Worker("http://localhost:5500/debuggee/debuggee.js",{
+                    this.instance = new Worker("http://localhost:5500/debuggee/debuggee.js",{
                         type: 'module'
                     });
                 }catch(e){}
@@ -23,7 +22,7 @@ export var Debuggee_Worker = {
             
                 switch(obj.type){
                     case "highlight_block":
-                        workspace.highlightBlock(obj.data.id)
+                        Debuggee_Worker.workspace.highlightBlock(obj.data.id)
                         break;
                        
                 }
@@ -41,3 +40,4 @@ export var Debuggee_Worker = {
         return Generator(xml)
     }
 }
+

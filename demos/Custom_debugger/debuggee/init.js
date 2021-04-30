@@ -11,7 +11,15 @@ const RUN_TO_COMMAND    = "run_to";
 const BREAK_COMMAND     = "break";
 const EXIT_COMMAND      = "exit";
 
-
+var BreakpointHolder = {
+    breakpoints : [],
+    add         : function(blockId) { this.breakpoints[blockId] = true; },
+    remove      : function(blockId) { delete this.breakpoints[blockId]; },
+    enable      : function(blockId) { this.breakpoints[blockId] = true; },
+    disable     : function(blockId) { this.breakpoints[blockId] = false; },
+    has         : function(blockId) { return this.breakpoints[blockId] == true; },
+    clear       : function ()       { for (var bpt in this.breakpoints) delete this.breakpoints[bpt]; }
+  };
 
 blockly_debuggee = {
     matches_to_stop_dispatcher : function (command){
@@ -30,8 +38,10 @@ blockly_debuggee = {
     has_command     : ()   => blockly_debuggee.state.traceCommand != NO_COMMAND,
     set_command     : function (cmd){
         //
-        //
-        this.state.traceCommand = cmd;
+        if (cmd == CONTINUE_COMMAND)
+            this.state.reset();
+        else
+            this.state.traceCommand = cmd;
     }
 }
 
@@ -49,8 +59,9 @@ blockly_debuggee.state = {
     },
 
     reset           : function(){
-        this.traceCommand = NO_COMMAND;
-        this.isStopped = false;
+        this.traceCommand       = NO_COMMAND;
+        this.isStopped          = false;
+        this.stopNodeNesting    = -1;
         //
         //
     }
@@ -59,9 +70,9 @@ blockly_debuggee.state = {
 
 var TraceCommandHandler = {
     is_stopped  : () => blockly_debuggee.state.isStopped,
-    should_stop : function (){
+    should_stop : function (blockid){
         if (!this.is_stopped()){
-            //
+            return BreakpointHolder.has(blockid)
             //
             //
         }else{
@@ -90,14 +101,14 @@ var TraceCommandHandler = {
 
         async function wait (node) {
 
-            if (TraceCommandHandler.should_stop())
+            if (TraceCommandHandler.should_stop(node.id))
                 set_stopped(node.id)
             
-            if (TraceCommandHandler.is_stopped()){
-                while (!blockly_debuggee.has_command()){
-                    await sleep(0);
-                }
+             //stoped state can change while in busy loop, we can't use "TraceCommandHandler.is_stopped()" on outer if stmt
+            while (!blockly_debuggee.has_command() && TraceCommandHandler.is_stopped()){
+                await sleep(0);
             }
+            
             
         }
 
@@ -107,7 +118,10 @@ var TraceCommandHandler = {
 
 TraceCommandHandler.handle_message = function (type, cmd){
     if (type == TRACE_TYPE){
-        blockly_debuggee.set_command(cmd);
+        blockly_debuggee.set_command(cmd.op);
+    }else if (type == "breakpoint"){
+        let func = cmd.op;
+        BreakpointHolder[func](cmd.id)
     }
 }
 
