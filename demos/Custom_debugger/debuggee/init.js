@@ -1,6 +1,7 @@
 export var blockly_debuggee = { }
 
 const NO_COMMAND        = 'undef';
+const UNDEF_STRING      = 'undef';
 const TRACE_TYPE        = "trace"
 
 const CONTINUE_COMMAND  = "continue";
@@ -36,9 +37,12 @@ blockly_debuggee = {
     matches_to_stop : ()   => blockly_debuggee.matches_to_stop_dispatcher(blockly_debuggee.state.traceCommand),
 
     has_command     : ()   => blockly_debuggee.state.traceCommand != NO_COMMAND,
-    set_command     : function (cmd){
-        //
-        if (cmd == CONTINUE_COMMAND)
+    set_command     : function (cmd, blockid){
+        if (cmd == RUN_TO_COMMAND){
+            this.state.reset();
+            this.state.explicitTargetBlock = blockid;
+        }
+        else if (cmd == CONTINUE_COMMAND)
             this.state.reset();
         else
             this.state.traceCommand = cmd;
@@ -46,23 +50,24 @@ blockly_debuggee = {
 }
 
 blockly_debuggee.state = {
-    currNest        : 0,
-    traceCommand    : NO_COMMAND,
-    stopNodeNesting : -1,
-    debugMode       : false,
-    isStopped       : false,
+    currNest            : 0,
+    traceCommand        : NO_COMMAND,
+    explicitTargetBlock : UNDEF_STRING,
+    stopNodeNesting     : -1,
+    debugMode           : false,
+    isStopped           : false,
 
-    set_stopped     : function(){
+    set_stopped         : function(){
         this.reset();
         this.isStopped = true;
         this.stopNodeNesting = this.currNest
     },
 
-    reset           : function(){
-        this.traceCommand       = NO_COMMAND;
-        this.isStopped          = false;
-        this.stopNodeNesting    = -1;
-        //
+    reset               : function(){
+        this.traceCommand           = NO_COMMAND;
+        this.isStopped              = false;
+        this.stopNodeNesting        = -1;
+        this.explicitTargetBlock    = UNDEF_STRING
         //
     }
 }
@@ -72,8 +77,8 @@ var TraceCommandHandler = {
     is_stopped  : () => blockly_debuggee.state.isStopped,
     should_stop : function (blockid){
         if (!this.is_stopped()){
-            return BreakpointHolder.has(blockid)
-            //
+            return  BreakpointHolder.has(blockid)                           ||
+                    blockly_debuggee.state.explicitTargetBlock == blockid
             //
         }else{
             return blockly_debuggee.matches_to_stop();
@@ -109,7 +114,6 @@ var TraceCommandHandler = {
                 await sleep(0);
             }
             
-            
         }
 
         return wait(node);
@@ -118,7 +122,7 @@ var TraceCommandHandler = {
 
 TraceCommandHandler.handle_message = function (type, cmd){
     if (type == TRACE_TYPE){
-        blockly_debuggee.set_command(cmd.op);
+        blockly_debuggee.set_command(cmd.op, cmd.id);
     }else if (type == "breakpoint"){
         let func = cmd.op;
         BreakpointHolder[func](cmd.id)
