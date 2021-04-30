@@ -1,5 +1,5 @@
 import {Debuggee_Worker} from './init.js';
-import {registerBreakpoints} from './breakpoints.js'
+import {registerMenuOptions} from './breakpoints.js'
 export {Debuggee_Worker}
 
-registerBreakpoints(Debuggee_Worker)
+registerMenuOptions(Debuggee_Worker)
