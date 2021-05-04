@@ -461,7 +461,6 @@ Code.init = function() {
       function() {Code.discard(); Code.renderContent();});
   Code.bindClick('runButton', Code.runJS);
   
-  Code.bindClick('debugButton', Code.debugJS);
   // Disable the link button if page isn't backed by App Engine storage.
   var linkButton = document.getElementById('linkButton');
   if ('BlocklyStorage' in window) {
@@ -571,26 +570,6 @@ Code.runJS = function() {
 };
 
 
-/**
- * Debug the user's code.
- */
-Code.debugJS = function() {
-  Blockly.JavaScript.INFINITE_LOOP_TRAP = 'checkTimeout();\n';
-  var timeouts = 0;
-  var checkTimeout = function() {
-    if (timeouts++ > 1000000) {
-      throw MSG['timeout'];
-    }
-  };
-  var code = Blockly.JavaScript.workspaceToCode(Code.workspace);
-  //var code = 'alert("Hello World!")';
-  Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
-  try {
-    eval(code);
-  } catch (e) {
-    alert(MSG['badCode'].replace('%1', e));
-  }
-};
 
 /**
  * Discard all blocks from the workspace.
