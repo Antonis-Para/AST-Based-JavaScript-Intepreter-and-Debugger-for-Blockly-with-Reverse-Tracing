@@ -2,7 +2,6 @@ import {Blockly_gen, AST_dispatch} from './AST_Init.js';
 
 /*----------------------------------------------------*/
 AST_dispatch.install("controls_if", function(block) {
-    //console.log("fhasdjihfadjks")
     Blockly_gen.addToJSON('"type": "if_stmt",\n');
 	Blockly_gen.addToJSON('"id": "' + block.getAttribute("id") + '",\n');
 

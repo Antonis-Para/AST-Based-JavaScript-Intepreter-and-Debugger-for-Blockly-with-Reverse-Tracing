@@ -13,6 +13,7 @@ var Interpreter = {
                 var name = ast.data[attributename].name
                 this.userFuncs[name] = ast.data[attributename].do;
                 this.userFuncs[name].id = ast.data[attributename].id;
+                this.userFuncs[name].blockNesting = 1;
                 delete ast.data[attributename]
             }
         }
@@ -103,7 +104,7 @@ var Interpreter = {
      "eval_repeat_stmt" : async function (node) {
         var repeat = await this.eval(node.cond)
 
-        for (i = 0; i < repeat; i++){
+        for (var i = 0; i < repeat; i++){
             try {
                 await this.eval(node.do)
             }catch (msg) {
@@ -224,13 +225,13 @@ var Interpreter = {
             this.userVars[arg_name] = await this.eval(node.args[0])
         }
 
-        blockly_debuggee.state.currNest++;
+        blockly_debuggee.state.currCallNesting++;
         var result  = await this.eval(func);
         for (var arg in node.arg_names){ //restore old user variables
             var arg_name = node.arg_names[arg]
             this.userVars[arg_name] = old_vars[arg_name];
         }
-        blockly_debuggee.state.currNest--;
+        blockly_debuggee.state.currCallNesting--;
         return result
     },
 

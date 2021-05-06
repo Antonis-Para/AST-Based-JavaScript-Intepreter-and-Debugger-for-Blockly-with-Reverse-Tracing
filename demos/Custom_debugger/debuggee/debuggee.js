@@ -15,9 +15,8 @@ onmessage = function (msg) {
             });
             
             blockly_debuggee.state.reset();
-            
-
             break;
+            
         default:
             blockly_debuggee.TraceCommandHandler.handle_message(obj.type, obj.data)
            

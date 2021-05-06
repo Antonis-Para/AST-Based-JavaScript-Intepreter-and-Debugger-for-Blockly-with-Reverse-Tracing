@@ -15,12 +15,13 @@ export var AST_dispatch = {
 
 export var Blockly_gen = {
     ELEMENT_NODE : 1,
+    blockNesting : -1,
 
     addToJSON: function (str) {
         text += str;
     },
 
-    getJSON: function (str) {
+    getJSON: function () {
         return text;
     },
 
@@ -28,8 +29,10 @@ export var Blockly_gen = {
         text = text.slice(0, -amount);
     },
 
-    resetJSON : function (){
+    reset : function (){
         text = "";
+        Blockly_gen.blockNesting = -1;
+        Blockly_gen.nextBlock_flag = false;
     },
 
     // This is just one way  you make it a singleton;
@@ -79,11 +82,16 @@ export var Blockly_gen = {
         if (name === null) //no blocks or shadow block exist
             return null;
 
+        var flag = Blockly_gen.nextBlock_flag;
+        if (Blockly_gen.nextBlock_flag)
+            Blockly_gen.nextBlock_flag = false;
+        else
+            Blockly_gen.blockNesting++;
         var block, occ = 1;
         block = this.getElement(blocks, Blockly_gen.ELEMENT_NODE, name, occ++);
         while (block !== null) { //while there are more blocks..
             Blockly_gen.addToJSON("{\n")
-
+            Blockly_gen.addToJSON('"blockNesting": ' + Blockly_gen.blockNesting + ',\n');
             var type = block.getAttribute('type');
             try {
                 AST_dispatch[type](block); // Dispatch
@@ -102,6 +110,8 @@ export var Blockly_gen = {
                 Blockly_gen.addToJSON(',\n');
             }
         }
+        if (flag == false)
+            Blockly_gen.blockNesting--
     },
 
 
@@ -127,6 +137,7 @@ export var Blockly_gen = {
         This function will check if such a block exist and will create it.
         Assums that there is at MOST one <next> tag in every block	
     ---------------------------------------------------------------------------------*/
+    nextBlock_flag : false,
     nextBlock: function (block) {
         var next = this.getElement(block, Blockly_gen.ELEMENT_NODE, "next");
 
@@ -136,6 +147,7 @@ export var Blockly_gen = {
         }
 
         Blockly_gen.addToJSON(',\n');
+        this.nextBlock_flag = true;
         this.createAllBlocks(next)
     },
 

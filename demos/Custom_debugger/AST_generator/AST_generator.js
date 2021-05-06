@@ -23,9 +23,8 @@ function Generator(xmlText) {
     Blockly_gen.addToJSON('}\n');
 
 
-    //return Blockly_gen.getJSON();
     var json = JSON.parse(Blockly_gen.getJSON());
-    Blockly_gen.resetJSON(); //in case it get's run multiple times
+    Blockly_gen.reset(); //in case it get's run multiple times
     return json;
     //-----------------------------------------------//
 }
