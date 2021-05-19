@@ -92,9 +92,14 @@ var TraceCommandHandler = {
     is_stopped  : () => blockly_debuggee.state.isStopped,
     should_stop : function (block){
         if (!this.is_stopped()){
-            return  BreakpointHolder.has(block.id)                           ||
-                    blockly_debuggee.state.explicitTargetBlock == block.id
-            //
+
+            //ignore breakpoints if run to curson is selected
+            if (blockly_debuggee.state.explicitTargetBlock != UNDEF_STRING){ 
+                return blockly_debuggee.state.explicitTargetBlock == block.id
+            }
+
+            return  BreakpointHolder.has(block.id)
+            
         }else{
             return blockly_debuggee.matches_to_stop(block);
         }
