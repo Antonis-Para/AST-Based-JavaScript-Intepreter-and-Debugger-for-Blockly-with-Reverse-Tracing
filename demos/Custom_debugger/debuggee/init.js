@@ -1,4 +1,11 @@
 export var blockly_debuggee = { }
+export var Interpreter = { 
+    "userVars"         : [],
+    "userFuncs"        : [],
+    install            : function(name, callback){
+        this[name] = callback
+    }
+}
 
 const NO_COMMAND        = 'undef';
 const UNDEF_STRING      = 'undef';
