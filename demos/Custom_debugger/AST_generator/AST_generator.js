@@ -13,17 +13,17 @@ function Generator(xmlText) {
     //--------------------MAIN-----------------------//
     var xmlDoc = jQuery.parseXML(xmlText)
 
-    Blockly_gen.addToJSON("{\n");
-		Blockly_gen.addToJSON('"type": "stmts",\n');
+    Blockly_gen.GetJsonText().add("{\n");
+		Blockly_gen.GetJsonText().add('"type": "stmts",\n');
 		var elements = xmlDoc.childNodes[0];
-		Blockly_gen.addToJSON('"data": [\n');
+		Blockly_gen.GetJsonText().add('"data": [\n');
 		Blockly_gen.createAllVariables(elements);
 		Blockly_gen.createAllBlocks(elements);
-		Blockly_gen.addToJSON(']\n');
-    Blockly_gen.addToJSON('}\n');
+		Blockly_gen.GetJsonText().add(']\n');
+    Blockly_gen.GetJsonText().add('}\n');
 
 
-    var json = JSON.parse(Blockly_gen.getJSON());
+    var json = JSON.parse(Blockly_gen.GetJsonText().get());
     Blockly_gen.reset(); //in case it get's run multiple times
     return json;
     //-----------------------------------------------//

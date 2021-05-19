@@ -1,7 +1,5 @@
 //require('chai').assert(typeof(text) == 'undefined');    // make sure no conflict with aglobal var
 
-var text = ""
-
 export var AST_dispatch = {
     install : function (type, callback){
         AST_dispatch[type] = callback
@@ -13,24 +11,15 @@ export var AST_dispatch = {
 //     exit
 // } = require('process');
 
+var json_text;
+
 export var Blockly_gen = {
     ELEMENT_NODE : 1,
     blockNesting : -1,
 
-    addToJSON: function (str) {
-        text += str;
-    },
-
-    getJSON: function () {
-        return text;
-    },
-
-    JSONremoveChars: function (amount) {
-        text = text.slice(0, -amount);
-    },
-
     reset : function (){
-        text = "";
+        this.GetJsonText().reset();
+        json_text = undefined;
         Blockly_gen.blockNesting = -1;
         Blockly_gen.nextBlock_flag = false;
     },
@@ -39,16 +28,18 @@ export var Blockly_gen = {
     // then invoke as GetJsonText().<method>(<args>)
     GetJsonText: function  () {
 
-        if (typeof GetJsonText.self == 'undefined') {    // guarantee one initialisation
-            GetJsonText.text    = "";
+        if (typeof json_text == 'undefined') {    // guarantee one initialisation
+            json_text = {}
+            json_text.text      = "";
             var self            = {}
-            self.add            = (s)   => GetJsonText.text += s
-            self.get            = ()    => GetJsonText.text
-            self.remove_chars   = (n)   => GetJsonText.text = GetJsonText.text.slice(0, -n)
-            GetJsonText.self    = self
+            self.add            = (s)   => json_text.text += s
+            self.get            = ()    => json_text.text
+            self.remove_chars   = (n)   => json_text.text = json_text.text.slice(0, -n)
+            self.reset          = ()    => json_text.text = ""
+            json_text.self      = self
         }
 
-        return GetJsonText.self;
+        return json_text.self;
     },
 
     /* --------------------------------------------------------------------------------
@@ -63,11 +54,11 @@ export var Blockly_gen = {
         var variable = this.getElement(variables, Blockly_gen.ELEMENT_NODE, "variable", occ++);
         while (variable !== null) {
             if (variable.childNodes.length != 0) {
-                Blockly_gen.addToJSON("{\n")
-                Blockly_gen.addToJSON('"type": "var_decl",\n');
-                Blockly_gen.addToJSON('"id": "' + variable.getAttribute("id") + '",\n');
-                Blockly_gen.addToJSON('"name": "' + variable.childNodes[0].nodeValue + '"\n');
-                Blockly_gen.addToJSON("},\n")
+                Blockly_gen.GetJsonText().add("{\n")
+                Blockly_gen.GetJsonText().add('"type": "var_decl",\n');
+                Blockly_gen.GetJsonText().add('"id": "' + variable.getAttribute("id") + '",\n');
+                Blockly_gen.GetJsonText().add('"name": "' + variable.childNodes[0].nodeValue + '"\n');
+                Blockly_gen.GetJsonText().add("},\n")
             }
             variable = this.getElement(variables, Blockly_gen.ELEMENT_NODE, "variable", occ++);
         }
@@ -90,8 +81,8 @@ export var Blockly_gen = {
         var block, occ = 1;
         block = this.getElement(blocks, Blockly_gen.ELEMENT_NODE, name, occ++);
         while (block !== null) { //while there are more blocks..
-            Blockly_gen.addToJSON("{\n")
-            Blockly_gen.addToJSON('"blockNesting": ' + Blockly_gen.blockNesting + ',\n');
+            Blockly_gen.GetJsonText().add("{\n")
+            Blockly_gen.GetJsonText().add('"blockNesting": ' + Blockly_gen.blockNesting + ',\n');
             var type = block.getAttribute('type');
             try {
                 AST_dispatch[type](block); // Dispatch
@@ -103,11 +94,11 @@ export var Blockly_gen = {
                 //exit()
             }
 
-            Blockly_gen.addToJSON('}'); //data
+            Blockly_gen.GetJsonText().add('}'); //data
             this.nextBlock(block);
             block = this.getElement(blocks, Blockly_gen.ELEMENT_NODE, name, occ++)
             if (block !== null) {
-                Blockly_gen.addToJSON(',\n');
+                Blockly_gen.GetJsonText().add(',\n');
             }
         }
         if (flag == false)
@@ -142,11 +133,11 @@ export var Blockly_gen = {
         var next = this.getElement(block, Blockly_gen.ELEMENT_NODE, "next");
 
         if (next === null) {
-            Blockly_gen.addToJSON('\n');
+            Blockly_gen.GetJsonText().add('\n');
             return;
         }
 
-        Blockly_gen.addToJSON(',\n');
+        Blockly_gen.GetJsonText().add(',\n');
         this.nextBlock_flag = true;
         this.createAllBlocks(next)
     },
