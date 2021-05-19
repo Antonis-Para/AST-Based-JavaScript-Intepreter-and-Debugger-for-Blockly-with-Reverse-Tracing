@@ -42,6 +42,11 @@ export var Debuggee_Worker = {
             console.assert(Debuggee_Worker.instance !== undefined, {number : 0, errorMsg : "Debuggee hasn't been instanciated yet"})
             for (var breakpoint in BreakpointHolder.breakpoints){
                 Debuggee_Worker.instance.postMessage({type : "breakpoint", data : {id : breakpoint, op : 'add'}})
+
+                if (!BreakpointHolder.has_enabled(breakpoint)){
+                    Debuggee_Worker.instance.postMessage({type : "breakpoint", data : {id : breakpoint, op : 'disable'}})
+                }
+                
             }
         }
 
