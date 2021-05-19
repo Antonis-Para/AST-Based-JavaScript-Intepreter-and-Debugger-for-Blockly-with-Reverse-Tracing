@@ -35,7 +35,7 @@ blockly_debuggee = {
         //blockly_debuggee.state.currCallNesting
         commands[STEP_OUT_COMMAND]  = () => blockly_debuggee.state.currCallNesting < blockly_debuggee.state.stopNodeCallNesting ||
                                                 (block.blockNesting < blockly_debuggee.state.stopNodeBlockNesting && blockly_debuggee.state.currCallNesting == blockly_debuggee.state.stopNodeCallNesting);
-        commands[STEP_OVER_COMMAND] = () => block.blockNesting <= blockly_debuggee.state.stopNodeBlockNesting &&blockly_debuggee.state.currCallNesting <= blockly_debuggee.state.stopNodeCallNesting;
+        commands[STEP_OVER_COMMAND] = () => block.blockNesting <= blockly_debuggee.state.stopNodeBlockNesting && blockly_debuggee.state.currCallNesting <= blockly_debuggee.state.stopNodeCallNesting;
         commands[STEP_IN_COMMAND]   = () => true; //we seem to always stop with step-in. Always true?
         commands[NO_COMMAND]        = () => false;
 
@@ -112,6 +112,12 @@ var TraceCommandHandler = {
             );
         }
 
+        function updateWatches (vars) {
+            postMessage(
+                {type:"watches_variables", data:{ variables : vars } }
+            );
+        }
+
         function set_stopped (block){
             highlightBlock(block.id);
             blockly_debuggee.state.set_stopped(block)
@@ -121,9 +127,11 @@ var TraceCommandHandler = {
 
         async function wait (node) {
 
+            updateWatches(Interpreter.userVars)
+
             if (TraceCommandHandler.should_stop(node))
                 set_stopped(node)
-            
+
              //stoped state can change while in busy loop, we can't use "TraceCommandHandler.is_stopped()" on outer if stmt
             while (!blockly_debuggee.has_command() && TraceCommandHandler.is_stopped()){
                 await sleep(0);

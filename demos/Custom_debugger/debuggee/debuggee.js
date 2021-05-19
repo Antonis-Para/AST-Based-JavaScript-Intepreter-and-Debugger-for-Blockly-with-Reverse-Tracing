@@ -12,6 +12,10 @@ onmessage = function (msg) {
                 postMessage(
                     {type:"highlight_block", data:{ id : null } }
                 ); //unhighlight all blocks once execution has finished
+
+                postMessage(
+                    {type:"watches_variables", data:{ variables : [] } }
+                ); //delete all watches once execution has finished
             });
             
             blockly_debuggee.state.reset();

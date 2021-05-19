@@ -18,7 +18,7 @@
   <script type="module" src="code.js"></script>
 </head>
 <body>
-  <table width="100%" height="100%">
+  <table width="100%" height="80%">
     <tr>
       <td>
         <h1><a href="https://developers.google.com/blockly/">Blockly</a>&rlm; &gt;
@@ -80,6 +80,37 @@
       </td>
     </tr>
   </table>
+  <div class="watches" style="height: 100%;">
+    <!--<div class="title">&nbsp;Variables  </div>-->
+    <div class="watch-content">
+      <table id='watches' border=2 style="width: 100%; border-collapse:separate;">
+        <tr> 
+          <th>Name</th>
+          <th>Value</th>
+          <th>Type</th>
+        </tr>
+      </table>
+
+      <!-- <table style="width:100%">
+        <tbody>
+          <tr>
+            <th>Name</th>
+            <th>Value</th> 
+            <th>Type</th>
+          </tr>
+        </tbody>
+      </table>
+      <table id="variables" style="width:100%">
+        <tbody>
+          <tr>
+            <td style="color:red;">n</td>
+            <td style="color:red;">undefined</td>
+            <td style="color:red;">undefined</td>
+          </tr>
+        </tbody>
+      </table> -->
+    </div>
+  </div>
   <div id="content_blocks" class="content"></div>
   <pre id="content_javascript" class="content prettyprint lang-js"></pre>
   <pre id="content_python" class="content prettyprint lang-py"></pre>

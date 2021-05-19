@@ -1,5 +1,6 @@
 import Generator from '../AST_generator/AST_generator.js'
 import {BreakpointHolder} from './breakpoints.js'
+import {Watches} from './watches.js'
 
 export var Debuggee_Worker = {
     instance    : undefined,
@@ -25,7 +26,16 @@ export var Debuggee_Worker = {
                     case "highlight_block":
                         Debuggee_Worker.workspace.highlightBlock(obj.data.id)
                         break;
-                       
+                    case "watches_variables":
+                        let table = document.getElementById("watches")
+                        Watches.reset_watches(table)
+
+                        let vars = obj.data.variables
+                        for (var variable in vars){
+                            let value = vars[variable]
+                            Watches.add_variable(document, table, variable, value, typeof value)
+                        }
+                        break;
                 }
             }
         }
