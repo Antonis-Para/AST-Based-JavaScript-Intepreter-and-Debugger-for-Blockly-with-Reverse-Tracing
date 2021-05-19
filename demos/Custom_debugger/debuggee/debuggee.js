@@ -8,14 +8,14 @@ onmessage = function (msg) {
             let json = obj.data.code
             blockly_debuggee.state.debugMode = true;
             blockly_debuggee.Interpreter.init(json);
-            blockly_debuggee.Interpreter.eval(json).then( () => {
-                postMessage(
-                    {type:"highlight_block", data:{ id : null } }
-                ); //unhighlight all blocks once execution has finished
-
+            blockly_debuggee.Interpreter.eval(json).then( () => { //after execution finished..
                 postMessage(
                     {type:"watches_variables", data:{ variables : [] } }
                 ); //delete all watches once execution has finished
+
+                postMessage(
+                    {type:"terminate"}
+                ); //execution has finished. If you want you can run it again now
             });
             
             blockly_debuggee.state.reset();

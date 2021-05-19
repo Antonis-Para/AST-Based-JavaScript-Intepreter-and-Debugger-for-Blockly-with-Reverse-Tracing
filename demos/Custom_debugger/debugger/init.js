@@ -5,6 +5,7 @@ import {Watches} from './watches.js'
 export var Debuggee_Worker = {
     instance    : undefined,
     workspace   : undefined,
+    active      : false,
 
     getInstance : function (){
         if (Debuggee_Worker.instance === undefined) {
@@ -35,6 +36,9 @@ export var Debuggee_Worker = {
                             let value = vars[variable]
                             Watches.add_variable(document, table, variable, value, typeof value)
                         }
+                        break;
+                    case "terminate":
+                        Debuggee_Worker.kill();
                         break;
                 }
             }
@@ -69,8 +73,9 @@ export var Debuggee_Worker = {
         if (this.instance !== undefined){
             this.instance.terminate();
             this.instance = undefined;
-            Debuggee_Worker.workspace.highlightBlock(null)
+            Debuggee_Worker.workspace.highlightBlock(null) //unhighlight all blocks once execution has finished
         }
+        this.active = false;
     },
 
     blocklyXmlToJson : function(xml){

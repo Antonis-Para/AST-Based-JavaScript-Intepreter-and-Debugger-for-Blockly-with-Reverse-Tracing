@@ -588,6 +588,8 @@ Code.runJS = function() {
 import {Debuggee_Worker} from './debugger/debugger.js';
 
 Code.debugJS = function() {
+  if (Debuggee_Worker.active) return;
+  Debuggee_Worker.active = true;
   Blockly.JavaScript.INFINITE_LOOP_TRAP = 'checkTimeout();\n';
   var timeouts = 0;
   var checkTimeout = function() {
