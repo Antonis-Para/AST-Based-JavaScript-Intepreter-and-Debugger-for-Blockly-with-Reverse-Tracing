@@ -6,6 +6,7 @@ export var Debuggee_Worker = {
     instance    : undefined,
     workspace   : undefined,
     active      : false,
+    watches     : Watches,
 
     getInstance : function (){
         if (Debuggee_Worker.instance === undefined) {
@@ -28,14 +29,25 @@ export var Debuggee_Worker = {
                         Debuggee_Worker.workspace.highlightBlock(obj.data.id)
                         break;
                     case "watches_variables":
-                        let table = document.getElementById("watches")
-                        Watches.reset_watches(table)
+                        var table = document.getElementById("watches")
+                        Debuggee_Worker.watches.reset_watches(table)
 
-                        let vars = obj.data.variables
+                        var vars = obj.data.variables
                         for (var variable in vars){
                             let value = vars[variable]
-                            Watches.add_variable(document, table, variable, value, typeof value)
+                            Debuggee_Worker.watches.print(document, table, variable, value, typeof value)
                         }
+                        break;
+                    case "watches_expresions":
+                        var table = document.getElementById("watches_expr")
+                        Debuggee_Worker.watches.reset_watches(table)
+
+                        var exprs = obj.data.exprs
+                        for (var expr in exprs){
+                            let value = exprs[expr]
+                            Debuggee_Worker.watches.print(document, table, expr, value, typeof value)
+                        }
+
                         break;
                     case "terminate":
                         Debuggee_Worker.kill();
@@ -64,9 +76,14 @@ export var Debuggee_Worker = {
             }
         }
 
+        function initWatches(){ //send watches again. If the worker was stopped once he doesn't have the breakpoints any more
+            Debuggee_Worker.getInstance().postMessage({type : "set_watches", data : {watches : Debuggee_Worker.watches.getAll()} });
+        }
+
         Debuggee_Worker.getInstance(); //create it
         initWorkspace(ws)   //or Blockly.mainWorkspace
         initBreakpoints()
+        initWatches()
     },
 
     kill : function (){

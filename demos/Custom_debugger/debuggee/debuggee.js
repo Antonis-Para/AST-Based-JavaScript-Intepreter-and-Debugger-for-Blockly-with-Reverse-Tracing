@@ -20,7 +20,23 @@ onmessage = function (msg) {
             
             blockly_debuggee.state.reset();
             break;
-            
+        case "add_watch":
+            blockly_debuggee.Interpreter.Watches.add(obj.data.watch)
+            blockly_debuggee.Interpreter.Watches.print(blockly_debuggee.Interpreter.userVars);
+            break;
+        case "set_watches":
+            blockly_debuggee.Interpreter.Watches.set(obj.data.watches)
+            blockly_debuggee.Interpreter.Watches.print(blockly_debuggee.Interpreter.userVars);
+            break;
+        case "set_variable":
+            if (blockly_debuggee.Interpreter.userVars[obj.data.variable] !== undefined){
+                blockly_debuggee.Interpreter.userVars[obj.data.variable] = obj.data.value;
+                blockly_debuggee.Interpreter.Watches.print(blockly_debuggee.Interpreter.userVars);
+                postMessage(
+                    {type:"watches_variables", data:{ variables : blockly_debuggee.Interpreter.userVars } }
+                );
+            }
+            break;
         default:
             blockly_debuggee.TraceCommandHandler.handle_message(obj.type, obj.data)
            

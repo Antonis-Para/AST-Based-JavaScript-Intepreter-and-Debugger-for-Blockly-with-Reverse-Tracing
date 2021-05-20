@@ -473,6 +473,11 @@ Code.init = function() {
   Code.bindClick('stepInButton'   , Code.stepIn);
   Code.bindClick('stepOutButton'  , Code.stepOut);
   Code.bindClick('stopButton'     , Code.stop);
+
+  Code.bindClick('addExpressionButton', Code.addExpression);
+  Code.bindClick('changeValue', Code.changeValue);
+  Code.bindClick('resetExpressionsButton', Code.resetExpressions);
+  
   // Disable the link button if page isn't backed by App Engine storage.
   var linkButton = document.getElementById('linkButton');
   if ('BlocklyStorage' in window) {
@@ -631,6 +636,26 @@ Code.stepOut = function() {
 
 Code.stop = function() {
   Debuggee_Worker.kill();
+}
+
+Code.addExpression = function() {
+  var expr = prompt("Enter expression to watch").replace(/\s+/g, ''); //remove white spaces
+  Debuggee_Worker.watches.add(expr)
+  if (Debuggee_Worker.active)
+    Debuggee_Worker.getInstance().postMessage({type : "add_watch", data : {watch : expr} });
+  else
+    Debuggee_Worker.getInstance().postMessage({type : "set_watches", data : {watches : Debuggee_Worker.watches.getAll()} });
+}
+
+Code.changeValue = function() {
+  var variable= prompt("Variable to change").replace(/\s+/g, ''); //remove white spaces
+  var value = prompt("Value to assign").replace(/\s+/g, '');
+  Debuggee_Worker.getInstance().postMessage({type : "set_variable", data : {variable : variable, value : value } });
+}
+
+Code.resetExpressions = function() {
+  Debuggee_Worker.watches.clear()
+  Debuggee_Worker.getInstance().postMessage({type : "set_watches", data : {watches : [] } });
 }
 
 /**

@@ -1,7 +1,10 @@
+import {Watch} from './watches.js'
+
 export var blockly_debuggee = { }
 export var Interpreter = { 
     "userVars"         : [],
     "userFuncs"        : [],
+    Watches            : Watch,
     install            : function(name, callback){
         this[name] = callback
     }
@@ -117,7 +120,7 @@ var TraceCommandHandler = {
             );
         }
 
-        function updateWatches (vars) {
+        function updateVariables (vars) {
             postMessage(
                 {type:"watches_variables", data:{ variables : vars } }
             );
@@ -132,7 +135,8 @@ var TraceCommandHandler = {
 
         async function wait (node) {
 
-            updateWatches(Interpreter.userVars)
+            updateVariables(Interpreter.userVars)
+            Interpreter.Watches.print(Interpreter.userVars);
 
             if (TraceCommandHandler.should_stop(node))
                 set_stopped(node)
