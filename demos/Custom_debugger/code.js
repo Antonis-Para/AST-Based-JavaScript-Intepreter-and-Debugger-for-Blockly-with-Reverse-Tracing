@@ -650,6 +650,8 @@ Code.addExpression = function() {
 Code.changeValue = function() {
   var variable= prompt("Variable to change").replace(/\s+/g, ''); //remove white spaces
   var value = prompt("Value to assign").replace(/\s+/g, '');
+  if (!isNaN(value))
+    value = parseInt(value)
   Debuggee_Worker.getInstance().postMessage({type : "set_variable", data : {variable : variable, value : value } });
 }
 
