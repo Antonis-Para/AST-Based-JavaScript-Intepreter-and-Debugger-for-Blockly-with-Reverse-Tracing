@@ -70,11 +70,11 @@ Interpreter.install("eval_untill_stmt" , async function (node) {
 
 Interpreter.install("eval_for_stmt" , async function (node) {
     var from = await this.eval(node.from)
-    var to   = await this.eval(node.to)
-    var step = await this.eval(node.by)
+    //var to   = await this.eval(node.to)
+    //var step = await this.eval(node.by)
     var i    = (this.userVars[node.var_name] = from);
 
-    for (i = from; i <= to; i = (this.userVars[node.var_name] += step) ){
+    for (i = from; i <= await this.eval(node.to); i = (this.userVars[node.var_name] += await this.eval(node.by)) ){
         try {
             await this.eval(node.do)
         }catch (msg) {
@@ -98,10 +98,9 @@ Interpreter.install("eval_forEach_stmt" , async function (node) {
     }
     })
 
-    Interpreter.install("eval_repeat_stmt" , async function (node) {
-    var repeat = await this.eval(node.cond)
+    Interpreter.install("eval_repeat_stmt" , async function (node) { 
 
-    for (var i = 0; i < repeat; i++){
+    for (var i = 0; i < await this.eval(node.cond); i++){
         try {
             await this.eval(node.do)
         }catch (msg) {
