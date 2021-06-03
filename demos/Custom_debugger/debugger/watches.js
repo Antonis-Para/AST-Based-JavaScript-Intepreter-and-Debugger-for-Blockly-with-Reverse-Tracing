@@ -1,6 +1,10 @@
 export var Watches = {
     expressions     : [],
     add             : (expr)    => Watches.expressions.push(expr),
+    remove          : (expr)    => {
+        const index = Watches.expressions.indexOf(expr);
+        if (index > -1) Watches.expressions.splice(index, 1);
+    },
     getAll          : ()        => Watches.expressions,
     clear           : function(){
         Watches.expressions = []

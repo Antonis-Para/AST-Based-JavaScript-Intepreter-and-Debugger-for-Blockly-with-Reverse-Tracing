@@ -20,7 +20,7 @@ export var Watch = {
             code += 'var __result__ = ' + exprs[expr] + ';'
             var res = undefined;
 
-            for (var var_name in vars){
+            for (var var_name in vars){ //write back (user can use expresions to change variable values)
                 code += 'vars[' + '"' + var_name + '"' + '] = ' + var_name + ';';
             }
 

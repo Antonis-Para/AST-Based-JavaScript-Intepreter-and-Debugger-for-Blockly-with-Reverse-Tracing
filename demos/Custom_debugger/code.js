@@ -476,6 +476,7 @@ Code.init = function() {
 
   Code.bindClick('addExpressionButton', Code.addExpression);
   Code.bindClick('changeValue', Code.changeValue);
+  Code.bindClick('removeExpressionButton', Code.removeExpression);
   Code.bindClick('resetExpressionsButton', Code.resetExpressions);
   
   // Disable the link button if page isn't backed by App Engine storage.
@@ -653,6 +654,12 @@ Code.changeValue = function() {
   if (!isNaN(value))
     value = parseInt(value)
   Debuggee_Worker.getInstance().postMessage({type : "set_variable", data : {variable : variable, value : value } });
+}
+
+Code.removeExpression = function() {
+  var expr = prompt("Expression to remove").replace(/\s+/g, ''); //remove white spaces
+  Debuggee_Worker.watches.remove(expr)
+  Debuggee_Worker.getInstance().postMessage({type : "set_watches", data : {watches : Debuggee_Worker.watches.getAll()} });
 }
 
 Code.resetExpressions = function() {
