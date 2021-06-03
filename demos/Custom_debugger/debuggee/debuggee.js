@@ -23,6 +23,9 @@ onmessage = function (msg) {
         case "add_watch":
             blockly_debuggee.Interpreter.Watches.add(obj.data.watch)
             blockly_debuggee.Interpreter.Watches.print(blockly_debuggee.Interpreter.userVars);
+            postMessage( //also print the variables again. Values might have been changed with expresions
+                {type:"watches_variables", data:{ variables : blockly_debuggee.Interpreter.userVars } }
+            );
             break;
         case "set_watches":
             blockly_debuggee.Interpreter.Watches.set(obj.data.watches)

@@ -17,8 +17,15 @@ export var Watch = {
         for (var expr in exprs){
             var code = code_pre;
 
-            code += exprs[expr]
+            code += 'var __result__ = ' + exprs[expr] + ';'
             var res = undefined;
+
+            for (var var_name in vars){
+                code += 'vars[' + '"' + var_name + '"' + '] = ' + var_name + ';';
+            }
+
+            code += '__result__';
+
             try{
                 res = eval(code);
             }
@@ -26,7 +33,7 @@ export var Watch = {
                 res = undefined;
             }
 
-            watches_expresions[exprs[expr]] = res;
+            watches_expresions[exprs[expr]] = res; //all results
         }
 
         postMessage(

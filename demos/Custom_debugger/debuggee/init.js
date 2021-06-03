@@ -120,8 +120,9 @@ var TraceCommandHandler = {
             );
         }
 
-        function updateVariables (vars) {
-            postMessage(
+        function updateWatches (vars) {
+            Interpreter.Watches.print(vars);    //expresions
+            postMessage(                        //variables
                 {type:"watches_variables", data:{ variables : vars } }
             );
         }
@@ -135,8 +136,7 @@ var TraceCommandHandler = {
 
         async function wait (node) {
 
-            updateVariables(Interpreter.userVars)
-            Interpreter.Watches.print(Interpreter.userVars);
+            updateWatches(Interpreter.userVars)
 
             if (TraceCommandHandler.should_stop(node))
                 set_stopped(node)
