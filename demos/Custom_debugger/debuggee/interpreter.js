@@ -218,7 +218,7 @@ Interpreter.install("eval_userfunc_call" , async function (node) {
     for (var arg in node.arg_names){
         var arg_name = node.arg_names[arg]
         old_vars[arg_name] = this.userVars[arg_name];
-        this.userVars[arg_name] = await this.eval(node.args[0])
+        this.userVars[arg_name] = await this.eval(node.args[arg])
     }
 
     blockly_debuggee.state.currCallNesting++;
