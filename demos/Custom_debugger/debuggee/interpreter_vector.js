@@ -17,25 +17,40 @@ function nextPc(){
 
 Interpreter.install("init" , function(ast){
     instructions = astVisitor.accept("serializeAST_visitor" ,ast);
-    for(var attributename in ast.data){
-        var type = ast.data[attributename].type
+    for(var funcname in ast.data){ //uses the ast to find the func_decl. It is faster than the instructions[] as it only checks the first level
+        var type = ast.data[funcname].type
         if (type == "func_decl"){
-            var name = ast.data[attributename].name
-            this.userFuncs[name] = ast.data[attributename].do;
-            this.userFuncs[name].id = ast.data[attributename].id;
+            var name = ast.data[funcname].name
+            this.userFuncs[name] = ast.data[funcname].do;
+            this.userFuncs[name].id = ast.data[funcname].id;
             this.userFuncs[name].blockNesting = 1;
-            delete ast.data[attributename]
+            delete ast.data[funcname]
         }
     }
 })
 
 
-Interpreter.install("all" , async function (node) {
+Interpreter.install("eval_instructions" , async function (node) {
     while (pc < instructions.length){
         var n = instructions[pc]
         await this.eval(n);
         nextPc();
     }
+})
+
+Interpreter.install("eval" , async function (node) {
+    await blockly_debuggee.TraceCommandHandler.wait(node)
+
+    return this["eval_" + node.type](node);
+})
+
+Interpreter.install("eval_stmts" , async function (node) {
+    var res;
+
+    for (var stmt in node.data){
+        res = await this.eval(node.data[stmt]);
+    }
+    value_stack.push(res) //return the last command (used for userfuncs, for example return 5;)
 })
 
 Interpreter.install("eval_if_false_offset" , async function (node) {
@@ -56,96 +71,22 @@ Interpreter.install("eval_true_jump" , async function (node) {
 
 Interpreter.install("eval_jump" , async function (node) {
     this["eval_" + node.func](node);
-    //offset = node.pc
-})
-
-Interpreter.install("eval" , async function (node) {
-    await blockly_debuggee.TraceCommandHandler.wait(node)
-
-    return this["eval_" + node.type](node);
-    
-})
-
-Interpreter.install("eval_stmts" , async function (node) {
-    var res;
-
-    for (var stmt in node.data){
-        res = await this.eval(node.data[stmt]);
-    }
-
-    return res; //return the last command (used for userfuncs, for example return 5;)
 })
 
 
-// Interpreter.install("eval_while_stmt" , async function (node) {
-//     while (await this.eval(node.cond)){
-//         try {
-//             await this.eval(node.do)
-//         }catch (msg) {
-//             if (msg == 'break') break;
-//             //continue doesn't need a special case
-//         }
-//     }
-// })
+//All these stmts have been turned into instruction. Howeven I want to be able to highlight 
+//the blocks so I simply install them and do nothing with them
+Interpreter.install("eval_if_stmt" , async function (node) {})
+Interpreter.install("eval_tenary_expr" , async function (node) {})
+Interpreter.install("eval_while_stmt" , async function (node) {})
+Interpreter.install("eval_untill_stmt" , async function (node) {})
+Interpreter.install("eval_for_stmt" , async function (node) {})
+Interpreter.install("eval_forEach_stmt" , async function (node) {})
+Interpreter.install("eval_repeat_stmt" , async function (node) {})
 
-// Interpreter.install("eval_untill_stmt" , async function (node) {
-//     while (!await this.eval(node.cond)){
-//         try {
-//             await this.eval(node.do)
-//         }catch (msg) {
-//             if (msg == 'break') break;
-//             //continue doesn't need a special case
-//         }
-//     }
-// })
-
-// Interpreter.install("eval_for_stmt" , async function (node) {
-//     var from = await this.eval(node.from)
-//     //var to   = await this.eval(node.to)
-//     //var step = await this.eval(node.by)
-//     var i    = (this.userVars[node.var_name] = from);
-
-//     for (i = from; i <= await this.eval(node.to); i = (this.userVars[node.var_name] += await this.eval(node.by)) ){
-//         try {
-//             await this.eval(node.do)
-//         }catch (msg) {
-//             if (msg == 'break') break;
-//             //continue doesn't need a special case
-//         }
-//     }
-// })
-
-Interpreter.install("eval_forEach_stmt" , async function (node) {
-    var list = await this.eval(node.in)
-
-    for (var i in list){
-        this.userVars[node.var_name] = list[i]
-        try {
-            await this.eval(node.do)
-        }catch (msg) {
-            if (msg == 'break') break;
-            //continue doesn't need a special case
-        }
-    }
-    })
-
-// Interpreter.install("eval_repeat_stmt" , async function (node) { 
-
-//     for (var i = 0; i < await this.eval(node.cond); i++){
-//         try {
-//             await this.eval(node.do)
-//         }catch (msg) {
-//             if (msg == 'break') break;
-//             //continue doesn't need a special case
-//         }
-//     }
-// })
 
 Interpreter.install("eval_bool_const" , function (node) {
     value_stack.push(node.value)
-    /*if (node.value && node.jump){
-        offset = node.jump
-    }*/
 })
 Interpreter.install("eval_null_const" , function (node) {
     value_stack.push(node.value)
@@ -159,17 +100,10 @@ Interpreter.install("eval_colour_const" , function (node) {
 Interpreter.install("eval_number" , function (node) {
     value_stack.push(node.value)
 })
-Interpreter.install("eval_keyword" , async function (node) {
-    switch(node.name){
-        case 'return':
-            return await this.eval(node.value)
-        case 'break':
-            throw 'break';
-        case 'continue':
-            throw 'continue';
-    }
-        
-})
+
+//return gets pushed in the stack, break and continue have turned into jumps
+//we dont need the 'keyword' anymore
+//Interpreter.install("eval_keyword" , async function (node) {}) 
 
 Interpreter.install("eval_logic_expr" , async function (node) {
     var rhs = value_stack.pop()
@@ -200,10 +134,6 @@ Interpreter.install("eval_logic_expr" , async function (node) {
             value_stack.push(lhs >= rhs);
             break;
     }
-})
-
-Interpreter.install("eval_tenary_expr" , async function (node) {
-    return await this.eval(node.if) ? await this.eval(node.then): await this.eval(node.else);
 })
 
 Interpreter.install("eval_assign_expr" , async function (node) {
@@ -254,6 +184,19 @@ Interpreter.install("eval_tmp_var" , function (node) {
     value_stack.push(this.userVars[node.name]);
 })
 
+//tmp list used only for the forEach stmt
+Interpreter.install("eval_tmp_list" , function (node) {
+    var list = value_stack.pop();
+    if (node.length === undefined){
+        try{
+            node.length = list.length;
+        }catch(e){
+            node.length = 0
+        }
+    }
+    value_stack.push(node.length);
+})
+
 Interpreter.install("eval_var_change" , async function (node) {
     if (this.userVars[node.var_name] === undefined)
         this.userVars[node.var_name] = 0;
@@ -275,27 +218,38 @@ Interpreter.install("eval_func_call" , async function (node) {
     }
 })
 
-//"eval_func_decl" : function (node) {}, //nothing needs to be done, we already declared this func in init
+//nothing needs to be done, we already declared this func in init
+Interpreter.install("eval_func_decl" , async function (node) {})
 
-// Interpreter.install("eval_userfunc_call" , async function (node) {
-//     var func    = this.userFuncs[node.name];
-//     var old_vars    = []
+var old_env = []
+Interpreter.install("eval_userfunc_call" , async function (node) {
+    //var func    = this.userFuncs[node.name];
+    var old_vars    = []
 
-//     for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
-//         var arg_name = node.arg_names[arg]
-//         old_vars[arg_name] = this.userVars[arg_name];
-//         this.userVars[arg_name] = value_stack.pop();
-//     }
+    for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
+        var arg_name = node.arg_names[arg]
+        old_vars[arg_name] = this.userVars[arg_name];
+        this.userVars[arg_name] = value_stack.pop();
+    }
+    old_env.push({'old_vars' : old_vars, 'pc' : pc})
 
-//     blockly_debuggee.state.currCallNesting++;
-//     var result  = await this.eval(func);
-//     for (var arg in node.arg_names){ //restore old user variables
-//         var arg_name = node.arg_names[arg]
-//         this.userVars[arg_name] = old_vars[arg_name];
-//     }
-//     blockly_debuggee.state.currCallNesting--;
-//     value_stack.push(result);
-// })
+    blockly_debuggee.state.currCallNesting++;
+
+    offset = node.pc - pc;
+})
+
+Interpreter.install("eval_userfunc_exit" , async function (node) {
+    var env = old_env.pop();
+    var old_vars = env.old_vars;
+    offset = env.pc - pc + 1; //restore pc and go to the next instruction
+
+    for (var arg in node.arg_names){ //restore old user variables
+        var arg_name = node.arg_names[arg]
+        this.userVars[arg_name] = old_vars[arg_name];
+    }
+    blockly_debuggee.state.currCallNesting--;
+
+})
 
 Interpreter.install("eval_libfunc_call", async function(node){
     var func    = LibraryFuncs[node.name];
@@ -309,25 +263,33 @@ Interpreter.install("eval_libfunc_call", async function(node){
 
     args.unshift(node.param);
 
-    value_stack.push(func(args));
+    func(args);
 })
 
 Interpreter.install("eval_list_create" , async function (node) {
-    var list = []
-    for (var item in node.items){
-        list.push(await this.eval(node.items[item]))
+    var i = 0;
+    var list = [];
+    while (i < node.items_count){
+        list.push(value_stack.pop());
+        i++;
     }
-    return list;
+    value_stack.push(list.reverse());
 })
+
 Interpreter.install("eval_list_index" , async function (node) {
-    var list = await this.eval(node.list)
-    return list[await this.eval(node.index) - 1];
+    var list    = value_stack.pop();
+    var index   = value_stack.pop();
+
+    value_stack.push(list[index - 1]);
 })
+
 Interpreter.install("eval_property" , async function (node) {
-    var item = await this.eval(node.item)
+    var item = value_stack.pop();
+
     var command = "'" + item + "'" + node.name
     var res = eval(command)
-    return res;
+
+    value_stack.push(res)
 })
 
 
@@ -369,7 +331,6 @@ var LibraryFuncs = {
                     return list[x];
                 }
             }    
-    
             return listsGetRandomItem(list, remove);
         },
         "repeat"                    : function (list, val) {
@@ -380,7 +341,6 @@ var LibraryFuncs = {
                 }
                 return array;
             }      
-    
     
             return listsRepeat(list, val);
         },
@@ -597,27 +557,25 @@ var LibraryFuncs = {
                 b = ('0' + (Math.round(b) || 0).toString(16)).slice(-2);
                 return '#' + r + g + b;
             }
-            
             return colourRgb(r, g, b); //rgb
         },
         "colourBlend" : function (c1, c2, ratio) {
             function colourBlend(c1, c2, ratio) {
-                ratio = Math.max(Math.min(Number(ratio), 1), 0);
-                var r1 = parseInt(c1.substring(1, 3), 16);
-                var g1 = parseInt(c1.substring(3, 5), 16);
-                var b1 = parseInt(c1.substring(5, 7), 16);
-                var r2 = parseInt(c2.substring(1, 3), 16);
-                var g2 = parseInt(c2.substring(3, 5), 16);
-                var b2 = parseInt(c2.substring(5, 7), 16);
-                var r = Math.round(r1 * (1 - ratio) + r2 * ratio);
-                var g = Math.round(g1 * (1 - ratio) + g2 * ratio);
-                var b = Math.round(b1 * (1 - ratio) + b2 * ratio);
-                r = ('0' + (r || 0).toString(16)).slice(-2);
-                g = ('0' + (g || 0).toString(16)).slice(-2);
-                b = ('0' + (b || 0).toString(16)).slice(-2);
-                return '#' + r + g + b;
+                    ratio = Math.max(Math.min(Number(ratio), 1), 0);
+                    var r1 = parseInt(c1.substring(1, 3), 16);
+                    var g1 = parseInt(c1.substring(3, 5), 16);
+                    var b1 = parseInt(c1.substring(5, 7), 16);
+                    var r2 = parseInt(c2.substring(1, 3), 16);
+                    var g2 = parseInt(c2.substring(3, 5), 16);
+                    var b2 = parseInt(c2.substring(5, 7), 16);
+                    var r = Math.round(r1 * (1 - ratio) + r2 * ratio);
+                    var g = Math.round(g1 * (1 - ratio) + g2 * ratio);
+                    var b = Math.round(b1 * (1 - ratio) + b2 * ratio);
+                    r = ('0' + (r || 0).toString(16)).slice(-2);
+                    g = ('0' + (g || 0).toString(16)).slice(-2);
+                    b = ('0' + (b || 0).toString(16)).slice(-2);
+                    return '#' + r + g + b;
                 }
-                
                 return colourBlend(c1, c2, ratio); //color 1, clolor 2, ratio
         }
     },
@@ -626,28 +584,28 @@ var LibraryFuncs = {
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.list_methods[methodName]
-        return func.apply(null, methodArgs);
+        value_stack.push(func.apply(null, methodArgs))
     },
 
     "math_invoke": function (args){
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.math_methods[methodName]
-        return func.apply(null, methodArgs);
+        value_stack.push(func.apply(null, methodArgs))
     },
 
     "text_invoke": function (args){
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.text_methods[methodName]
-        return func.apply(null, methodArgs);
+        value_stack.push(func.apply(null, methodArgs))
     },
     
     "colour_invoke": function (args){
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.colour_methods[methodName]
-        return func.apply(null, methodArgs);
+        value_stack.push(func.apply(null, methodArgs))
     }
 }
 
