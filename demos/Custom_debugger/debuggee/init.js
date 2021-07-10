@@ -1,4 +1,5 @@
 import {Watch} from './watches.js'
+export {astVisitor} from "./visitors.js"
 
 export var blockly_debuggee = { }
 export var Interpreter = { 

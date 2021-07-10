@@ -1,22 +1,24 @@
 import {blockly_debuggee, Interpreter, astVisitor} from "./init.js";
 export {blockly_debuggee};
 
-var instructions = [];
-var value_stack = [];
-var pc = 0;
-var offset = 0;
+var interpreter_vars = {
+    instructions    : [],
+    value_stack     : [],
+    pc              : 0,
+    offset          : 0
+}
 
 function nextPc(){
-    if (offset != 0){
-        pc += offset
-        offset = 0;
+    if (interpreter_vars.offset != 0){
+        interpreter_vars.pc += interpreter_vars.offset
+        interpreter_vars.offset = 0;
     }
     else
-        pc++;
+        interpreter_vars.pc++;
 }
 
 Interpreter.install("init" , function(ast){
-    instructions = astVisitor.accept("serializeAST_visitor" ,ast);
+    interpreter_vars.instructions = astVisitor.accept("serializeAST_visitor" ,ast);
     for(var funcname in ast.data){ //uses the ast to find the func_decl. It is faster than the instructions[] as it only checks the first level
         var type = ast.data[funcname].type
         if (type == "func_decl"){
@@ -31,8 +33,8 @@ Interpreter.install("init" , function(ast){
 
 
 Interpreter.install("eval_instructions" , async function (node) {
-    while (pc < instructions.length){
-        var n = instructions[pc]
+    while (interpreter_vars.pc < interpreter_vars.instructions.length){
+        var n = interpreter_vars.instructions[interpreter_vars.pc]
         await this.eval(n);
         nextPc();
     }
@@ -50,23 +52,23 @@ Interpreter.install("eval_stmts" , async function (node) {
     for (var stmt in node.data){
         res = await this.eval(node.data[stmt]);
     }
-    value_stack.push(res) //return the last command (used for userfuncs, for example return 5;)
+    interpreter_vars.value_stack.push(res) //return the last command (used for userfuncs, for example return 5;)
 })
 
 Interpreter.install("eval_if_false_offset" , async function (node) {
-    var val = value_stack.pop();
+    var val = interpreter_vars.value_stack.pop();
     if(!val)
-        offset = node.pc_offset;
+        interpreter_vars.offset = node.pc_offset;
 })
 
 Interpreter.install("eval_if_true_offset" , async function (node) {
-    var val = value_stack.pop();
+    var val = interpreter_vars.value_stack.pop();
     if(val)
-        offset = node.pc_offset;
+        interpreter_vars.offset = node.pc_offset;
 })
 
 Interpreter.install("eval_true_jump" , async function (node) {
-    offset = node.pc_offset;
+    interpreter_vars.offset = node.pc_offset;
 })
 
 Interpreter.install("eval_jump" , async function (node) {
@@ -86,19 +88,19 @@ Interpreter.install("eval_repeat_stmt" , async function (node) {})
 
 
 Interpreter.install("eval_bool_const" , function (node) {
-    value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value)
 })
 Interpreter.install("eval_null_const" , function (node) {
-    value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value)
 })
 Interpreter.install("eval_text_const" , function (node) {
-    value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value)
 })
 Interpreter.install("eval_colour_const" , function (node) {
-    value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value)
 })
 Interpreter.install("eval_number" , function (node) {
-    value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value)
 })
 
 //return gets pushed in the stack, break and continue have turned into jumps
@@ -106,58 +108,58 @@ Interpreter.install("eval_number" , function (node) {
 //Interpreter.install("eval_keyword" , async function (node) {}) 
 
 Interpreter.install("eval_logic_expr" , async function (node) {
-    var rhs = value_stack.pop()
-    var lhs = value_stack.pop()
+    var rhs = interpreter_vars.value_stack.pop()
+    var lhs = interpreter_vars.value_stack.pop()
     switch(node.op){
         case "AND":
-            value_stack.push(lhs && rhs);
+            interpreter_vars.value_stack.push(lhs && rhs);
             break;
         case "OR":
-            value_stack.push(lhs || rhs);
+            interpreter_vars.value_stack.push(lhs || rhs);
             break;
         case "EQ":
-            value_stack.push(lhs == rhs);
+            interpreter_vars.value_stack.push(lhs == rhs);
             break;
         case "NEQ":
-            value_stack.push(lhs != rhs);
+            interpreter_vars.value_stack.push(lhs != rhs);
             break;
         case "LT":
-            value_stack.push(lhs < rhs);
+            interpreter_vars.value_stack.push(lhs < rhs);
             break;
         case "LTE":
-            value_stack.push(lhs <= rhs);
+            interpreter_vars.value_stack.push(lhs <= rhs);
             break;
         case "GT":
-            value_stack.push(lhs > rhs);
+            interpreter_vars.value_stack.push(lhs > rhs);
             break;
         case "GTE":
-            value_stack.push(lhs >= rhs);
+            interpreter_vars.value_stack.push(lhs >= rhs);
             break;
     }
 })
 
 Interpreter.install("eval_assign_expr" , async function (node) {
-    this.userVars[node.lval] = value_stack.pop()
+    this.userVars[node.lval] = interpreter_vars.value_stack.pop()
 })
 
 Interpreter.install("eval_arithm_expr" , async function (node) {
-    var rhs = value_stack.pop()
-    var lhs = value_stack.pop()
+    var rhs = interpreter_vars.value_stack.pop()
+    var lhs = interpreter_vars.value_stack.pop()
     switch(node.op){
         case 'ADD':
-            value_stack.push(lhs + rhs);
+            interpreter_vars.value_stack.push(lhs + rhs);
             break;
         case 'MINUS':
-            value_stack.push(lhs - rhs);
+            interpreter_vars.value_stack.push(lhs - rhs);
             break;
         case 'MULTIPLY':
-            value_stack.push(lhs * rhs);
+            interpreter_vars.value_stack.push(lhs * rhs);
             break;
         case 'DIVIDE':
-            value_stack.push(lhs / rhs);
+            interpreter_vars.value_stack.push(lhs / rhs);
             break;
         case 'POWER':
-            value_stack.push(Math.pow(lhs, rhs));
+            interpreter_vars.value_stack.push(Math.pow(lhs, rhs));
             break;
     }
 })
@@ -167,7 +169,7 @@ Interpreter.install("eval_var_decl" , function (node) {
 })
 
 Interpreter.install("eval_var" , function (node) {
-    value_stack.push(this.userVars[node.name]);
+    interpreter_vars.value_stack.push(this.userVars[node.name]);
 })
 
 //tmp var used only from the reapeat stmt
@@ -181,12 +183,12 @@ Interpreter.install("eval_tmp_var" , function (node) {
         node.name = name
     }
     this.userVars[node.name]++;
-    value_stack.push(this.userVars[node.name]);
+    interpreter_vars.value_stack.push(this.userVars[node.name]);
 })
 
 //tmp list used only for the forEach stmt
 Interpreter.install("eval_tmp_list" , function (node) {
-    var list = value_stack.pop();
+    var list = interpreter_vars.value_stack.pop();
     if (node.length === undefined){
         try{
             node.length = list.length;
@@ -194,20 +196,20 @@ Interpreter.install("eval_tmp_list" , function (node) {
             node.length = 0
         }
     }
-    value_stack.push(node.length);
+    interpreter_vars.value_stack.push(node.length);
 })
 
 Interpreter.install("eval_var_change" , async function (node) {
     if (this.userVars[node.var_name] === undefined)
         this.userVars[node.var_name] = 0;
-    this.userVars[node.var_name] += value_stack.pop();
+    this.userVars[node.var_name] += interpreter_vars.value_stack.pop();
 })
 
 Interpreter.install("eval_func_call" , async function (node) {
     var args = []
     var i = 0;
     while (i < node.arg_count){
-        args.push(value_stack.pop())
+        args.push(interpreter_vars.value_stack.pop())
         i++;
     }
     if (node.name == 'window.alert') //for testing. correct is window.alert no console.log
@@ -223,25 +225,24 @@ Interpreter.install("eval_func_decl" , async function (node) {})
 
 var old_env = []
 Interpreter.install("eval_userfunc_call" , async function (node) {
-    //var func    = this.userFuncs[node.name];
     var old_vars    = []
 
     for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
         var arg_name = node.arg_names[arg]
         old_vars[arg_name] = this.userVars[arg_name];
-        this.userVars[arg_name] = value_stack.pop();
+        this.userVars[arg_name] = interpreter_vars.value_stack.pop();
     }
-    old_env.push({'old_vars' : old_vars, 'pc' : pc})
+    old_env.push({'old_vars' : old_vars, 'pc' : interpreter_vars.pc})
 
     blockly_debuggee.state.currCallNesting++;
 
-    offset = node.pc - pc;
+    interpreter_vars.offset = node.pc - interpreter_vars.pc;
 })
 
 Interpreter.install("eval_userfunc_exit" , async function (node) {
     var env = old_env.pop();
     var old_vars = env.old_vars;
-    offset = env.pc - pc + 1; //restore pc and go to the next instruction
+    interpreter_vars.offset = env.pc - interpreter_vars.pc + 1; //restore pc and go to the next instruction
 
     for (var arg in node.arg_names){ //restore old user variables
         var arg_name = node.arg_names[arg]
@@ -257,9 +258,11 @@ Interpreter.install("eval_libfunc_call", async function(node){
 
     var i = 0;
     while (i < node.arg_count){
-        args.push(value_stack.pop())
+        args.push(interpreter_vars.value_stack.pop())
         i++;
     }
+
+    args = args.reverse(); //because when poping from the stack, args are reversed
 
     args.unshift(node.param);
 
@@ -270,26 +273,26 @@ Interpreter.install("eval_list_create" , async function (node) {
     var i = 0;
     var list = [];
     while (i < node.items_count){
-        list.push(value_stack.pop());
+        list.push(interpreter_vars.value_stack.pop());
         i++;
     }
-    value_stack.push(list.reverse());
+    interpreter_vars.value_stack.push(list.reverse());
 })
 
 Interpreter.install("eval_list_index" , async function (node) {
-    var list    = value_stack.pop();
-    var index   = value_stack.pop();
+    var list    = interpreter_vars.value_stack.pop();
+    var index   = interpreter_vars.value_stack.pop();
 
-    value_stack.push(list[index - 1]);
+    interpreter_vars.value_stack.push(list[index - 1]);
 })
 
 Interpreter.install("eval_property" , async function (node) {
-    var item = value_stack.pop();
+    var item = interpreter_vars.value_stack.pop();
 
     var command = "'" + item + "'" + node.name
     var res = eval(command)
 
-    value_stack.push(res)
+    interpreter_vars.value_stack.push(res)
 })
 
 
@@ -592,28 +595,28 @@ var LibraryFuncs = {
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.list_methods[methodName]
-        value_stack.push(func.apply(null, methodArgs))
+        interpreter_vars.value_stack.push(func.apply(null, methodArgs))
     },
 
     "math_invoke": function (args){
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.math_methods[methodName]
-        value_stack.push(func.apply(null, methodArgs))
+        interpreter_vars.value_stack.push(func.apply(null, methodArgs))
     },
 
     "text_invoke": function (args){
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.text_methods[methodName]
-        value_stack.push(func.apply(null, methodArgs))
+        interpreter_vars.value_stack.push(func.apply(null, methodArgs))
     },
     
     "colour_invoke": function (args){
         var methodName = args[0];
         var methodArgs = args.slice(1);
         var func = LibraryFuncs.colour_methods[methodName]
-        value_stack.push(func.apply(null, methodArgs))
+        interpreter_vars.value_stack.push(func.apply(null, methodArgs))
     }
 }
 

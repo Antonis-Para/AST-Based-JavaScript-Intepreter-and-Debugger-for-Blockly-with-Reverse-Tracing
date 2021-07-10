@@ -1,4 +1,4 @@
-import {blockly_debuggee} from './interpreter.js'
+import {blockly_debuggee} from './interpreter_vector.js'
 
 onmessage = function (msg) {
     let obj = msg.data;
@@ -8,7 +8,7 @@ onmessage = function (msg) {
             let json = obj.data.code
             blockly_debuggee.state.debugMode = true;
             blockly_debuggee.Interpreter.init(json);
-            blockly_debuggee.Interpreter.eval(json).then( () => { //after execution finished..
+            blockly_debuggee.Interpreter.eval_instructions(json).then( () => { //after execution finished..
                 postMessage(
                     {type:"watches_variables", data:{ variables : [] } }
                 ); //delete all watches once execution has finished
@@ -16,9 +16,10 @@ onmessage = function (msg) {
                 postMessage(
                     {type:"terminate"}
                 ); //execution has finished. If you want you can run it again now
+
+                blockly_debuggee.state.reset();
             });
             
-            blockly_debuggee.state.reset();
             break;
         case "add_watch":
             blockly_debuggee.Interpreter.Watches.add(obj.data.watch)
