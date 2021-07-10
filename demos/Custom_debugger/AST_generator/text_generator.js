@@ -53,31 +53,39 @@ AST_dispatch.install("text_join", function(block) {
 
 /*----------------------------------------------*/
 AST_dispatch.install("text_append", function(block) {
-    Blockly_gen.GetJsonText().add('"type": "arithm_expr",\n');
-	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
-    Blockly_gen.GetJsonText().add('"op": "PLUS_EQ",\n');
+    Blockly_gen.GetJsonText().add('"type": "assign_expr",\n');
+
+    var variable = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
+    Blockly_gen.GetJsonText().add('"lval": "' + variable + '",\n');
+    
+
+    Blockly_gen.GetJsonText().add('"rval": {');
+
+        Blockly_gen.GetJsonText().add('"type": "arithm_expr",\n');
+        Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
+        Blockly_gen.GetJsonText().add('"op": "ADD",\n');
 
 
-    Blockly_gen.GetJsonText().add('"lval": {\n');
-    Blockly_gen.GetJsonText().add('"type": "var",\n');
-    var lvalue = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).getAttribute('name');
-    if (lvalue == "VAR") {
-        if (Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes.length == 0) {
-            Blockly_gen.GetJsonText().add('"value": ""\n');
+        Blockly_gen.GetJsonText().add('"lval": {\n');
+        Blockly_gen.GetJsonText().add('"type": "var",\n');
+        var lvalue = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).getAttribute('name');
+        if (lvalue == "VAR") {
+            if (Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes.length == 0) {
+                Blockly_gen.GetJsonText().add('"value": ""\n');
+            } else {
+                Blockly_gen.GetJsonText().add('"name": "' + variable + '"\n');
+            }
         } else {
-            var variable = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "field", 1).childNodes[0].nodeValue;
-            Blockly_gen.GetJsonText().add('"name": "' + variable + '"\n');
+            console.log("Error in makeTextAppend")
+            exit();
         }
-    } else {
-        console.log("Error in makeTextAppend")
-        exit();
-    }
-    Blockly_gen.GetJsonText().add('},\n');
+        Blockly_gen.GetJsonText().add('},\n');
 
 
-    Blockly_gen.GetJsonText().add('"rval": ');
-    var rval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
-    Blockly_gen.createAllBlocks(rval_value);
+        Blockly_gen.GetJsonText().add('"rval": ');
+        var rval_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
+        Blockly_gen.createAllBlocks(rval_value);
+    Blockly_gen.GetJsonText().add('}');
 })
 
 
