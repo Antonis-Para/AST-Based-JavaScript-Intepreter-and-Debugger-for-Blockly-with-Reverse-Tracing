@@ -11,7 +11,8 @@ AST_dispatch.install("colour_picker", function(block) {
 /*----------------------------------------------*/
 AST_dispatch.install("colour_random", function(block) {
     Blockly_gen.GetJsonText().add('"type": "libfunc_call",\n');
-    Blockly_gen.GetJsonText().add('"name": "colourRandom",\n');
+    Blockly_gen.GetJsonText().add('"name": "colour_invoke",\n');
+    Blockly_gen.GetJsonText().add('"param": "colourRandom",\n');
 	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '"\n');
 })
 

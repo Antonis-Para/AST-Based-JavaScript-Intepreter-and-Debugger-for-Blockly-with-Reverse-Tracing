@@ -98,7 +98,7 @@ Interpreter.install("eval_forEach_stmt" , async function (node) {
     }
     })
 
-    Interpreter.install("eval_repeat_stmt" , async function (node) { 
+Interpreter.install("eval_repeat_stmt" , async function (node) { 
 
     for (var i = 0; i < await this.eval(node.cond); i++){
         try {
@@ -110,7 +110,7 @@ Interpreter.install("eval_forEach_stmt" , async function (node) {
     }
     })
 
-    Interpreter.install("eval_bool_const" , function (node) {
+Interpreter.install("eval_bool_const" , function (node) {
     return node.value;
 })
 Interpreter.install("eval_null_const" , function (node) {
@@ -550,6 +550,14 @@ var LibraryFuncs = {
                 }
                 
                 return colourBlend(c1, c2, ratio); //color 1, clolor 2, ratio
+        },
+        "colourRandom" : function () {
+            function colourRandom(){
+                var num = Math.floor(Math.random() * Math.pow(2, 24));
+                return '#' + ('00000' + num.toString(16)).substr(-6);
+            }
+
+            return colourRandom();
         }
     },
 
