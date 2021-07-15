@@ -236,7 +236,7 @@ Interpreter.install("eval_userfunc_call" , async function (node) {
 
     blockly_debuggee.state.currCallNesting++;
 
-    interpreter_vars.offset = node.pc - interpreter_vars.pc;
+    interpreter_vars.offset = node.start_pc - interpreter_vars.pc;
 })
 
 Interpreter.install("eval_userfunc_exit" , async function (node) {

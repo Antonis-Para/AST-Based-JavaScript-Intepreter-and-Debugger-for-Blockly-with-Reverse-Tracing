@@ -15,6 +15,7 @@ export var astVisitor = {
 function serializeAST_visitor (ast) {
     var instructions        = [];
     var functions           = {};
+    var functions_pc        = [];
     var variables           = [];
     const if_false_offset   = "if_false_offset";
     const if_true_offset    = "if_true_offset";
@@ -32,6 +33,13 @@ function serializeAST_visitor (ast) {
                 instructions[i].pc_offset = before_cond - i;
                 instructions[i].type = 'jump'
             }
+        }
+    }
+
+    function fix_functions(){
+        for (var func in functions_pc){
+            let node = instructions[functions_pc[func]];
+            instructions[functions_pc[func]].start_pc = functions[node.name]
         }
     }
 
@@ -424,6 +432,7 @@ function serializeAST_visitor (ast) {
             instructions.push({type : 'userfunc_exit'})
 
             instructions[before_func].pc_offset = instructions.length - before_func;
+
             functions[node.name] = before_func + 1 //go after the jump
         },
 
@@ -431,12 +440,16 @@ function serializeAST_visitor (ast) {
             for (var arg in node.args)
                 this.visit(node.args[arg]);
             
+            functions_pc.push(instructions.length) //save the func call, im going to fix the 'start_pc' in the end
+
             //we dont need the args, they will be pushed in the value_stack later
             var new_node = {
-                'name'      : node.name,
+                'name'          : node.name,
                 'blockNesting'  : node.blockNesting,
                 'id'            : node.id,
                 'type'          : node.type,
+                'arg_names'     : node.arg_names,
+                'start_pc'      : undefined //undefined for now
             };
 
             instructions.push(new_node)
@@ -508,6 +521,7 @@ function serializeAST_visitor (ast) {
     }
     
     funcs.visit(ast);
+    fix_functions();
     return instructions;
 }
 
