@@ -45,6 +45,9 @@ onmessage = function (msg) {
                 }
             }
             break;
+        case "reverse":
+            blockly_debuggee.Interpreter.in_reverse = obj.data.value;
+            break;
         default:
             blockly_debuggee.TraceCommandHandler.handle_message(obj.type, obj.data)
            

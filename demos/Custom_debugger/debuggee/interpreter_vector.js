@@ -6,16 +6,32 @@ var interpreter_vars = {
     instructions    : [],
     value_stack     : [],
     pc              : 0,
-    offset          : 0
+    offset          : 0,
+    reverse_pc      : []
 }
 
-function nextPc(){
-    if (interpreter_vars.offset != 0){
+function nextPc(assign_val){ //assign val is an array of [var, value]. Exists only in the assign stmts, else undefined
+    if (Interpreter.in_reverse){
+        var arr;
+        [interpreter_vars.pc, arr] = interpreter_vars.reverse_pc.pop();
+
+        if (arr !== undefined){
+            var variable, value;
+            [variable, value] = arr
+            Interpreter.userVars[variable] = value;
+        }
+    }
+    else if (interpreter_vars.offset != 0){
+        interpreter_vars.reverse_pc.push([interpreter_vars.pc, assign_val]);
         interpreter_vars.pc += interpreter_vars.offset
         interpreter_vars.offset = 0;
     }
-    else
+    else{
+        interpreter_vars.reverse_pc.push([interpreter_vars.pc, assign_val]);
         interpreter_vars.pc++;
+    }
+    
+    
 }
 
 Interpreter.install("init" , function(ast){
@@ -36,13 +52,16 @@ Interpreter.install("init" , function(ast){
 Interpreter.install("eval_instructions" , async function (node) {
     while (interpreter_vars.pc < interpreter_vars.instructions.length){
         var n = interpreter_vars.instructions[interpreter_vars.pc]
-        await this.eval(n);
-        nextPc();
+        let assign = await this.eval(n); //only assign expr will return something
+        nextPc(assign);
     }
 })
 
 Interpreter.install("eval" , async function (node) {
     await blockly_debuggee.TraceCommandHandler.wait(node)
+    
+    if (Interpreter.in_reverse)
+        return;
 
     return this["eval_" + node.type](node);
 })
@@ -140,7 +159,9 @@ Interpreter.install("eval_logic_expr" , async function (node) {
 })
 
 Interpreter.install("eval_assign_expr" , async function (node) {
-    this.userVars[node.lval] = interpreter_vars.value_stack.pop()
+    let old_val = this.userVars[node.lval];
+    this.userVars[node.lval] = interpreter_vars.value_stack.pop();
+    return [node.lval, old_val]; //to save in the reverse stack
 })
 
 Interpreter.install("eval_arithm_expr" , async function (node) {

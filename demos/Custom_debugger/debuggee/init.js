@@ -3,8 +3,9 @@ export {astVisitor} from "./visitors.js"
 
 export var blockly_debuggee = { }
 export var Interpreter = { 
-    "userVars"         : [],
-    "userFuncs"        : [],
+    userVars           : [],
+    userFuncs          : [],
+    in_reverse         : false,
     Watches            : Watch,
     install            : function(name, callback){
         this[name] = callback
@@ -14,6 +15,7 @@ export var Interpreter = {
 const NO_COMMAND        = 'undef';
 const UNDEF_STRING      = 'undef';
 const TRACE_TYPE        = "trace"
+const TRACE_BACK_TYPE   = "trace_back"
 
 const CONTINUE_COMMAND  = "continue";
 const STEP_OVER_COMMAND = "step_over";
@@ -41,6 +43,7 @@ blockly_debuggee = {
                                                 (block.blockNesting < blockly_debuggee.state.stopNodeBlockNesting && blockly_debuggee.state.currCallNesting == blockly_debuggee.state.stopNodeCallNesting);
         commands[STEP_OVER_COMMAND] = () => block.blockNesting <= blockly_debuggee.state.stopNodeBlockNesting && blockly_debuggee.state.currCallNesting <= blockly_debuggee.state.stopNodeCallNesting;
         commands[STEP_IN_COMMAND]   = () => true; //we seem to always stop with step-in. Always true?
+        //commands[STEP_BACK_COMMAND] = () => block.blockNesting <= blockly_debuggee.state.stopNodeBlockNesting && blockly_debuggee.state.currCallNesting <= blockly_debuggee.state.stopNodeCallNesting;
         commands[NO_COMMAND]        = () => false;
 
         return commands[command]();
@@ -78,7 +81,7 @@ blockly_debuggee.state = {
 
     set_stopped         : function(block){
         this.reset();
-        this.isStopped  = true;
+        this.isStopped            = true;
         this.stopNodeBlockNesting = block.blockNesting;
         this.stopNodeCallNesting  = this.currCallNesting;
     },
@@ -102,7 +105,7 @@ var TraceCommandHandler = {
                 return blockly_debuggee.state.explicitTargetBlock == block.id
             }
 
-            return  BreakpointHolder.has(block.id)
+            return BreakpointHolder.has(block.id)
             
         }else{
             return blockly_debuggee.matches_to_stop(block);
@@ -142,7 +145,7 @@ var TraceCommandHandler = {
             if (TraceCommandHandler.should_stop(node))
                 set_stopped(node)
 
-             //stoped state can change while in busy loop, we can't use "TraceCommandHandler.is_stopped()" on outer if stmt
+             //stoped state can change while in busy loop, we can't use "TraceCommandHandler.is_stopped()" on outer if_stmt
             while (!blockly_debuggee.has_command() && TraceCommandHandler.is_stopped()){
                 await sleep(0);
             }

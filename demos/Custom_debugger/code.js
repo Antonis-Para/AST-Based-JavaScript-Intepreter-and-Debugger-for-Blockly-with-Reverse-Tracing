@@ -472,7 +472,9 @@ Code.init = function() {
   Code.bindClick('stepOverButton' , Code.stepOver);
   Code.bindClick('stepInButton'   , Code.stepIn);
   Code.bindClick('stepOutButton'  , Code.stepOut);
+  Code.bindClick('stepBackButton' , Code.stepBack);
   Code.bindClick('stopButton'     , Code.stop);
+  Code.bindClick('on-off-slider'  , Code.Reverse_ClickHandler);
 
   Code.bindClick('addExpressionButton', Code.addExpression);
   Code.bindClick('changeValue', Code.changeValue);
@@ -635,8 +637,14 @@ Code.stepOut = function() {
   Debuggee_Worker.getInstance().postMessage({type : "trace", data : {op : "step_out"} });
 }
 
+
 Code.stop = function() {
   Debuggee_Worker.kill();
+}
+
+Code.Reverse_ClickHandler = function() {
+  var checked = document.querySelector('.on-off-slider').checked
+  Debuggee_Worker.getInstance().postMessage({type : "reverse", data : {value:  checked} });
 }
 
 Code.addExpression = function() {
