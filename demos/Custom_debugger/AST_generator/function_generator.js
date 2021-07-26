@@ -34,13 +34,13 @@ AST_dispatch.install("procedures_defnoreturn", function(block) {
 })
 
 /*----------------------------------------------*/
-AST_dispatch.install("procedures_ifreturn", function(block) {
+AST_dispatch.install("procedures_ifreturn", function(block) { 
     Blockly_gen.GetJsonText().add('"type": "if_stmt",\n');
 	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
 
     var child_no = 1;
     var if_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1)
-    Blockly_gen.GetJsonText().add('"cond": ');
+    Blockly_gen.GetJsonText().add('"cond": [');
     if (if_value === null || if_value === undefined || if_value.getAttribute("name") != "CONDITION") { //no condition in the if statement. Default is false
         Blockly_gen.GetJsonText().add('{\n');
         Blockly_gen.GetJsonText().add('"type": "bool_const",\n');
@@ -51,10 +51,10 @@ AST_dispatch.install("procedures_ifreturn", function(block) {
         Blockly_gen.createAllBlocks(if_value);
         child_no++;
     }
-    Blockly_gen.GetJsonText().add(',\n');
+    Blockly_gen.GetJsonText().add('],\n');
 
     var ret_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", child_no);
-    Blockly_gen.GetJsonText().add('"do": {\n');
+    Blockly_gen.GetJsonText().add('"do": [{\n');
 		Blockly_gen.GetJsonText().add('"type": "stmts",\n');
 		Blockly_gen.GetJsonText().add('"data": [\n');
 			Blockly_gen.GetJsonText().add('{\n');
@@ -70,7 +70,13 @@ AST_dispatch.install("procedures_ifreturn", function(block) {
 			}
 			Blockly_gen.GetJsonText().add('}\n');
 		Blockly_gen.GetJsonText().add(']\n');
-    Blockly_gen.GetJsonText().add('}\n'); //do
+    Blockly_gen.GetJsonText().add('}],\n'); //do
+
+    //default (always empty, used for consistency)
+    Blockly_gen.GetJsonText().add('"default":{\n');
+    Blockly_gen.GetJsonText().add('"type": "stmts",\n');
+    Blockly_gen.GetJsonText().add('"data": []\n');
+    Blockly_gen.GetJsonText().add('}\n');
 })
 
 
