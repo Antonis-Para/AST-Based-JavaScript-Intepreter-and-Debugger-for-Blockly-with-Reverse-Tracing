@@ -7,7 +7,7 @@ var interpreter_vars = {
     value_stack     : [],
     pc              : 0,
     offset          : 0,
-    reverse_pc      : []
+    reverse_pc      : [[undefined, undefined]]
 }
 
 function nextPc(assign_val){ //assign val is an array of [var, value]. Exists only in the assign stmts, else undefined
@@ -21,11 +21,13 @@ function nextPc(assign_val){ //assign val is an array of [var, value]. Exists on
             Interpreter.userVars[variable] = value;
         }
     }
+
     else if (interpreter_vars.offset != 0){
         interpreter_vars.reverse_pc.push([interpreter_vars.pc, assign_val]);
         interpreter_vars.pc += interpreter_vars.offset
         interpreter_vars.offset = 0;
     }
+
     else{
         interpreter_vars.reverse_pc.push([interpreter_vars.pc, assign_val]);
         interpreter_vars.pc++;
@@ -50,7 +52,7 @@ Interpreter.install("init" , function(ast){
 
 
 Interpreter.install("eval_instructions" , async function (node) {
-    while (interpreter_vars.pc < interpreter_vars.instructions.length){
+    while (interpreter_vars.pc < interpreter_vars.instructions.length){ //or when pc === undefined
         var n = interpreter_vars.instructions[interpreter_vars.pc]
         let assign = await this.eval(n); //only assign expr will return something
         nextPc(assign);
@@ -95,9 +97,12 @@ Interpreter.install("eval_jump" , async function (node) {
     this["eval_" + node.func](node);
 })
 
+Interpreter.install("eval_highlight_node" , async function (node) {})
+
 
 //All these stmts have been turned into instruction. Howeven I want to be able to highlight 
 //the blocks so I simply install them and do nothing with them
+Interpreter.install("eval_highlight_node" , async function (node) {})
 Interpreter.install("eval_if_stmt" , async function (node) {})
 Interpreter.install("eval_tenary_expr" , async function (node) {})
 Interpreter.install("eval_while_stmt" , async function (node) {})
@@ -309,9 +314,32 @@ Interpreter.install("eval_list_index" , async function (node) {
 })
 
 Interpreter.install("eval_property" , async function (node) {
+    var args = []
+    for (var i = 0; i < node.arg_count; i++){
+        args.push(interpreter_vars.value_stack.pop())
+    }
+
     var item = interpreter_vars.value_stack.pop();
+    if (item === undefined){
+        throw "Error: List item is undefined";
+    }
 
     var command = "'" + item + "'" + node.name
+
+    if (args.length > 0){
+        command += '(';
+        for (var i = 0; i < node.arg_count; i++){
+            if (typeof args[i] === "string"){
+                command += "'";
+                command += args[i];
+                command += "'"
+            }else{
+                command += args[i];
+            }
+        }
+        command += ')';
+    }
+
     var res = eval(command)
 
     interpreter_vars.value_stack.push(res)

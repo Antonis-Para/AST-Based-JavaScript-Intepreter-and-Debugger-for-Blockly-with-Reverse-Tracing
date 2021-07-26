@@ -22,9 +22,19 @@ function serializeAST_visitor (ast) {
     const true_jump         = "true_jump";
     const break_jump        = "break_jump";
     const cont_jump         = "cont_jump";
+    const func_jump         = "func_jump";
     const tbd               = -0;
 
-    function create_jump_and_continue(before_cond, after_cond){
+    function create_highlight_block(id, nest){
+        var highlight_node = {
+            'id'            : id,
+            'blockNesting'  : nest,
+            'type'          : "highlight_node"
+        }
+        instructions.push(highlight_node);
+    }
+
+    function create_break_and_continue(before_cond, after_cond){
         for (var i = after_cond; i < instructions.length; i++){
             if (instructions[i].type == break_jump){ 
                 instructions[i].pc_offset = instructions.length - i;
@@ -86,7 +96,7 @@ function serializeAST_visitor (ast) {
             instructions[after_cond].pc_offset = instructions.length - after_cond + 1 //+1 for the next jump
             instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond)})
 
-            create_jump_and_continue(before_cond, after_cond);
+            create_break_and_continue(before_cond, after_cond);
             
         },
 
@@ -113,7 +123,7 @@ function serializeAST_visitor (ast) {
             instructions[after_cond].pc_offset = instructions.length - after_cond + 1//+1 for the next jump
             instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond)})
 
-            create_jump_and_continue(before_cond, after_cond);
+            create_break_and_continue(before_cond, after_cond);
         },
 
         "visit_untill_stmt" : function(node){
@@ -130,7 +140,7 @@ function serializeAST_visitor (ast) {
             instructions[after_cond].pc_offset = instructions.length - after_cond + 1//+1 for the next jump
             instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond)})
 
-            create_jump_and_continue(before_cond, after_cond);
+            create_break_and_continue(before_cond, after_cond);
         },
 
         "visit_forEach_stmt" : function(node){
@@ -231,7 +241,7 @@ function serializeAST_visitor (ast) {
             instructions[after_cont_list].pc_offset = -(after_cont_list - before_cond)
             instructions[instructions.length - 1].pc_offset = -(instructions.length - 1 - before_cont_list)
 
-            create_jump_and_continue(before_cont_list, after_cond);
+            create_break_and_continue(before_cont_list, after_cond);
         },
 
         "visit_for_stmt" : function(node){
@@ -304,7 +314,7 @@ function serializeAST_visitor (ast) {
             instructions[after_cont_list].pc_offset = -(after_cont_list - before_cond)
             instructions[instructions.length - 1].pc_offset = -(instructions.length - 1 - before_cont_list)
 
-            create_jump_and_continue(before_cont_list, after_cond);
+            create_break_and_continue(before_cont_list, after_cond);
         },
 
         "visit_tenary_expr"       : function (node) {
@@ -331,12 +341,14 @@ function serializeAST_visitor (ast) {
         },
         
         "visit_logic_expr"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             this.visit(node.lval);
             this.visit(node.rval);
 
             var new_node = {
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
                 'op'            : node.op,
             };
@@ -345,12 +357,14 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_arithm_expr"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             this.visit(node.lval);
             this.visit(node.rval);
 
             var new_node = {
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null, //block gets highlighted in the beggining
                 'type'          : node.type,
                 'op'            : node.op,
             };
@@ -359,11 +373,13 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_assign_expr"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             this.visit(node.rval);
 
             var new_node = {
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
                 'lval'          : node.lval,
             };
@@ -372,12 +388,14 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_var_change"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             this.visit(node.value);
 
             var new_node = {
                 'var_name'      : node.var_name,
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type
             };
 
@@ -385,6 +403,8 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_func_call"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             for (var arg in node.args)
                 this.visit(node.args[arg]);
             
@@ -392,7 +412,7 @@ function serializeAST_visitor (ast) {
             var new_node = {
                 'name'          : node.name,
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null, //block gets highlighted in the beggining
                 'type'          : node.type,
                 'arg_count'     : node.args.length
             };
@@ -401,15 +421,17 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_libfunc_call"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             for (var arg in node.args)
                 this.visit(node.args[arg]);
             
             //we dont need the args, they will be pushed in the value_stack later
             
             var new_node = {
-                'name'      : node.name,
+                'name'          : node.name,
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
                 'param'         : node.param
             };
@@ -429,6 +451,13 @@ function serializeAST_visitor (ast) {
 
             this.visit(node.do);
 
+            for (var i = before_func; i < instructions.length; i++){ //patch the empty return jumps
+                if (instructions[i].type == func_jump){
+                    instructions[i].type = 'jump';
+                    instructions[i].pc_offset = instructions.length - i; //go to userfunc_exit
+                }
+            }
+
             instructions.push({type : 'userfunc_exit'})
 
             instructions[before_func].pc_offset = instructions.length - before_func;
@@ -437,6 +466,8 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_userfunc_call"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             for (var arg in node.args)
                 this.visit(node.args[arg]);
             
@@ -446,7 +477,7 @@ function serializeAST_visitor (ast) {
             var new_node = {
                 'name'          : node.name,
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
                 'arg_names'     : node.arg_names,
                 'start_pc'      : undefined //undefined for now
@@ -457,12 +488,14 @@ function serializeAST_visitor (ast) {
         
 
         "visit_list_create"       : function (node) {
+            create_highlight_block(node.id, node.blockNesting)
+
             for (var item in node.items)
                 this.visit(node.items[item]);
             
             var new_node = {
                 'blockNesting'  : node.blockNesting,
-                'id'            : node.id,
+                'id'            : null, //block gets highlighted in the beggining
                 'type'          : node.type,
                 'items_count'   : node.items.length
             };
@@ -471,11 +504,13 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_list_index"       : function (node) {
-            this.visit(node.index);
+            create_highlight_block(node.id, node.blockNesting)
+            
             this.visit(node.list);
+            this.visit(node.index);
 
             var new_node = {
-                'id'            :node.id,
+                'id'            :null, //block gets highlighted in the beggining
                 'type'          :node.type,
                 'blockNesting'  :node.blockNesting
             }
@@ -484,18 +519,26 @@ function serializeAST_visitor (ast) {
 
         "visit_property"       : function (node) {
             this.visit(node.item);
+            var arg_count = 0;
+            if ('arg' in node){
+                this.visit(node.arg);
+                arg_count++;
+            }
 
             var new_node = {
                 'id'            : node.id,
                 'type'          : node.type,
                 'blockNesting'  : node.blockNesting,
-                'name'          : node.name
+                'name'          : node.name,
+                'arg_count'     : arg_count
             }
             instructions.push(new_node)
         },
         "visit_keyword"         : function (node) {
-            if ('value' in node) //return
+            if ('value' in node){ //return
                 this.visit(node.value)
+                instructions.push({type : func_jump, func: true_jump, pc_offset : tbd})
+            }
             else if (node.name == 'break'){ //break 
                 instructions.push({type : break_jump, func: true_jump, pc_offset : tbd})
             }else if (node.name == 'continue'){ //continue
