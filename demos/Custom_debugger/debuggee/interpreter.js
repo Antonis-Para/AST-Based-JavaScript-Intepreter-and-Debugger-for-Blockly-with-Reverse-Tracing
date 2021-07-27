@@ -257,7 +257,38 @@ Interpreter.install("eval_list_index" , async function (node) {
 })
 Interpreter.install("eval_property" , async function (node) {
     var item = await this.eval(node.item)
-    var command = "'" + item + "'" + node.name
+    var arg;
+    if (node.arg !== undefined){
+        arg = await this.eval(node.arg)
+    }
+
+    if (item === undefined){
+        throw "Error: Cannot read property " + node.name +  " of undefined. List item is undefined.";
+    }
+
+    var command;
+    if (typeof item === "object"){ //array (list)
+        command = "[" + item + "]" + node.name
+    }else { //string
+        command = "'" + item + "'" + node.name
+    }
+
+    if (arg !== undefined ){
+        command += '(';
+        if (typeof arg === "string"){
+            command += "'";
+            command += arg;
+            command += "'"
+        }else if(typeof arg === "object"){
+            command += "[";
+            command += arg;
+            command += "]"
+        }else{ //number etc
+            command += arg;
+        }
+        command += ')';
+    }
+
     var res = eval(command)
     return res;
 })
