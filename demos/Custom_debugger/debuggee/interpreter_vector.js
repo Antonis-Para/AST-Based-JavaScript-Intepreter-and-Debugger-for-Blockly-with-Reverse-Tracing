@@ -324,7 +324,13 @@ Interpreter.install("eval_property" , async function (node) {
         throw "Error: List item is undefined";
     }
 
-    var command = "'" + item + "'" + node.name
+    var command;
+    if (typeof item === "object"){ //array (list)
+        command = "[" + item + "]" + node.name
+    }else { //string
+        command = "'" + item + "'" + node.name
+    }
+
 
     if (args.length > 0){
         command += '(';
@@ -333,8 +339,16 @@ Interpreter.install("eval_property" , async function (node) {
                 command += "'";
                 command += args[i];
                 command += "'"
-            }else{
+            }else if(typeof args[i] === "object"){
+                command += "[";
                 command += args[i];
+                command += "]"
+            }else{ //number etc
+                command += args[i];
+            }
+
+            if (i < node.arg_count){
+                command += ', ';
             }
         }
         command += ')';
