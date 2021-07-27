@@ -18,7 +18,7 @@ function nextPc(assign_val){ //assign val is an array of [var, value]. Exists on
         if (arr !== undefined){
             var variable, value;
             [variable, value] = arr
-            Interpreter.userVars[variable] = value;
+            Interpreter.userVars[variable] = [value, false];
         }
     }
 
@@ -187,8 +187,15 @@ Interpreter.install("eval_logic_expr" , async function (node) {
 })
 
 Interpreter.install("eval_assign_expr" , async function (node) {
-    let old_val = this.userVars[node.lval];
-    this.userVars[node.lval] = interpreter_vars.value_stack.pop();
+    let old_val = this.userVars[node.lval][0];
+    this.userVars[node.lval] = [interpreter_vars.value_stack.pop(), false];
+    return [node.lval, old_val]; //to save in the reverse stack
+})
+
+//used for the tmp vars inside the loop stmts
+Interpreter.install("eval_assign_expr_tmp" , async function (node) {
+    let old_val = this.userVars[node.lval][0];
+    this.userVars[node.lval] = [interpreter_vars.value_stack.pop(), true];
     return [node.lval, old_val]; //to save in the reverse stack
 })
 
@@ -218,11 +225,11 @@ Interpreter.install("eval_arithm_expr" , async function (node) {
 })
 
 Interpreter.install("eval_var_decl" , function (node) {
-    this.userVars[node.name] = undefined;
+    this.userVars[node.name] = [undefined, false];
 })
 
 Interpreter.install("eval_var" , function (node) {
-    interpreter_vars.value_stack.push(this.userVars[node.name]);
+    interpreter_vars.value_stack.push(this.userVars[node.name][0]);
 })
 
 //tmp var used only from the reapeat stmt
@@ -232,11 +239,11 @@ Interpreter.install("eval_tmp_var" , function (node) {
         while (name in this.userVars){
             name += '.' //create a var that doesn't exist
         }
-        this.userVars[name] = -1;
+        this.userVars[name] = [-1, true];
         node.name = name
     }
-    this.userVars[node.name]++;
-    interpreter_vars.value_stack.push(this.userVars[node.name]);
+    this.userVars[node.name][0]++;
+    interpreter_vars.value_stack.push(this.userVars[node.name][0]);
 })
 
 //tmp list used only for the forEach stmt
@@ -253,9 +260,9 @@ Interpreter.install("eval_tmp_list" , function (node) {
 })
 
 Interpreter.install("eval_var_change" , async function (node) {
-    if (this.userVars[node.var_name] === undefined)
-        this.userVars[node.var_name] = 0;
-    this.userVars[node.var_name] += interpreter_vars.value_stack.pop();
+    if (this.userVars[node.var_name][0] === undefined)
+        this.userVars[node.var_name][0] = 0;
+    this.userVars[node.var_name][0] += interpreter_vars.value_stack.pop();
 })
 
 Interpreter.install("eval_func_call" , async function (node) {
@@ -282,8 +289,8 @@ Interpreter.install("eval_userfunc_call" , async function (node) {
 
     for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
         var arg_name = node.arg_names[arg]
-        old_vars[arg_name] = this.userVars[arg_name];
-        this.userVars[arg_name] = interpreter_vars.value_stack.pop();
+        old_vars[arg_name] = this.userVars[arg_name][0];
+        this.userVars[arg_name] = [interpreter_vars.value_stack.pop(), false];
     }
     old_env.push({'old_vars' : old_vars, 'pc' : interpreter_vars.pc})
 
@@ -299,7 +306,7 @@ Interpreter.install("eval_userfunc_exit" , async function (node) {
 
     for (var arg in node.arg_names){ //restore old user variables
         var arg_name = node.arg_names[arg]
-        this.userVars[arg_name] = old_vars[arg_name];
+        this.userVars[arg_name][0] = old_vars[arg_name];
     }
     blockly_debuggee.state.currCallNesting--;
 

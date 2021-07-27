@@ -3,7 +3,7 @@ export {astVisitor} from "./visitors.js"
 
 export var blockly_debuggee = { }
 export var Interpreter = { 
-    userVars           : [],
+    userVars           : [],//in the interpreter vector every var is [value, tmp], where tmp a boolean flag f.e. ['x', false]
     userFuncs          : [],
     in_reverse         : false,
     Watches            : Watch,

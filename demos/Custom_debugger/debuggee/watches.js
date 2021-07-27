@@ -11,7 +11,8 @@ export var Watch = {
         var exprs               = Watch.getAll();
         
         for (var var_name in vars){
-            code_pre += 'var ' + var_name + ' = ' + vars[var_name] + ';'
+            if (vars[var_name][1] == false)
+                code_pre += 'var ' + var_name + ' = ' + vars[var_name][0] + ';'
         }
 
         for (var expr in exprs){

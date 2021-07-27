@@ -36,7 +36,7 @@ onmessage = function (msg) {
             
             for (var variable in blockly_debuggee.Interpreter.userVars){ //if variable doesn't exist, don't create it
                 if (variable == obj.data.variable){
-                    blockly_debuggee.Interpreter.userVars[obj.data.variable] = obj.data.value;
+                    blockly_debuggee.Interpreter.userVars[obj.data.variable] = [obj.data.value, false];
                     blockly_debuggee.Interpreter.Watches.print(blockly_debuggee.Interpreter.userVars);
                     postMessage(
                         {type:"watches_variables", data:{ variables : blockly_debuggee.Interpreter.userVars } }

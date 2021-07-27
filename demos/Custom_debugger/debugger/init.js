@@ -34,7 +34,7 @@ export var Debuggee_Worker = {
 
                         var vars = obj.data.variables
                         for (var variable in vars){
-                            let value = vars[variable]
+                            let value = vars[variable][0]
                             Debuggee_Worker.watches.print(document, table, variable, value, typeof value)
                         }
                         break;

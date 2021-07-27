@@ -25,7 +25,7 @@ function serializeAST_visitor (ast) {
     const func_jump         = "func_jump";
     const tbd               = -0;
 
-    function create_highlight_block(id, nest){
+    function create_highlight_block_instr(id, nest){
         var highlight_node = {
             'id'            : id,
             'blockNesting'  : nest,
@@ -163,7 +163,7 @@ function serializeAST_visitor (ast) {
                     'value' : 1,
                     'id'    : null
                 },
-                'type' : 'assign_expr'
+                'type' : 'assign_expr_tmp'
             }; 
             this.visit(init_list_node);
 
@@ -196,7 +196,7 @@ function serializeAST_visitor (ast) {
 
             //create custom assign expr f.e. i = i + 1
             var continue_list_node = {
-                'type'  : 'assign_expr',
+                'type'  : 'assign_expr_tmp',
                 'lval' : index_var,
                 'rval'  : {
                     'type'  : 'arithm_expr',
@@ -341,7 +341,7 @@ function serializeAST_visitor (ast) {
         },
         
         "visit_logic_expr"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             this.visit(node.lval);
             this.visit(node.rval);
@@ -357,7 +357,7 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_arithm_expr"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             this.visit(node.lval);
             this.visit(node.rval);
@@ -373,7 +373,7 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_assign_expr"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             this.visit(node.rval);
 
@@ -388,7 +388,7 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_var_change"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             this.visit(node.value);
 
@@ -403,7 +403,7 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_func_call"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             for (var arg in node.args)
                 this.visit(node.args[arg]);
@@ -421,7 +421,7 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_libfunc_call"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             for (var arg in node.args)
                 this.visit(node.args[arg]);
@@ -466,7 +466,7 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_userfunc_call"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             for (var arg in node.args)
                 this.visit(node.args[arg]);
@@ -488,7 +488,7 @@ function serializeAST_visitor (ast) {
         
 
         "visit_list_create"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
 
             for (var item in node.items)
                 this.visit(node.items[item]);
@@ -504,7 +504,7 @@ function serializeAST_visitor (ast) {
         },
 
         "visit_list_index"       : function (node) {
-            create_highlight_block(node.id, node.blockNesting)
+            create_highlight_block_instr(node.id, node.blockNesting)
             
             this.visit(node.list);
             this.visit(node.index);
