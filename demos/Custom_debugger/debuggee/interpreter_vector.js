@@ -133,37 +133,57 @@ Interpreter.install("eval_number" , function (node) {
 //Interpreter.install("eval_keyword" , async function (node) {}) 
 
 Interpreter.install("eval_logic_expr" , async function (node) {
-    var rhs = interpreter_vars.value_stack.pop()
-    var lhs = interpreter_vars.value_stack.pop()
-    switch(node.op){
-        case "AND":
+
+    var logic_funcs = {
+        "AND" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs && rhs);
-            break;
-        case "OR":
+        },
+
+        "OR" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs || rhs);
-            break;
-        case "EQ":
+        },
+        "EQ" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs == rhs);
-            break;
-        case "NEQ":
+        },
+        "NEQ" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs != rhs);
-            break;
-        case "LT":
+        },
+        "LT" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs < rhs);
-            break;
-        case "LTE":
+        },
+        "LTE" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs <= rhs);
-            break;
-        case "GT":
+        },
+        "GT" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs > rhs);
-            break;
-        case "GTE":
+        },
+        "GTE" : function(){
+            var rhs = interpreter_vars.value_stack.pop();
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(lhs >= rhs);
-            break;
-        case "NOT":
+        },
+        "NOT" : function(){
+            var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(!lhs);
-            break;
+        },
     }
+
+    logic_funcs[node.op]();
+    
 })
 
 Interpreter.install("eval_assign_expr" , async function (node) {
