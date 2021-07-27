@@ -35,7 +35,8 @@ export var Debuggee_Worker = {
                         var vars = obj.data.variables
                         for (var variable in vars){
                             let value = vars[variable][0]
-                            Debuggee_Worker.watches.print(document, table, variable, value, typeof value)
+                            if (vars[variable][1] == false) //if its not a tmp var
+                                Debuggee_Worker.watches.print(document, table, variable, value, typeof value)
                         }
                         break;
                     case "watches_expresions":
