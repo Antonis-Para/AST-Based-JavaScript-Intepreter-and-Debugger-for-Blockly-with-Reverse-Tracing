@@ -537,12 +537,12 @@ function serializeAST_visitor (ast) {
         "visit_keyword"         : function (node) {
             if ('value' in node){ //return
                 this.visit(node.value)
-                instructions.push({type : func_jump, func: true_jump, pc_offset : tbd})
+                instructions.push({type : func_jump, func: true_jump, pc_offset : tbd, id : node.id})
             }
             else if (node.name == 'break'){ //break 
-                instructions.push({type : break_jump, func: true_jump, pc_offset : tbd})
+                instructions.push({type : break_jump, func: true_jump, pc_offset : tbd, id : node.id})
             }else if (node.name == 'continue'){ //continue
-                instructions.push({type : cont_jump, func: true_jump, pc_offset : tbd})
+                instructions.push({type : cont_jump, func: true_jump, pc_offset : tbd,  id : node.id})
             }
         },
 

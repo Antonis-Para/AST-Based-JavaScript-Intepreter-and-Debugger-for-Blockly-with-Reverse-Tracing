@@ -179,7 +179,7 @@ Interpreter.install("eval_logic_expr" , async function (node) {
         "NOT" : function(){
             var lhs = interpreter_vars.value_stack.pop();
             interpreter_vars.value_stack.push(!lhs);
-        },
+        }
     }
 
     logic_funcs[node.op]();
@@ -195,23 +195,26 @@ Interpreter.install("eval_assign_expr" , async function (node) {
 Interpreter.install("eval_arithm_expr" , async function (node) {
     var rhs = interpreter_vars.value_stack.pop()
     var lhs = interpreter_vars.value_stack.pop()
-    switch(node.op){
-        case 'ADD':
+
+    var arithm_funcs = {
+        "ADD" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs + rhs);
-            break;
-        case 'MINUS':
+        },
+        "MINUS" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs - rhs);
-            break;
-        case 'MULTIPLY':
+        },
+        "MULTIPLY" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs * rhs);
-            break;
-        case 'DIVIDE':
+        },
+        "DIVIDE" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs / rhs);
-            break;
-        case 'POWER':
+        },
+        "POWER" : function(lhs, rhs){
             interpreter_vars.value_stack.push(Math.pow(lhs, rhs));
-            break;
+        }
     }
+
+    arithm_funcs[node.op](lhs, rhs);
 })
 
 Interpreter.install("eval_var_decl" , function (node) {
