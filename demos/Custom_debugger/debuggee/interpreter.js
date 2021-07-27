@@ -156,6 +156,8 @@ Interpreter.install("eval_logic_expr" , async function (node) {
             return await this.eval(node.lval) > await this.eval(node.rval);
         case "GTE":
             return await this.eval(node.lval) >= await this.eval(node.rval);
+        case "NOT":
+            return !(await this.eval(node.lval));
     }
 })
 

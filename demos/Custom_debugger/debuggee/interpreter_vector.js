@@ -160,6 +160,9 @@ Interpreter.install("eval_logic_expr" , async function (node) {
         case "GTE":
             interpreter_vars.value_stack.push(lhs >= rhs);
             break;
+        case "NOT":
+            interpreter_vars.value_stack.push(!lhs);
+            break;
     }
 })
 

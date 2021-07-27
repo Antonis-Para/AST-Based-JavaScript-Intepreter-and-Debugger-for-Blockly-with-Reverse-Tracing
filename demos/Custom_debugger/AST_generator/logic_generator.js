@@ -142,7 +142,7 @@ AST_dispatch.install("logic_negate", function(block) {
     Blockly_gen.GetJsonText().add('"op": "NOT",\n');
 	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
 
-    Blockly_gen.GetJsonText().add('"val": ');
+    Blockly_gen.GetJsonText().add('"lval": ');
     var val_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
     if (Blockly_gen.createAllBlocks(val_value) === null) { //no value provided, default is true
         Blockly_gen.GetJsonText().add('{\n');
@@ -151,6 +151,11 @@ AST_dispatch.install("logic_negate", function(block) {
 		Blockly_gen.GetJsonText().add('"id": null\n');
         Blockly_gen.GetJsonText().add('}\n');
     }
+    Blockly_gen.GetJsonText().add(',\n');
+
+    Blockly_gen.GetJsonText().add('"rval": {\n');
+    Blockly_gen.GetJsonText().add('"type" : "stmts",\n');
+    Blockly_gen.GetJsonText().add('"data": []\n}\n');
 })
 
 /*----------------------------------------------*/
