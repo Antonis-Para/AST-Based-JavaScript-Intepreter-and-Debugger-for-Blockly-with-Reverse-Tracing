@@ -187,16 +187,35 @@ Interpreter.install("eval_logic_expr" , async function (node) {
 })
 
 Interpreter.install("eval_assign_expr" , async function (node) {
-    let old_val = this.userVars[node.lval][0];
+    var old_val;
+    if (this.userVars[node.lval] === undefined)
+        old_val = undefined;
+    else
+        old_val = this.userVars[node.lval][0];
+
     this.userVars[node.lval] = [interpreter_vars.value_stack.pop(), false];
     return [node.lval, old_val]; //to save in the reverse stack
 })
 
 //used for the tmp vars inside the loop stmts
 Interpreter.install("eval_assign_expr_tmp" , async function (node) {
-    let old_val = this.userVars[node.lval][0];
-    this.userVars[node.lval] = [interpreter_vars.value_stack.pop(), true];
+    var old_val;
+    if (this.userVars[node.lval] === undefined)
+        old_val = undefined;
+    else
+        old_val = this.userVars[node.lval][0];
+    this.userVars[node.lval] = [interpreter_vars.value_stack.pop(), true]; //true == dont show in the variables section
     return [node.lval, old_val]; //to save in the reverse stack
+})
+
+Interpreter.install("eval_assign_list_len" , async function (node) {
+    var value = interpreter_vars.value_stack.pop();
+    if (value === undefined)
+        this.userVars[node.lval] = [0, true]
+    else{
+        this.userVars[node.lval] = [value.length, true]
+    }
+    
 })
 
 Interpreter.install("eval_arithm_expr" , async function (node) {
@@ -229,7 +248,10 @@ Interpreter.install("eval_var_decl" , function (node) {
 })
 
 Interpreter.install("eval_var" , function (node) {
-    interpreter_vars.value_stack.push(this.userVars[node.name][0]);
+    var val = this.userVars[node.name];
+    if (val !== undefined)
+        val = val[0] //0 is the value, 1 is true or false (tmp variable or not)
+    interpreter_vars.value_stack.push(val);
 })
 
 //tmp var used only from the reapeat stmt
@@ -340,8 +362,8 @@ Interpreter.install("eval_list_create" , async function (node) {
 })
 
 Interpreter.install("eval_list_index" , async function (node) {
-    var list    = interpreter_vars.value_stack.pop();
-    var index   = interpreter_vars.value_stack.pop();
+    var index  = interpreter_vars.value_stack.pop();
+    var list   = interpreter_vars.value_stack.pop();
 
     interpreter_vars.value_stack.push(list[index - 1]);
 })

@@ -167,6 +167,21 @@ function serializeAST_visitor (ast) {
             }; 
             this.visit(init_list_node);
 
+            var list_length = create_tmp_var('idk'); //i need this variable so i dont compute the length in every iteration
+            var cond_node2_length = {
+                'type'  : 'assign_expr_tmp',
+                'lval'  : {
+                    'type' : 'var',
+                    'name' : index_var
+                },
+                'rval'  : {
+                    'type' : 'assign_list_len', //interpreter will save length in item
+                    'name' : list_length,
+                    'item' : node.in
+                }
+                
+            }
+            this.visit(cond_node2_length);
 
             let before_cond = instructions.length;
             //push this instruction so i can highlight it if i want later
@@ -180,8 +195,8 @@ function serializeAST_visitor (ast) {
                     'name' : index_var
                 },
                 'rval'  : {
-                    'type' : 'tmp_list', //interpreter will compute length
-                    'item' : node.in
+                    'type' : 'var', //interpreter will read length from variable
+                    'name' : list_length
                 },
                 'op'    : 'LTE'
             }
@@ -217,6 +232,7 @@ function serializeAST_visitor (ast) {
             let after_cont_list = instructions.length;
             instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
 
+            //node.in.id = null;
             var continue_list2_node = {
                 'type' : 'assign_expr',
                 'lval' : node.var_name,
@@ -228,14 +244,14 @@ function serializeAST_visitor (ast) {
                     },
                     'list'  : node.in
                 }
-            } 
+            }
             this.visit(continue_list2_node);
 
             this.visit(node.do);
 
             instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
 
-            //fix the missing labels
+            //patch the missing labels
             instructions[after_cond].pc_offset = instructions.length - after_cond 
             instructions[before_cont_list - 1].pc_offset = (after_cont_list + 1) - (before_cont_list - 1) //+1 so we skip the jump
             instructions[after_cont_list].pc_offset = -(after_cont_list - before_cond)
@@ -385,6 +401,29 @@ function serializeAST_visitor (ast) {
             };
 
             instructions.push(new_node);
+        },
+        "visit_assign_expr_tmp" : function(node){ //assign for tmp variable (doesn't get shown in the variable sections)
+            this.visit(node.rval);
+
+            var new_node = {
+                'blockNesting'  : node.blockNesting,
+                'id'            : null,  
+                'type'          : node.type,
+                'lval'          : node.lval,
+            };
+
+            instructions.push(new_node);
+        },
+
+        "visit_assign_list_len" : function(node){ // custom type, only gets called from for each stmt. Will compute list len
+            this.visit(node.item);
+            var new_node = {
+                'blockNesting'  : node.blockNesting,
+                'id'            : null,
+                'type'          : node.type,
+                'lval'          : node.name,
+            };
+            instructions.push(new_node)
         },
 
         "visit_var_change"       : function (node) {
