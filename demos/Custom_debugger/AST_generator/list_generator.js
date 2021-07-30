@@ -7,18 +7,27 @@ AST_dispatch.install("lists_create_with", function(block) {
     Blockly_gen.GetJsonText().add('"items": [\n');
 
     var list_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", 1);
-    if (list_value === null) {
-        Blockly_gen.GetJsonText().add(']\n');
-        return;
-    }
+    var item_count = parseInt(Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "mutation", 1).getAttribute("items"));
 
     var occ = 1;
-    while (list_value !== null) {
-        Blockly_gen.createAllBlocks(list_value);
-        list_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
+    var i = 0;
+    while (i < item_count){
+        if (list_value === null || list_value.getAttribute("name") != "ADD" + i){
+            Blockly_gen.GetJsonText().add('{\n')
+            Blockly_gen.GetJsonText().add('"type": "null_const",\n');
+            Blockly_gen.GetJsonText().add('"value": null,\n');
+            Blockly_gen.GetJsonText().add('"id": null\n');
+            Blockly_gen.GetJsonText().add('}')
+        }else{
+            Blockly_gen.createAllBlocks(list_value);
+            list_value = Blockly_gen.getElement(block, Blockly_gen.ELEMENT_NODE, "value", ++occ);
+        }
         Blockly_gen.GetJsonText().add(',\n');
+        i++;
     }
-    Blockly_gen.GetJsonText().remove_chars(2); //remove the last ','
+    if (item_count > 0){ //if i added at least one item
+        Blockly_gen.GetJsonText().remove_chars(2); //remove the last ','
+    }
     Blockly_gen.GetJsonText().add(']\n');
 })
 
