@@ -614,6 +614,7 @@ Code.debugJS = function() {
   try {
     var json = Debuggee_Worker.blocklyXmlToJson(xml)
     Debuggee_Worker.init(Code.workspace) //or Blockly.mainWorkspace
+    Code.Reverse_ClickHandler(); //start with reverse?
 	  Debuggee_Worker.getInstance().postMessage({type : "eval", data: {code : json}})
 
   } catch (e) {
