@@ -24,11 +24,11 @@ export var Debuggee_Worker = {
             Debuggee_Worker.instance.onmessage = function (msg) {
                 let obj = msg.data;
             
-                switch(obj.type){
-                    case "highlight_block":
+                var messages = {
+                    'highlight_block' : function(obj){
                         Debuggee_Worker.workspace.highlightBlock(obj.data.id)
-                        break;
-                    case "watches_variables":
+                    },
+                    'watches_variables' : function(obj){
                         var table = document.getElementById("watches")
                         Debuggee_Worker.watches.reset_watches(table)
 
@@ -38,8 +38,8 @@ export var Debuggee_Worker = {
                             if (vars[variable][1] == false) //if its not a tmp var
                                 Debuggee_Worker.watches.print(document, table, variable, value, typeof value)
                         }
-                        break;
-                    case "watches_expresions":
+                    },
+                    'watches_expresions' : function(obj){
                         var table = document.getElementById("watches_expr")
                         Debuggee_Worker.watches.reset_watches(table)
 
@@ -48,12 +48,13 @@ export var Debuggee_Worker = {
                             let value = exprs[expr]
                             Debuggee_Worker.watches.print(document, table, expr, value, typeof value)
                         }
-
-                        break;
-                    case "terminate":
+                    },
+                    'terminate' : function(obj){
                         Debuggee_Worker.kill();
-                        break;
+                    }
                 }
+
+                messages[obj.type](obj);
             }
         }
 
