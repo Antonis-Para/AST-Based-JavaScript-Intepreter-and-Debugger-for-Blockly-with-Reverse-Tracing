@@ -282,9 +282,16 @@ Interpreter.install("eval_tmp_list" , function (node) {
 })
 
 Interpreter.install("eval_var_change" , async function (node) {
-    if (this.userVars[node.var_name][0] === undefined)
+    var old_val;
+    if (this.userVars[node.var_name][0] === undefined){
         this.userVars[node.var_name][0] = 0;
+        old_val = undefined
+    }else{
+        old_val = this.userVars[node.var_name][0]
+    }
     this.userVars[node.var_name][0] += interpreter_vars.value_stack.pop();
+
+    return [node.var_name, old_val];
 })
 
 Interpreter.install("eval_func_call" , async function (node) {
