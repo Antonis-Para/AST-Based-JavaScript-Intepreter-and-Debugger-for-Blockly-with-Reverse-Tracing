@@ -497,7 +497,7 @@ function serializeAST_visitor (ast) {
                 }
             }
 
-            instructions.push({type : 'userfunc_exit'})
+            instructions.push({type : 'userfunc_exit', start_pc : before_func + 1, arg_names : node.args, name: node.name})
 
             instructions[before_func].pc_offset = instructions.length - before_func;
 
@@ -507,8 +507,16 @@ function serializeAST_visitor (ast) {
         "visit_userfunc_call"       : function (node) {
             create_highlight_block_instr(node.id, node.blockNesting)
 
-            for (var arg in node.args)
+            for (var arg in node.args){
+                // var assign_arg = {
+                //     'type' : 'assign_expr',
+                //     'id'   : null,
+                //     'lval' : node.arg_names[arg],
+                //     'rval' : node.args[arg]
+                // }
                 this.visit(node.args[arg]);
+            }
+                //this.visit(node.args[arg]);
             
             functions_pc.push(instructions.length) //save the func call, im going to fix the 'start_pc' in the end
 

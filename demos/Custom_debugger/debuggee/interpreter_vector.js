@@ -3,11 +3,12 @@ import {LibraryFuncs} from "./libfuncs.js"
 export {blockly_debuggee};
 
 var interpreter_vars = {
-    instructions    : [],
-    value_stack     : [],
-    pc              : 0,
-    offset          : 0,
-    reverse_pc      : [[undefined, undefined]]
+    instructions     : [],
+    value_stack      : [],
+    pc               : 0,
+    offset           : 0,
+    reverse_pc       : [[undefined, undefined]],
+    reverse_func_val : [] //used to save function arguments
 }
 
 function nextPc(assign_val){ //assign val is an array of [var, value]. Exists only in the assign stmts, else undefined
@@ -59,11 +60,44 @@ Interpreter.install("eval_instructions" , async function (node) {
     }
 })
 
+function reverse_userfunc_exit(node){
+    var env = old_env.pop();
+    var old_vars = env.old_vars;
+
+    for (var arg in node.arg_names){ //restore old user variables
+        var arg_name = node.arg_names[arg]
+        Interpreter.userVars[arg_name][0] = old_vars[arg_name];
+    }
+    blockly_debuggee.state.currCallNesting--;
+}
+
+function reverse_userfunc_enter(node){
+    var old_vars    = []
+    var [exit_pc, curr_values] = interpreter_vars.reverse_func_val[node.name].pop();
+
+    for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
+        var arg_name = node.arg_names[arg]
+        old_vars[arg_name] = Interpreter.userVars[arg_name][0];
+        Interpreter.userVars[arg_name] = [curr_values[arg_name], false];
+        //Interpreter.userVars[arg_name] = [interpreter_vars.value_stack.pop(), false];
+    }
+    node.arg_names.reverse() //once done reverse it again. We might use it in the future.
+
+    old_env.push({'old_vars' : old_vars, 'pc' : exit_pc})
+
+    blockly_debuggee.state.currCallNesting++;
+
+    //interpreter_vars.offset = node.start_pc - interpreter_vars.pc;
+}
+
 Interpreter.install("eval" , async function (node) {
     await blockly_debuggee.TraceCommandHandler.wait(node)
     
-    if (Interpreter.in_reverse)
+    if (Interpreter.in_reverse){
+        if      (node.type == "userfunc_call") reverse_userfunc_exit(node); //exit a function while in reverse (from the top)
+        else if (node.type == "userfunc_exit") reverse_userfunc_enter(node);
         return;
+    }
 
     return this["eval_" + node.type](node);
 })
@@ -215,6 +249,7 @@ Interpreter.install("eval_assign_list_len" , async function (node) {
     else{
         this.userVars[node.lval] = [value.length, true]
     }
+    return [node.lval, undefined]; //to save in the reverse stack (it only exists once so value is undefined)
     
 })
 
@@ -315,17 +350,20 @@ Interpreter.install("eval_func_decl" , async function (node) {})
 var old_env = []
 Interpreter.install("eval_userfunc_call" , async function (node) {
     var old_vars    = []
-
+ 
     for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
         var arg_name = node.arg_names[arg]
         old_vars[arg_name] = this.userVars[arg_name][0];
         this.userVars[arg_name] = [interpreter_vars.value_stack.pop(), false];
     }
+    node.arg_names.reverse() //once done reverse it again. We might use it in the future.
+
     old_env.push({'old_vars' : old_vars, 'pc' : interpreter_vars.pc})
 
     blockly_debuggee.state.currCallNesting++;
 
     interpreter_vars.offset = node.start_pc - interpreter_vars.pc;
+
 })
 
 Interpreter.install("eval_userfunc_exit" , async function (node) {
@@ -333,12 +371,21 @@ Interpreter.install("eval_userfunc_exit" , async function (node) {
     var old_vars = env.old_vars;
     interpreter_vars.offset = env.pc - interpreter_vars.pc + 1; //restore pc and go to the next instruction
 
+    var last_values = []// for restoring while reversing 
     for (var arg in node.arg_names){ //restore old user variables
         var arg_name = node.arg_names[arg]
+        last_values[arg_name] = this.userVars[arg_name][0]
         this.userVars[arg_name][0] = old_vars[arg_name];
     }
     blockly_debuggee.state.currCallNesting--;
 
+    var exit_pc = interpreter_vars.pc + interpreter_vars.offset - 1; //will be used when entering a funcion while reversing
+    if (interpreter_vars.reverse_func_val[node.name] === undefined){
+        interpreter_vars.reverse_func_val[node.name] = [[exit_pc, last_values]];
+    }else{
+        interpreter_vars.reverse_func_val[node.name].push([exit_pc, last_values]);
+    }
+    
 })
 
 Interpreter.install("eval_libfunc_call", async function(node){
