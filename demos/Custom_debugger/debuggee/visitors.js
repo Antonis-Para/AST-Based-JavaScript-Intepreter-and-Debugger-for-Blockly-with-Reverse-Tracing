@@ -441,7 +441,7 @@ function serializeAST_visitor (ast) {
             instructions.push(new_node);
         },
 
-        "visit_func_call"       : function (node) {
+        "visit_js_func_call"       : function (node) {
             create_highlight_block_instr(node.id, node.blockNesting)
 
             for (var arg in node.args)
@@ -483,7 +483,7 @@ function serializeAST_visitor (ast) {
             instructions.push(new_node)
         },
 
-        "visit_func_decl"       :  function (node) {
+        "visit_userfunc_decl"       :  function (node) {
             let before_func = instructions.length
 
             instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})

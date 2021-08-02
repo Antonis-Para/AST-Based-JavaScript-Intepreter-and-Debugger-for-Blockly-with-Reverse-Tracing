@@ -2,7 +2,7 @@ import {Blockly_gen, AST_dispatch} from './AST_Init.js';
 
 /*----------------------------------------------*/
 AST_dispatch.install("procedures_defnoreturn", function(block) {
-    Blockly_gen.GetJsonText().add('"type": "func_decl",\n');
+    Blockly_gen.GetJsonText().add('"type": "userfunc_decl",\n');
 	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.GetJsonText().add('"args": [\n');
@@ -82,7 +82,7 @@ AST_dispatch.install("procedures_ifreturn", function(block) {
 
 /*----------------------------------------------*/
 AST_dispatch.install("procedures_defreturn", function(block) {
-    Blockly_gen.GetJsonText().add('"type": "func_decl",\n');
+    Blockly_gen.GetJsonText().add('"type": "userfunc_decl",\n');
 	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
 
     Blockly_gen.GetJsonText().add('"args": [\n');

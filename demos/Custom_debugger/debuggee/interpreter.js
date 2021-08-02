@@ -7,7 +7,7 @@ export {blockly_debuggee};
 Interpreter.install("init" , function(ast){
     for(var attributename in ast.data){
         var type = ast.data[attributename].type
-        if (type == "func_decl"){
+        if (type == "userfunc_decl"){
             var name = ast.data[attributename].name
             this.userFuncs[name] = ast.data[attributename].do;
             this.userFuncs[name].id = ast.data[attributename].id;
@@ -198,7 +198,7 @@ Interpreter.install("eval_var_change" , async function (node) {
     this.userVars[node.var_name] += await this.eval(node.value);
 })
 
-Interpreter.install("eval_func_call" , async function (node) {
+Interpreter.install("eval_js_func_call" , async function (node) {
     var args = []
     for (var arg in node.args){
         //await this.eval(node.args[arg]).then((val) =>args.push(val))

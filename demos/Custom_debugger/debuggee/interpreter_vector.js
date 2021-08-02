@@ -39,9 +39,9 @@ function nextPc(assign_val){ //assign val is an array of [var, value]. Exists on
 
 Interpreter.install("init" , function(ast){
     interpreter_vars.instructions = astVisitor.accept("serializeAST_visitor" ,ast);
-    for(var funcname in ast.data){ //uses the ast to find the func_decl. It is faster than the instructions[] as it only checks the first level
+    for(var funcname in ast.data){ //uses the ast to find the userfunc_decl. It is faster than the instructions[] as it only checks the first level
         var type = ast.data[funcname].type
-        if (type == "func_decl"){
+        if (type == "userfunc_decl"){
             var name = ast.data[funcname].name
             this.userFuncs[name] = ast.data[funcname].do;
             this.userFuncs[name].id = ast.data[funcname].id;
@@ -329,7 +329,7 @@ Interpreter.install("eval_var_change" , async function (node) {
     return [node.var_name, old_val];
 })
 
-Interpreter.install("eval_func_call" , async function (node) {
+Interpreter.install("eval_js_func_call" , async function (node) {
     var args = []
     var i = 0;
     while (i < node.arg_count){
@@ -345,7 +345,7 @@ Interpreter.install("eval_func_call" , async function (node) {
 })
 
 //nothing needs to be done, we already declared this func in init
-Interpreter.install("eval_func_decl" , async function (node) {})
+Interpreter.install("eval_userfunc_decl" , async function (node) {})
 
 var old_env = []
 Interpreter.install("eval_userfunc_call" , async function (node) {

@@ -2,7 +2,7 @@ import {Blockly_gen, AST_dispatch} from './AST_Init.js';
 
 /*----------------------------------------------*/
 AST_dispatch.install("text_print", function(block) {
-    Blockly_gen.GetJsonText().add('"type": "func_call",\n');
+    Blockly_gen.GetJsonText().add('"type": "js_func_call",\n');
     Blockly_gen.GetJsonText().add('"name": "window.alert",\n');
 	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
 
@@ -271,7 +271,7 @@ AST_dispatch.install("text_changeCase", function(block) {
 
 /*----------------------------------------------*/
 AST_dispatch.install("text_prompt_ext", function(block) {
-    Blockly_gen.GetJsonText().add('"type": "func_call",\n');
+    Blockly_gen.GetJsonText().add('"type": "js_func_call",\n');
     Blockly_gen.GetJsonText().add('"name": "window.prompt",\n');
 	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
 
