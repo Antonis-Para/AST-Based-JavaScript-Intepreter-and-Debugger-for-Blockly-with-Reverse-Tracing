@@ -46,7 +46,7 @@ Interpreter.install("init" , function(ast){
             this.userFuncs[name] = ast.data[funcname].do;
             this.userFuncs[name].id = ast.data[funcname].id;
             this.userFuncs[name].blockNesting = 1;
-            delete ast.data[funcname]
+            delete ast.data[funcname];
         }
     }
 })
@@ -60,44 +60,15 @@ Interpreter.install("eval_instructions" , async function (node) {
     }
 })
 
-function reverse_userfunc_exit(node){
-    var env = old_env.pop();
-    var old_vars = env.old_vars;
-
-    for (var arg in node.arg_names){ //restore old user variables
-        var arg_name = node.arg_names[arg]
-        Interpreter.userVars[arg_name][0] = old_vars[arg_name];
-    }
-    blockly_debuggee.state.currCallNesting--;
-}
-
-function reverse_userfunc_enter(node){
-    var old_vars    = []
-    var [exit_pc, curr_values] = interpreter_vars.reverse_func_val[node.name].pop();
-
-    for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
-        var arg_name = node.arg_names[arg]
-        old_vars[arg_name] = Interpreter.userVars[arg_name][0];
-        Interpreter.userVars[arg_name] = [curr_values[arg_name], false];
-        //Interpreter.userVars[arg_name] = [interpreter_vars.value_stack.pop(), false];
-    }
-    node.arg_names.reverse() //once done reverse it again. We might use it in the future.
-
-    old_env.push({'old_vars' : old_vars, 'pc' : exit_pc})
-
-    blockly_debuggee.state.currCallNesting++;
-
-    //interpreter_vars.offset = node.start_pc - interpreter_vars.pc;
-}
-
 Interpreter.install("eval" , async function (node) {
+    if (Interpreter.in_reverse){
+        if(node.undo && node.undo[0]){
+            node.undo.pop()();
+        }
+    }
     await blockly_debuggee.TraceCommandHandler.wait(node)
     
-    if (Interpreter.in_reverse){
-        if      (node.type == "userfunc_call") reverse_userfunc_exit(node); //exit a function while in reverse (from the top)
-        else if (node.type == "userfunc_exit") reverse_userfunc_enter(node);
-        return;
-    }
+    if (Interpreter.in_reverse) return;
 
     return this["eval_" + node.type](node);
 })
@@ -109,18 +80,30 @@ Interpreter.install("eval_stmts" , async function (node) {
         res = await this.eval(node.data[stmt]);
     }
     interpreter_vars.value_stack.push(res) //return the last command (used for userfuncs, for example return 5;)
+
+    node.undo.push(function(){
+        interpreter_vars.value_stack.pop();
+    })
 })
 
 Interpreter.install("eval_if_false_offset" , async function (node) {
     var val = interpreter_vars.value_stack.pop();
     if(!val)
         interpreter_vars.offset = node.pc_offset;
+
+    node.undo.push( function(){
+        interpreter_vars.value_stack.push(val);
+    })
 })
 
 Interpreter.install("eval_if_true_offset" , async function (node) {
     var val = interpreter_vars.value_stack.pop();
     if(val)
         interpreter_vars.offset = node.pc_offset;
+
+    node.undo.push( function(){
+        interpreter_vars.value_stack.push(val);
+    })
 })
 
 Interpreter.install("eval_true_jump" , async function (node) {
@@ -147,19 +130,24 @@ Interpreter.install("eval_repeat_stmt" , async function (node) {})
 
 
 Interpreter.install("eval_bool_const" , function (node) {
-    interpreter_vars.value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value);
+    node.undo.push( () => interpreter_vars.value_stack.pop());
 })
 Interpreter.install("eval_null_const" , function (node) {
-    interpreter_vars.value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value);
+    node.undo.push( () => interpreter_vars.value_stack.pop());
 })
 Interpreter.install("eval_text_const" , function (node) {
-    interpreter_vars.value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value);
+    node.undo.push( () => interpreter_vars.value_stack.pop());
 })
 Interpreter.install("eval_colour_const" , function (node) {
-    interpreter_vars.value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value);
+    node.undo.push( () => interpreter_vars.value_stack.pop());
 })
 Interpreter.install("eval_number" , function (node) {
-    interpreter_vars.value_stack.push(node.value)
+    interpreter_vars.value_stack.push(node.value);
+    node.undo.push( () => interpreter_vars.value_stack.pop());
 })
 
 //return gets pushed in the stack, break and continue have turned into jumps
@@ -167,56 +155,60 @@ Interpreter.install("eval_number" , function (node) {
 //Interpreter.install("eval_keyword" , async function (node) {}) 
 
 Interpreter.install("eval_logic_expr" , async function (node) {
-
     var logic_funcs = {
-        "AND" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "AND" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs && rhs);
         },
 
-        "OR" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "OR" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs || rhs);
         },
-        "EQ" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "EQ" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs == rhs);
         },
-        "NEQ" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "NEQ" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs != rhs);
         },
-        "LT" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "LT" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs < rhs);
         },
-        "LTE" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "LTE" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs <= rhs);
         },
-        "GT" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "GT" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs > rhs);
         },
-        "GTE" : function(){
-            var rhs = interpreter_vars.value_stack.pop();
-            var lhs = interpreter_vars.value_stack.pop();
+        "GTE" : function(lhs, rhs){
             interpreter_vars.value_stack.push(lhs >= rhs);
         },
-        "NOT" : function(){
-            var lhs = interpreter_vars.value_stack.pop();
+        "NOT" : function(lhs){
             interpreter_vars.value_stack.push(!lhs);
         }
     }
 
-    logic_funcs[node.op]();
+    if (node.op == "NOT"){
+        var lhs = interpreter_vars.value_stack.pop();
+        logic_funcs[node.op](lhs);
+
+        node.undo.push( function() {
+            interpreter_vars.value_stack.pop();
+            interpreter_vars.value_stack.push(lhs);
+        })
+    }else{
+        var rhs = interpreter_vars.value_stack.pop();
+        var lhs = interpreter_vars.value_stack.pop();
+
+        logic_funcs[node.op](lhs, rhs);
+
+        node.undo.push( function() {
+            interpreter_vars.value_stack.pop();
+            interpreter_vars.value_stack.push(lhs);
+            interpreter_vars.value_stack.push(rhs);
+        })
+    }
+    
+
+    
     
 })
 
@@ -227,7 +219,12 @@ Interpreter.install("eval_assign_expr" , async function (node) {
     else
         old_val = this.userVars[node.lval][0];
 
-    this.userVars[node.lval] = [interpreter_vars.value_stack.pop(), false];
+    var curr_val = interpreter_vars.value_stack.pop()
+    this.userVars[node.lval] = [curr_val, false];
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.push(curr_val);
+    })
     return [node.lval, old_val]; //to save in the reverse stack
 })
 
@@ -238,7 +235,14 @@ Interpreter.install("eval_assign_expr_tmp" , async function (node) {
         old_val = undefined;
     else
         old_val = this.userVars[node.lval][0];
-    this.userVars[node.lval] = [interpreter_vars.value_stack.pop(), true]; //true == dont show in the variables section
+
+    var curr_val = interpreter_vars.value_stack.pop()
+    this.userVars[node.lval] = [curr_val, true]; //true == dont show in the variables section
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.push(curr_val);
+    })
+
     return [node.lval, old_val]; //to save in the reverse stack
 })
 
@@ -249,8 +253,10 @@ Interpreter.install("eval_assign_list_len" , async function (node) {
     else{
         this.userVars[node.lval] = [value.length, true]
     }
+
+    interpreter_vars.value_stack.push(value);
+
     return [node.lval, undefined]; //to save in the reverse stack (it only exists once so value is undefined)
-    
 })
 
 Interpreter.install("eval_arithm_expr" , async function (node) {
@@ -276,6 +282,11 @@ Interpreter.install("eval_arithm_expr" , async function (node) {
     }
 
     arithm_funcs[node.op](lhs, rhs);
+    node.undo.push( function(){
+        interpreter_vars.value_stack.pop();
+        interpreter_vars.value_stack.push(lhs);
+        interpreter_vars.value_stack.push(rhs);
+    })
 })
 
 Interpreter.install("eval_var_decl" , function (node) {
@@ -287,6 +298,10 @@ Interpreter.install("eval_var" , function (node) {
     if (val !== undefined)
         val = val[0] //0 is the value, 1 is true or false (tmp variable or not)
     interpreter_vars.value_stack.push(val);
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.pop();
+    })
 })
 
 //tmp var used only from the reapeat stmt
@@ -301,6 +316,9 @@ Interpreter.install("eval_tmp_var" , function (node) {
     }
     this.userVars[node.name][0]++;
     interpreter_vars.value_stack.push(this.userVars[node.name][0]);
+    node.undo.push( function() {
+        interpreter_vars.value_stack.pop();
+    })
 })
 
 //tmp list used only for the forEach stmt
@@ -314,6 +332,11 @@ Interpreter.install("eval_tmp_list" , function (node) {
         }
     }
     interpreter_vars.value_stack.push(node.length);
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.pop();
+        interpreter_vars.value_stack.push(list);
+    })
 })
 
 Interpreter.install("eval_var_change" , async function (node) {
@@ -324,7 +347,12 @@ Interpreter.install("eval_var_change" , async function (node) {
     }else{
         old_val = this.userVars[node.var_name][0]
     }
-    this.userVars[node.var_name][0] += interpreter_vars.value_stack.pop();
+    var change_val = interpreter_vars.value_stack.pop();
+    this.userVars[node.var_name][0] += change_val;
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.push(change_val);
+    })
 
     return [node.var_name, old_val];
 })
@@ -342,6 +370,15 @@ Interpreter.install("eval_js_func_call" , async function (node) {
         var func = node.name + "(" + args + ")";
         eval(func)
     }
+
+    node.undo.push( function() {
+        var i = 0;
+        while (i < node.arg_count){
+            interpreter_vars.value_stack.push(args.pop()) //TODO: is it the right way or maybe reversed?
+            i++;
+        }
+    })
+    
 })
 
 //nothing needs to be done, we already declared this func in init
@@ -350,11 +387,15 @@ Interpreter.install("eval_userfunc_decl" , async function (node) {})
 var old_env = []
 Interpreter.install("eval_userfunc_call" , async function (node) {
     var old_vars    = []
+    var args = []
  
     for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
         var arg_name = node.arg_names[arg]
         old_vars[arg_name] = this.userVars[arg_name][0];
-        this.userVars[arg_name] = [interpreter_vars.value_stack.pop(), false];
+
+        var argument = interpreter_vars.value_stack.pop()
+        args.push(argument)
+        this.userVars[arg_name] = [argument, false];
     }
     node.arg_names.reverse() //once done reverse it again. We might use it in the future.
 
@@ -363,6 +404,21 @@ Interpreter.install("eval_userfunc_call" , async function (node) {
     blockly_debuggee.state.currCallNesting++;
 
     interpreter_vars.offset = node.start_pc - interpreter_vars.pc;
+
+    node.undo.push( function() { //TODO: like this or reversed?
+        for (var i = 0; i < args.length; i++){
+            interpreter_vars.value_stack.push(args[i]);
+        }
+
+        var env = old_env.pop();
+        var old_vars = env.old_vars;
+
+        for (var arg in node.arg_names){ //restore old user variables
+            var arg_name = node.arg_names[arg]
+            Interpreter.userVars[arg_name][0] = old_vars[arg_name];
+        }
+        blockly_debuggee.state.currCallNesting--;
+    })
 
 })
 
@@ -385,6 +441,23 @@ Interpreter.install("eval_userfunc_exit" , async function (node) {
     }else{
         interpreter_vars.reverse_func_val[node.name].push([exit_pc, last_values]);
     }
+
+    node.undo.push( function() {
+        var old_vars    = []
+        var [exit_pc, curr_values] = interpreter_vars.reverse_func_val[node.name].pop();
+
+        for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
+            var arg_name = node.arg_names[arg]
+            old_vars[arg_name] = Interpreter.userVars[arg_name][0];
+            Interpreter.userVars[arg_name] = [curr_values[arg_name], false];
+            //Interpreter.userVars[arg_name] = [interpreter_vars.value_stack.pop(), false];
+        }
+        node.arg_names.reverse() //once done reverse it again. We might use it in the future.
+
+        old_env.push({'old_vars' : old_vars, 'pc' : exit_pc})
+
+        blockly_debuggee.state.currCallNesting++;
+    })
     
 })
 
@@ -397,6 +470,15 @@ Interpreter.install("eval_libfunc_call", async function(node){
         args.push(interpreter_vars.value_stack.pop())
         i++;
     }
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.pop();
+        var i = 0;
+        while (i < node.arg_count){
+            interpreter_vars.value_stack.push(args.pop()) //TODO: is it the right way or maybe reversed?
+            i++;
+        }
+    })
 
     args = args.reverse(); //because when poping from the stack, args are reversed
 
@@ -413,6 +495,18 @@ Interpreter.install("eval_list_create" , async function (node) {
         i++;
     }
     interpreter_vars.value_stack.push(list.reverse());
+
+    node.undo.push( function() { //TODO: is it the right way or maybe reversed?
+        interpreter_vars.value_stack.pop();
+
+        var i = 0;
+        list.reverse();
+        while (i < node.items_count){
+            interpreter_vars.value_stack.push(list.pop());
+            i++;
+        }
+        
+    })
 })
 
 Interpreter.install("eval_list_index" , async function (node) {
@@ -420,6 +514,12 @@ Interpreter.install("eval_list_index" , async function (node) {
     var list   = interpreter_vars.value_stack.pop();
 
     interpreter_vars.value_stack.push(list[index - 1]);
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.pop();
+        interpreter_vars.value_stack.push(list);
+        interpreter_vars.value_stack.push(index);
+    })
 })
 
 Interpreter.install("eval_property" , async function (node) {
@@ -466,6 +566,15 @@ Interpreter.install("eval_property" , async function (node) {
     var res = eval(command)
 
     interpreter_vars.value_stack.push(res)
+
+    node.undo.push( function() {
+        interpreter_vars.value_stack.pop();
+        interpreter_vars.value_stack.push(item);
+
+        for (var i = 0; i < node.arg_count; i++){
+            interpreter_vars.value_stack.push(args.pop()) //TODO: reverse or ok?
+        }
+    })
 })
 
 blockly_debuggee.Interpreter = Interpreter;

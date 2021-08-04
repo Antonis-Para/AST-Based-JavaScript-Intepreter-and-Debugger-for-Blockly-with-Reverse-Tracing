@@ -55,21 +55,22 @@ function serializeAST_visitor (ast) {
 
     var funcs = {
         "visit" : function(node){
+            node.undo = [];
             return this["visit_" + node.type](node)
         },
 
         "visit_if_stmt" : function(node){
             //push this instruction so i can highlight it if i want later
-            instructions.push({type : 'if_stmt', id : node.id, blockNesting : node.blockNesting})
+            instructions.push({type : 'if_stmt', id : node.id, blockNesting : node.blockNesting, undo :[]})
             var end_of_if_true = []
             for(var i = 0; i < node.cond.length; i++){
                 this.visit(node.cond[i])
                 let len = instructions.length
-                instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd})
+                instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd, undo :[]})
                 this.visit(node.do[i])
 
                 end_of_if_true.push(instructions.length) //if true get out of the if_else
-                instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+                instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
                 instructions[len].pc_offset = instructions.length - len;                
             }
@@ -86,15 +87,15 @@ function serializeAST_visitor (ast) {
             let before_cond = instructions.length;
 
             //push this instruction so i can highlight it if i want later
-            instructions.push({type : 'while_stmt', id : node.id, blockNesting : node.blockNesting})
+            instructions.push({type : 'while_stmt', id : node.id, blockNesting : node.blockNesting, undo :[]})
 
             this.visit(node.cond)
             let after_cond = instructions.length;
-            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd})
+            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd, undo :[]})
             this.visit(node.do);
 
             instructions[after_cond].pc_offset = instructions.length - after_cond + 1 //+1 for the next jump
-            instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond)})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond), undo :[]})
 
             create_break_and_continue(before_cond, after_cond);
             
@@ -104,7 +105,7 @@ function serializeAST_visitor (ast) {
             let before_cond = instructions.length;
 
             //push this instruction so i can highlight it if i want later
-            instructions.push({type : 'repeat_stmt', id : node.id, blockNesting : node.blockNesting})
+            instructions.push({type : 'repeat_stmt', id : node.id, blockNesting : node.blockNesting, undo :[]})
 
             var cond_node = {
                 'lval' : {
@@ -117,11 +118,11 @@ function serializeAST_visitor (ast) {
 
             this.visit(cond_node)
             let after_cond = instructions.length;
-            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd})
+            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd, undo :[]})
             this.visit(node.do)
 
             instructions[after_cond].pc_offset = instructions.length - after_cond + 1//+1 for the next jump
-            instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond)})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond), undo :[]})
 
             create_break_and_continue(before_cond, after_cond);
         },
@@ -130,15 +131,15 @@ function serializeAST_visitor (ast) {
             let before_cond = instructions.length;
 
             //push this instruction so i can highlight it if i want later
-            instructions.push({type : 'untill_stmt', id : node.id, blockNesting : node.blockNesting})
+            instructions.push({type : 'untill_stmt', id : node.id, blockNesting : node.blockNesting, undo :[]})
 
             this.visit(node.cond)
             let after_cond = instructions.length;
-            instructions.push({type : 'jump', func: if_true_offset, pc_offset : tbd})
+            instructions.push({type : 'jump', func: if_true_offset, pc_offset : tbd, undo :[]})
             this.visit(node.do)
 
             instructions[after_cond].pc_offset = instructions.length - after_cond + 1//+1 for the next jump
-            instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond)})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : -(instructions.length - before_cond), undo :[]})
 
             create_break_and_continue(before_cond, after_cond);
         },
@@ -185,7 +186,7 @@ function serializeAST_visitor (ast) {
 
             let before_cond = instructions.length;
             //push this instruction so i can highlight it if i want later
-            instructions.push({type : 'forEach_stmt', id : node.id, blockNesting : node.blockNesting})
+            instructions.push({type : 'forEach_stmt', id : node.id, blockNesting : node.blockNesting, undo :[]})
 
             //create custom logic (LessThan) expr
             var cond_node = {
@@ -204,8 +205,8 @@ function serializeAST_visitor (ast) {
 
             let after_cond = instructions.length;
 
-            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd})
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd, undo :[]})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
             let before_cont_list = instructions.length;
 
@@ -230,7 +231,7 @@ function serializeAST_visitor (ast) {
             this.visit(continue_list_node);
 
             let after_cont_list = instructions.length;
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
             //node.in.id = null;
             var continue_list2_node = {
@@ -249,7 +250,7 @@ function serializeAST_visitor (ast) {
 
             this.visit(node.do);
 
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
             //patch the missing labels
             instructions[after_cond].pc_offset = instructions.length - after_cond 
@@ -274,7 +275,7 @@ function serializeAST_visitor (ast) {
             let before_cond = instructions.length;
 
             //push this instruction so i can highlight it if i want later
-            instructions.push({type : 'for_stmt', id : node.id, blockNesting : node.blockNesting})
+            instructions.push({type : 'for_stmt', id : node.id, blockNesting : node.blockNesting, undo :[]})
 
             //create custom logic (LessThan) expr
             var cond_node = {
@@ -292,8 +293,8 @@ function serializeAST_visitor (ast) {
 
             let after_cond = instructions.length;
 
-            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd})
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd, undo :[]})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
             let before_cont_list = instructions.length;
 
@@ -318,11 +319,11 @@ function serializeAST_visitor (ast) {
 
 
             let after_cont_list = instructions.length;
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
             this.visit(node.do);
 
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
             //fix the missing labels
             instructions[after_cond].pc_offset = instructions.length - after_cond 
@@ -335,16 +336,16 @@ function serializeAST_visitor (ast) {
 
         "visit_tenary_expr"       : function (node) {
             //push this instruction so i can highlight it if i want later
-            instructions.push({type : 'tenary_expr', id : node.id, blockNesting : node.blockNesting})
+            instructions.push({type : 'tenary_expr', id : node.id, blockNesting : node.blockNesting, undo :[]})
 
             this.visit(node.if);
             let len1 = instructions.length
-            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd})
+            instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd, undo :[]})
             this.visit(node.then);
             instructions[len1].pc_offset = instructions.length - len1 + 1 //+1 to skip the next jump
 
             let len2 = instructions.length
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
             this.visit(node.else);
             instructions[len2].pc_offset = instructions.length - len2
         },
@@ -367,6 +368,7 @@ function serializeAST_visitor (ast) {
                 'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
                 'op'            : node.op,
+                'undo'          : []
             };
 
             instructions.push(new_node);
@@ -383,6 +385,7 @@ function serializeAST_visitor (ast) {
                 'id'            : null, //block gets highlighted in the beggining
                 'type'          : node.type,
                 'op'            : node.op,
+                'undo'          : []
             };
 
             instructions.push(new_node);
@@ -398,6 +401,7 @@ function serializeAST_visitor (ast) {
                 'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
                 'lval'          : node.lval,
+                'undo'          :[]
             };
 
             instructions.push(new_node);
@@ -410,6 +414,7 @@ function serializeAST_visitor (ast) {
                 'id'            : null,  
                 'type'          : node.type,
                 'lval'          : node.lval,
+                'undo'          : []
             };
 
             instructions.push(new_node);
@@ -422,6 +427,7 @@ function serializeAST_visitor (ast) {
                 'id'            : null,
                 'type'          : node.type,
                 'lval'          : node.name,
+                'undo'          : []
             };
             instructions.push(new_node)
         },
@@ -435,7 +441,8 @@ function serializeAST_visitor (ast) {
                 'var_name'      : node.var_name,
                 'blockNesting'  : node.blockNesting,
                 'id'            : null,  //block gets highlighted in the beggining
-                'type'          : node.type
+                'type'          : node.type,
+                'undo'          : []
             };
 
             instructions.push(new_node);
@@ -453,7 +460,8 @@ function serializeAST_visitor (ast) {
                 'blockNesting'  : node.blockNesting,
                 'id'            : null, //block gets highlighted in the beggining
                 'type'          : node.type,
-                'arg_count'     : node.args.length
+                'arg_count'     : node.args.length,
+                'undo'          : []
             };
 
             instructions.push(new_node)
@@ -472,7 +480,8 @@ function serializeAST_visitor (ast) {
                 'blockNesting'  : node.blockNesting,
                 'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
-                'param'         : node.param
+                'param'         : node.param,
+                'undo'          : []
             };
             if (node.args === undefined){
                 new_node.arg_count = 0;
@@ -486,7 +495,7 @@ function serializeAST_visitor (ast) {
         "visit_userfunc_decl"       :  function (node) {
             let before_func = instructions.length
 
-            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd})
+            instructions.push({type : 'jump', func: true_jump, pc_offset : tbd, undo :[]})
 
             this.visit(node.do);
 
@@ -497,7 +506,7 @@ function serializeAST_visitor (ast) {
                 }
             }
 
-            instructions.push({type : 'userfunc_exit', start_pc : before_func + 1, arg_names : node.args, name: node.name})
+            instructions.push({type : 'userfunc_exit', start_pc : before_func + 1, arg_names : node.args, name: node.name, undo :[]})
 
             instructions[before_func].pc_offset = instructions.length - before_func;
 
@@ -527,7 +536,8 @@ function serializeAST_visitor (ast) {
                 'id'            : null,  //block gets highlighted in the beggining
                 'type'          : node.type,
                 'arg_names'     : node.arg_names,
-                'start_pc'      : undefined //undefined for now
+                'start_pc'      : undefined, //undefined for now
+                'undo'          : []
             };
 
             instructions.push(new_node)
@@ -544,7 +554,8 @@ function serializeAST_visitor (ast) {
                 'blockNesting'  : node.blockNesting,
                 'id'            : null, //block gets highlighted in the beggining
                 'type'          : node.type,
-                'items_count'   : node.items.length
+                'items_count'   : node.items.length,
+                'undo'          : []
             };
 
             instructions.push(new_node)
@@ -559,7 +570,8 @@ function serializeAST_visitor (ast) {
             var new_node = {
                 'id'            :null, //block gets highlighted in the beggining
                 'type'          :node.type,
-                'blockNesting'  :node.blockNesting
+                'blockNesting'  :node.blockNesting,
+                'undo'          : []
             }
             instructions.push(new_node)
         },
@@ -577,19 +589,20 @@ function serializeAST_visitor (ast) {
                 'type'          : node.type,
                 'blockNesting'  : node.blockNesting,
                 'name'          : node.name,
-                'arg_count'     : arg_count
+                'arg_count'     : arg_count,
+                'undo'          : []
             }
             instructions.push(new_node)
         },
         "visit_keyword"         : function (node) {
             if ('value' in node){ //return
                 this.visit(node.value)
-                instructions.push({type : func_jump, func: true_jump, pc_offset : tbd, id : node.id})
+                instructions.push({type : func_jump, func: true_jump, pc_offset : tbd, id : node.id, undo :[]})
             }
             else if (node.name == 'break'){ //break 
-                instructions.push({type : break_jump, func: true_jump, pc_offset : tbd, id : node.id})
+                instructions.push({type : break_jump, func: true_jump, pc_offset : tbd, id : node.id, undo :[]})
             }else if (node.name == 'continue'){ //continue
-                instructions.push({type : cont_jump, func: true_jump, pc_offset : tbd,  id : node.id})
+                instructions.push({type : cont_jump, func: true_jump, pc_offset : tbd,  id : node.id, undo :[]})
             }
         },
 
@@ -604,7 +617,8 @@ function serializeAST_visitor (ast) {
         "visit_tmp_list"        : (node) => {
             funcs.visit(node.item);
             var new_node = {
-                'type' : node.type
+                'type' : node.type,
+                'undo' :[]
             }
             instructions.push(new_node)
         }
