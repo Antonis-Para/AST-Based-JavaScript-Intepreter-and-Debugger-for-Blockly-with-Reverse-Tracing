@@ -194,7 +194,7 @@ AST_dispatch.install("math_random_int", function(block) {
 AST_dispatch.install("math_random_float", function(block) {
     Blockly_gen.GetJsonText().add('"type": "js_func_call",\n');
     Blockly_gen.GetJsonText().add('"name": "Math.random",\n');
-	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '"\n');
+	Blockly_gen.GetJsonText().add('"id": "' + block.getAttribute("id") + '",\n');
     Blockly_gen.GetJsonText().add('"args": []\n');
 })
 
