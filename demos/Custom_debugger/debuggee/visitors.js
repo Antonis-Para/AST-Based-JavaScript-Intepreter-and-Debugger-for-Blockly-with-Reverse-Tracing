@@ -614,14 +614,14 @@ function serializeAST_visitor (ast) {
         "visit_var"             : (node) => instructions.push(node),
         "visit_var_decl"        : (node) => {variables[node.name]=true; instructions.push(node)}, //insert the name as key so i can "while (name in variables)"
         "visit_tmp_var"         : (node) => instructions.push(node),
-        "visit_tmp_list"        : (node) => {
-            funcs.visit(node.item);
-            var new_node = {
-                'type' : node.type,
-                'undo' :[]
-            }
-            instructions.push(new_node)
-        }
+        // "visit_tmp_list"        : (node) => {
+        //     funcs.visit(node.item);
+        //     var new_node = {
+        //         'type' : node.type,
+        //         'undo' :[]
+        //     }
+        //     instructions.push(new_node)
+        // }
     }
     
     funcs.visit(ast);

@@ -7,34 +7,24 @@ var interpreter_vars = {
     value_stack      : [],
     pc               : 0,
     offset           : 0,
-    reverse_pc       : [[undefined, undefined]],
+    reverse_pc       : [undefined], // undefined < instructions.length == false
     reverse_func_val : [] //used to save function arguments
 }
 
-function nextPc(assign_val){ //assign val is an array of [var, value]. Exists only in the assign stmts, else undefined
+function nextPc(){
     if (Interpreter.in_reverse){
-        var arr;
-        [interpreter_vars.pc, arr] = interpreter_vars.reverse_pc.pop();
-
-        if (arr !== undefined){
-            var variable, value;
-            [variable, value] = arr
-            Interpreter.userVars[variable] = [value, false];
-        }
+        interpreter_vars.pc = interpreter_vars.reverse_pc.pop();
+        interpreter_vars.offset = 0;
     }
-
     else if (interpreter_vars.offset != 0){
-        interpreter_vars.reverse_pc.push([interpreter_vars.pc, assign_val]);
+        interpreter_vars.reverse_pc.push(interpreter_vars.pc);
         interpreter_vars.pc += interpreter_vars.offset
         interpreter_vars.offset = 0;
     }
-
     else{
-        interpreter_vars.reverse_pc.push([interpreter_vars.pc, assign_val]);
+        interpreter_vars.reverse_pc.push(interpreter_vars.pc);
         interpreter_vars.pc++;
-    }
-    
-    
+    }    
 }
 
 Interpreter.install("init" , function(ast){
@@ -55,8 +45,8 @@ Interpreter.install("init" , function(ast){
 Interpreter.install("eval_instructions" , async function (node) {
     while (interpreter_vars.pc < interpreter_vars.instructions.length){ //or when pc === undefined
         var n = interpreter_vars.instructions[interpreter_vars.pc]
-        let assign = await this.eval(n); //only assign expr will return something
-        nextPc(assign);
+        await this.eval(n);
+        nextPc();
     }
 })
 
@@ -205,11 +195,7 @@ Interpreter.install("eval_logic_expr" , async function (node) {
             interpreter_vars.value_stack.push(lhs);
             interpreter_vars.value_stack.push(rhs);
         })
-    }
-    
-
-    
-    
+    }  
 })
 
 Interpreter.install("eval_assign_expr" , async function (node) {
@@ -224,8 +210,8 @@ Interpreter.install("eval_assign_expr" , async function (node) {
 
     node.undo.push( function() {
         interpreter_vars.value_stack.push(curr_val);
+        Interpreter.userVars[node.lval] = [old_val, false];
     })
-    return [node.lval, old_val]; //to save in the reverse stack
 })
 
 //used for the tmp vars inside the loop stmts
@@ -241,9 +227,8 @@ Interpreter.install("eval_assign_expr_tmp" , async function (node) {
 
     node.undo.push( function() {
         interpreter_vars.value_stack.push(curr_val);
+        Interpreter.userVars[node.lval] = [old_val, true];
     })
-
-    return [node.lval, old_val]; //to save in the reverse stack
 })
 
 Interpreter.install("eval_assign_list_len" , async function (node) {
@@ -256,7 +241,9 @@ Interpreter.install("eval_assign_list_len" , async function (node) {
 
     interpreter_vars.value_stack.push(value);
 
-    return [node.lval, undefined]; //to save in the reverse stack (it only exists once so value is undefined)
+    node.undo.push( function() {
+        delete Interpreter.userVars[node.lval];
+    })
 })
 
 Interpreter.install("eval_arithm_expr" , async function (node) {
@@ -318,26 +305,27 @@ Interpreter.install("eval_tmp_var" , function (node) {
     interpreter_vars.value_stack.push(this.userVars[node.name][0]);
     node.undo.push( function() {
         interpreter_vars.value_stack.pop();
+        Interpreter.userVars[node.name][0]--; //if == -1 we should delete it, but its ok because we will have a faster exec time once run forwards
     })
 })
 
-//tmp list used only for the forEach stmt
-Interpreter.install("eval_tmp_list" , function (node) {
-    var list = interpreter_vars.value_stack.pop();
-    if (node.length === undefined){
-        try{
-            node.length = list.length;
-        }catch(e){
-            node.length = 0
-        }
-    }
-    interpreter_vars.value_stack.push(node.length);
+// //tmp list used only for the forEach stmt
+// Interpreter.install("eval_tmp_list" , function (node) {
+//     var list = interpreter_vars.value_stack.pop();
+//     if (node.length === undefined){
+//         try{
+//             node.length = list.length;
+//         }catch(e){
+//             node.length = 0
+//         }
+//     }
+//     interpreter_vars.value_stack.push(node.length);
 
-    node.undo.push( function() {
-        interpreter_vars.value_stack.pop();
-        interpreter_vars.value_stack.push(list);
-    })
-})
+//     node.undo.push( function() {
+//         interpreter_vars.value_stack.pop();
+//         interpreter_vars.value_stack.push(list);
+//     })
+// })
 
 Interpreter.install("eval_var_change" , async function (node) {
     var old_val;
