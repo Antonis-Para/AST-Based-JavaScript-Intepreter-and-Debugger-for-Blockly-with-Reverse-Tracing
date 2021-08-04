@@ -506,7 +506,7 @@ function serializeAST_visitor (ast) {
                 }
             }
 
-            instructions.push({type : 'userfunc_exit', start_pc : before_func + 1, arg_names : node.args, name: node.name, undo :[]})
+            instructions.push({type : 'userfunc_exit', start_pc : before_func + 1, arg_names : node.args, name: node.name, undo :[], /*id : node.id*/})
 
             instructions[before_func].pc_offset = instructions.length - before_func;
 

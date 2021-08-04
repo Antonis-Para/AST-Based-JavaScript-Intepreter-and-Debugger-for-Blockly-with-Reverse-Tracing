@@ -16,10 +16,10 @@ function nextPc(){
         interpreter_vars.pc = interpreter_vars.reverse_pc.pop();
         interpreter_vars.offset = 0;
     }
-    else if (interpreter_vars.offset != 0){
+    else if (interpreter_vars.offset !== undefined){
         interpreter_vars.reverse_pc.push(interpreter_vars.pc);
         interpreter_vars.pc += interpreter_vars.offset
-        interpreter_vars.offset = 0;
+        interpreter_vars.offset = undefined;
     }
     else{
         interpreter_vars.reverse_pc.push(interpreter_vars.pc);
@@ -437,7 +437,7 @@ Interpreter.install("eval_userfunc_exit" , async function (node) {
         for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
             var arg_name = node.arg_names[arg]
             old_vars[arg_name] = Interpreter.userVars[arg_name][0];
-            Interpreter.userVars[arg_name] = [curr_values[arg_name], false];y
+            Interpreter.userVars[arg_name] = [curr_values[arg_name], false];
         }
         node.arg_names.reverse() //once done reverse it again. We might use it in the future.
 
