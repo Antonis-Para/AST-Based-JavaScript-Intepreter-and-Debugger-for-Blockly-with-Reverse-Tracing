@@ -7,7 +7,7 @@ var interpreter_vars = {
     value_stack      : [],
     pc               : 0,
     offset           : 0,
-    reverse_pc       : [undefined], // undefined < instructions.length == false
+    reverse_pc       : [undefined], // will hold all the pcs. undefined < instructions.length == false
     reverse_func_val : [] //used to save function arguments
 }
 
@@ -361,8 +361,8 @@ Interpreter.install("eval_js_func_call" , async function (node) {
 
     node.undo.push( function() {
         var i = 0;
-        while (i < node.arg_count){
-            interpreter_vars.value_stack.push(args.pop()) //TODO: is it the right way or maybe reversed?
+        while (i < args.length){
+            interpreter_vars.value_stack.push(args[i]);
             i++;
         }
     })
@@ -393,8 +393,8 @@ Interpreter.install("eval_userfunc_call" , async function (node) {
 
     interpreter_vars.offset = node.start_pc - interpreter_vars.pc;
 
-    node.undo.push( function() { //TODO: like this or reversed?
-        for (var i = 0; i < args.length; i++){
+    node.undo.push( function() {
+        for (var i = args.length - 1; i >= 0; i--){
             interpreter_vars.value_stack.push(args[i]);
         }
 
@@ -437,8 +437,7 @@ Interpreter.install("eval_userfunc_exit" , async function (node) {
         for (var arg in node.arg_names.reverse()){ //in reverse, values are pushed the same way
             var arg_name = node.arg_names[arg]
             old_vars[arg_name] = Interpreter.userVars[arg_name][0];
-            Interpreter.userVars[arg_name] = [curr_values[arg_name], false];
-            //Interpreter.userVars[arg_name] = [interpreter_vars.value_stack.pop(), false];
+            Interpreter.userVars[arg_name] = [curr_values[arg_name], false];y
         }
         node.arg_names.reverse() //once done reverse it again. We might use it in the future.
 
@@ -461,9 +460,9 @@ Interpreter.install("eval_libfunc_call", async function(node){
 
     node.undo.push( function() {
         interpreter_vars.value_stack.pop();
-        var i = 0;
-        while (i < node.arg_count){
-            interpreter_vars.value_stack.push(args.pop()) //TODO: is it the right way or maybe reversed?
+        var i = 1;
+        while (i < args.length){
+            interpreter_vars.value_stack.push(args[i]);
             i++;
         }
     })
@@ -484,7 +483,7 @@ Interpreter.install("eval_list_create" , async function (node) {
     }
     interpreter_vars.value_stack.push(list.reverse());
 
-    node.undo.push( function() { //TODO: is it the right way or maybe reversed?
+    node.undo.push( function() {
         interpreter_vars.value_stack.pop();
 
         var i = 0;
@@ -544,7 +543,7 @@ Interpreter.install("eval_property" , async function (node) {
                 command += args[i];
             }
 
-            if (i < node.arg_count){
+            if (i + 1 < node.arg_count){
                 command += ', ';
             }
         }
@@ -560,7 +559,7 @@ Interpreter.install("eval_property" , async function (node) {
         interpreter_vars.value_stack.push(item);
 
         for (var i = 0; i < node.arg_count; i++){
-            interpreter_vars.value_stack.push(args.pop()) //TODO: reverse or ok?
+            interpreter_vars.value_stack.push(args.pop())
         }
     })
 })
