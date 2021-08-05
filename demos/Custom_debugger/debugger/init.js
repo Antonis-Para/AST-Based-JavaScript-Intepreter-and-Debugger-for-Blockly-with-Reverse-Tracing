@@ -49,6 +49,13 @@ export var Debuggee_Worker = {
                             Debuggee_Worker.watches.print(document, table, expr, value, typeof value)
                         }
                     },
+                    'window_alert' : function(obj){
+                        window.alert('' + obj.data.args)
+                    },
+                    'window_prompt' : function(obj){
+                        var input = window.prompt(obj.data.args)
+                        Debuggee_Worker.instance.postMessage({type : "window_prompt", data : {'input' : input} });
+                    },
                     'terminate' : function(obj){
                         Debuggee_Worker.kill();
                     }

@@ -78,6 +78,7 @@ blockly_debuggee.state = {
     stopNodeCallNesting : 0,
     debugMode           : false,
     isStopped           : false,
+    forcedStoped        : false,
 
     set_stopped         : function(block){
         this.reset();
@@ -101,6 +102,9 @@ var TraceCommandHandler = {
         if (!this.is_stopped()){
 
             //ignore breakpoints if run to curson is selected
+            if (blockly_debuggee.state.forcedStoped){
+                return true;
+            }
             if (blockly_debuggee.state.explicitTargetBlock != UNDEF_STRING){ 
                 return blockly_debuggee.state.explicitTargetBlock == block.id
             }
@@ -113,7 +117,7 @@ var TraceCommandHandler = {
     },
 
     wait : async function(node){
-        if (blockly_debuggee.state.debugMode && node.id !== null && node.id !== undefined)
+        if (blockly_debuggee.state.forcedStoped || (blockly_debuggee.state.debugMode && node.id !== null && node.id !== undefined))
             await this.wait_command(node)
     },
 

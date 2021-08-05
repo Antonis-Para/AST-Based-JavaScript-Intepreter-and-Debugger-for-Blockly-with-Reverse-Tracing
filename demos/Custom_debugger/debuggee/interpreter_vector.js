@@ -363,8 +363,10 @@ Interpreter.install("eval_js_func_call" , async function (node) {
             }
         })
     }
-    //else if(node.name == 'window.prompt') //for testing. correct is window.alert no console.log
-    //    postMessage({type : "window_prompt", data : {'args' : args[0]} });
+    else if(node.name == 'window.prompt'){ //for testing. correct is window.alert no console.log
+        blockly_debuggee.state.forcedStoped = true;
+        postMessage({type : "window_prompt", data : {'args' : args[0]} });
+    }
 
     else{
         var func = node.name + "(" + args + ")";
@@ -603,3 +605,4 @@ Interpreter.install("eval_property" , async function (node) {
 })
 
 blockly_debuggee.Interpreter = Interpreter;
+blockly_debuggee.interpreter_vars = interpreter_vars;
