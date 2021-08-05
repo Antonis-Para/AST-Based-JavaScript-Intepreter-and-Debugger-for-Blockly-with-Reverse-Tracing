@@ -49,7 +49,7 @@ export var LibraryFuncs = {
     
             return listsRepeat(list, val);
         },
-        "sort"                      : function (list, sort_type, direction) {
+        "sort"                      : function ([direction, sort_type], list) {
             function listsGetSortCompare(type, direction) {
                 var compareFuncs = {
                     "NUMERIC": function(a, b) {
@@ -63,7 +63,7 @@ export var LibraryFuncs = {
                 return function(a, b) { return compare(a, b) * direction; }
                 }
                 
-                list.slice().sort(listsGetSortCompare(sort_type, direction));
+                return list.slice().sort(listsGetSortCompare(sort_type, parseInt(direction)));
         }
     },
 
@@ -230,7 +230,12 @@ export var LibraryFuncs = {
         "trim_right"                    : (text)                => text.replace(/[\s\xa0]+$/, ''),
         "index_first"                   : (text, char)          => text.indexOf(char) + 1,
         "index_end"                     : (text, char)          => text.lastIndexOf(char) + 1,
-        "textJoin"                      : (text)                => text.join(''),
+        "textJoin"                      : (...args)             => {
+                                                                        var res = '';
+                                                                        for (let i = 0; i < args.length; i++) 
+                                                                            res += String(args[i]);
+                                                                        return res;
+                                                                    },
         "lowercase"                     : (text)                => text.toLowerCase(),
         "uppercase"                     : (text)                => text.toUpperCase(),
         "titlecase"                     : function (text) {

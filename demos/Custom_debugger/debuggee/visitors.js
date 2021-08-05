@@ -488,6 +488,9 @@ function serializeAST_visitor (ast) {
             }else{
                 new_node.arg_count = node.args.length;
             }
+            if (node.param == 'sort'){
+                new_node.extra = [node.direction, node.sort_type];
+            }
 
             instructions.push(new_node)
         },

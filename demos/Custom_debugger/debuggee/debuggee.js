@@ -7,18 +7,22 @@ onmessage = function (msg) {
         'eval' : function(obj){
             let json = obj.data.code
             blockly_debuggee.state.debugMode = true;
-            blockly_debuggee.Interpreter.init(json);
-            blockly_debuggee.Interpreter.eval_instructions(json).then( () => { //after execution finished..
-                postMessage(
-                    {type:"watches_variables", data:{ variables : [] } }
-                ); //delete all watches once execution has finished
+            try{
+                blockly_debuggee.Interpreter.init(json);
+                blockly_debuggee.Interpreter.eval_instructions(json).then( () => { //after execution finished..
+                    postMessage(
+                        {type:"watches_variables", data:{ variables : [] } }
+                    ); //delete all watches once execution has finished
 
-                postMessage(
-                    {type:"terminate"}
-                ); //execution has finished. If you want you can run it again now
+                    postMessage(
+                        {type:"terminate"}
+                    ); //execution has finished. If you want you can run it again now
 
-                blockly_debuggee.state.reset();
-            });
+                    blockly_debuggee.state.reset();
+                });
+            }catch(e){
+                alert(e);
+            }
         },
         'add_watch' : function(obj){
             blockly_debuggee.Interpreter.Watches.add(obj.data.watch)
@@ -43,6 +47,9 @@ onmessage = function (msg) {
                 }
             }
         },
+        // 'window_prompt' : function(obj){
+        //     blockly_debuggee.Interpreter.value_stack.push(obj.data.input);
+        // },
         'reverse' : function(obj){
             blockly_debuggee.Interpreter.in_reverse = obj.data.value;
         }

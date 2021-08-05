@@ -16,7 +16,7 @@ function nextPc(){
         interpreter_vars.pc = interpreter_vars.reverse_pc.pop();
         interpreter_vars.offset = 0;
     }
-    else if (interpreter_vars.offset !== undefined){
+    else if (interpreter_vars.offset !== undefined){ //0 offset can be valid. We better check with undefined
         interpreter_vars.reverse_pc.push(interpreter_vars.pc);
         interpreter_vars.pc += interpreter_vars.offset
         interpreter_vars.offset = undefined;
@@ -352,20 +352,34 @@ Interpreter.install("eval_js_func_call" , async function (node) {
         args.push(interpreter_vars.value_stack.pop())
         i++;
     }
-    if (node.name == 'window.alert') //for testing. correct is window.alert no console.log
-        console.log('' + args[0])
+    if (node.name == 'window.alert'){ //for testing. correct is window.alert no console.log
+        postMessage({type : "window_alert", data : {'args' : args[0]} });
+
+        node.undo.push( function() {
+            var i = 0;
+            while (i < args.length){
+                interpreter_vars.value_stack.push(args[i]);
+                i++;
+            }
+        })
+    }
+    //else if(node.name == 'window.prompt') //for testing. correct is window.alert no console.log
+    //    postMessage({type : "window_prompt", data : {'args' : args[0]} });
+
     else{
         var func = node.name + "(" + args + ")";
-        eval(func)
-    }
+        interpreter_vars.value_stack.push(eval(func));
 
-    node.undo.push( function() {
-        var i = 0;
-        while (i < args.length){
-            interpreter_vars.value_stack.push(args[i]);
-            i++;
-        }
-    })
+        node.undo.push( function() {
+            interpreter_vars.value_stack.pop();
+            var i = 0;
+            while (i < args.length){
+                interpreter_vars.value_stack.push(args[i]);
+                i++;
+            }
+        })
+       
+    }
     
 })
 
@@ -469,6 +483,9 @@ Interpreter.install("eval_libfunc_call", async function(node){
 
     args = args.reverse(); //because when poping from the stack, args are reversed
 
+    if ('extra' in node){
+        args.unshift(node.extra);
+    }
     args.unshift(node.param);
 
     interpreter_vars.value_stack.push(func(args));
@@ -520,9 +537,30 @@ Interpreter.install("eval_property" , async function (node) {
         throw "Error: Cannot read property " + node.name +  " of undefined. List item is undefined.";
     }
 
+
+    function fixArrayItems(items){
+        var command = '';
+        for (let i = 0; i < items.length; i++){
+            let item = items[i];
+            if (typeof item === "object"){ //array (list)
+                var res = fixArrayItems(item);
+                command += "[" + res + "]"
+                
+            }else { //string
+                command += "'" + item + "'"
+            }
+            if (i + 1 < items.length){
+                command += ', ';
+            }
+        }
+        return command;
+    }
+
     var command;
     if (typeof item === "object"){ //array (list)
-        command = "[" + item + "]" + node.name
+        let res = fixArrayItems(item); //recursively add '' if array items are strings
+        command = "[" + res + "]" + node.name
+        
     }else { //string
         command = "'" + item + "'" + node.name
     }
