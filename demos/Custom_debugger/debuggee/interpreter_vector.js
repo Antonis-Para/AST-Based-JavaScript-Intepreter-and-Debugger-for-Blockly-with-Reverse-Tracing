@@ -14,7 +14,7 @@ var interpreter_vars = {
 function nextPc(){
     if (Interpreter.in_reverse){
         interpreter_vars.pc = interpreter_vars.reverse_pc.pop();
-        interpreter_vars.offset = 0;
+        interpreter_vars.offset = undefined;
     }
     else if (interpreter_vars.offset !== undefined){ //0 offset can be valid. We better check with undefined
         interpreter_vars.reverse_pc.push(interpreter_vars.pc);
