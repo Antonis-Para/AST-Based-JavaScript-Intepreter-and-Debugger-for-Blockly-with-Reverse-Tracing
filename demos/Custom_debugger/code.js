@@ -472,7 +472,6 @@ Code.init = function() {
   Code.bindClick('stepOverButton' , Code.stepOver);
   Code.bindClick('stepInButton'   , Code.stepIn);
   Code.bindClick('stepOutButton'  , Code.stepOut);
-  Code.bindClick('stepBackButton' , Code.stepBack);
   Code.bindClick('stopButton'     , Code.stop);
   Code.bindClick('on-off-slider'  , Code.Reverse_ClickHandler);
 
