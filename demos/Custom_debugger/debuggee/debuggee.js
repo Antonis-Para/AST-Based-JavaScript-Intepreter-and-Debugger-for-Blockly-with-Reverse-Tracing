@@ -50,7 +50,8 @@ onmessage = function (msg) {
         'window_prompt' : function(obj){
             blockly_debuggee.interpreter_vars.value_stack.push(obj.data.input);
             blockly_debuggee.state.forcedStoped = false;
-            blockly_debuggee.state.isStopped = false;
+            blockly_debuggee.state.isStopped = blockly_debuggee.state.wasStopped; //restore the states before stopping
+            blockly_debuggee.set_command(blockly_debuggee.state.last_command, undefined);
         },
         'reverse' : function(obj){
             blockly_debuggee.Interpreter.in_reverse = obj.data.value;

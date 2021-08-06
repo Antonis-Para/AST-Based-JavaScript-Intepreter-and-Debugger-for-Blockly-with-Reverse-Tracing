@@ -73,11 +73,13 @@ blockly_debuggee = {
 blockly_debuggee.state = {
     currCallNesting     : -1,
     traceCommand        : NO_COMMAND,
+    last_command        : NO_COMMAND,
     explicitTargetBlock : UNDEF_STRING,
     stopNodeBlockNesting: -1,
     stopNodeCallNesting : 0,
     debugMode           : false,
     isStopped           : false,
+    wasStopped          : false,
     forcedStoped        : false,
 
     set_stopped         : function(block){
@@ -88,6 +90,9 @@ blockly_debuggee.state = {
     },
 
     reset               : function(){
+        this.last_command           = this.traceCommand; //i need the previous state for the window.promt command, so i can restore it
+        this.wasStopped             = this.isStopped;
+
         this.traceCommand           = NO_COMMAND;
         this.isStopped              = false;
         this.stopNodeBlockNesting   = -1;
@@ -97,8 +102,9 @@ blockly_debuggee.state = {
 
 
 var TraceCommandHandler = {
-    is_stopped  : () => blockly_debuggee.state.isStopped,
-    should_stop : function (block){
+    is_stopped          : () => blockly_debuggee.state.isStopped,
+    should_force_stop   : () => blockly_debuggee.state.forcedStoped,
+    should_stop         : function (block){
         if (!this.is_stopped()){
 
             //ignore breakpoints if run to curson is selected
@@ -147,8 +153,8 @@ var TraceCommandHandler = {
             updateWatches(Interpreter.userVars)
 
             if (TraceCommandHandler.should_stop(node))
-                set_stopped(node)
-
+                set_stopped(node);
+            
              //stoped state can change while in busy loop, we can't use "TraceCommandHandler.is_stopped()" on outer if_stmt
             while (!blockly_debuggee.has_command() && TraceCommandHandler.is_stopped()){
                 await sleep(0);

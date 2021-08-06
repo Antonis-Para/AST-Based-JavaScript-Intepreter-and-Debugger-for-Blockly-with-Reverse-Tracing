@@ -309,24 +309,6 @@ Interpreter.install("eval_tmp_var" , function (node) {
     })
 })
 
-// //tmp list used only for the forEach stmt
-// Interpreter.install("eval_tmp_list" , function (node) {
-//     var list = interpreter_vars.value_stack.pop();
-//     if (node.length === undefined){
-//         try{
-//             node.length = list.length;
-//         }catch(e){
-//             node.length = 0
-//         }
-//     }
-//     interpreter_vars.value_stack.push(node.length);
-
-//     node.undo.push( function() {
-//         interpreter_vars.value_stack.pop();
-//         interpreter_vars.value_stack.push(list);
-//     })
-// })
-
 Interpreter.install("eval_var_change" , async function (node) {
     var old_val;
     if (this.userVars[node.var_name][0] === undefined){
