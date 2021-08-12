@@ -18,11 +18,11 @@ export var Watch = {
         for (var expr in exprs){
             var code = code_pre;
 
-            code += 'var __result__ = ' + exprs[expr] + ';'
+            code += 'var __result__ = ('  + exprs[expr] + ');'
             var res = undefined;
 
             for (var var_name in vars){ //write back (user can use expresions to change variable values)
-                code += 'vars[' + '"' + var_name + '"' + '] = ' + var_name + ';';
+                code += 'vars[' + '"' + var_name + '"' + '][0] = ' + var_name + ';';
             }
 
             code += '__result__';
