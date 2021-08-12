@@ -100,6 +100,7 @@ export var Debuggee_Worker = {
             this.instance.terminate();
             this.instance = undefined;
             Debuggee_Worker.workspace.highlightBlock(null) //unhighlight all blocks once execution has finished
+            Debuggee_Worker.watches.reset_watches(document.getElementById("watches"))   //remove all variables from the bottom section
         }
         this.active = false;
     },
