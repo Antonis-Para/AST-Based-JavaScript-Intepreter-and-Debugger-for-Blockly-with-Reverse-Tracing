@@ -19,7 +19,15 @@ export var Debuggee_Worker = {
                     Debuggee_Worker.instance = new Worker("http://localhost:5500/debuggee/debuggee.js",{
                         type: 'module'
                     });
-                }catch(e){}
+                }catch(e){
+                    try{
+                        Debuggee_Worker.instance = new Worker("http://127.0.0.1:8080//debuggee/debuggee.js",{
+                            type: 'module'
+                        });
+                    }catch(e){
+                        console.log("Worker not created")
+                    }
+                }
             }
             Debuggee_Worker.instance.onmessage = function (msg) {
                 let obj = msg.data;
