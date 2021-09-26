@@ -605,12 +605,14 @@ Code.debugJS = function() {
     }
   };
   //var code = Blockly.JavaScript.workspaceToCode(Code.workspace);
-  var xml = window.prompt("Give program representation (Empty to use blockly)");
-  if (xml == "")
-    xml = Blockly.Xml.workspaceToDom(Code.workspace);
-  else
-    xml = jQuery.parseXML(xml)
-  console.log(xml)
+
+  // var xml = window.prompt("Give program representation (Empty to use blockly)");
+  // if (xml == "")
+  //   xml = Blockly.Xml.workspaceToDom(Code.workspace);
+  // else
+  //   xml = jQuery.parseXML(xml)
+  // console.log(xml)
+  var xml = Blockly.Xml.workspaceToDom(Code.workspace);
   xml = new XMLSerializer().serializeToString(xml);
 
   //var code = 'alert("Hello World!")';
