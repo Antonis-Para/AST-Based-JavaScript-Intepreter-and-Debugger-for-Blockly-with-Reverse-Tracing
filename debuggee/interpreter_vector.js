@@ -107,7 +107,7 @@ Interpreter.install("eval_jump" , async function (node) {
 Interpreter.install("eval_highlight_node" , async function (node) {})
 
 
-//All these stmts have been turned into instruction. Howeven I want to be able to highlight 
+//All these stmts have been turned into instructions. However I want to be able to highlight 
 //the blocks so I simply install them and do nothing with them
 Interpreter.install("eval_highlight_node" , async function (node) {})
 Interpreter.install("eval_if_stmt" , async function (node) {})

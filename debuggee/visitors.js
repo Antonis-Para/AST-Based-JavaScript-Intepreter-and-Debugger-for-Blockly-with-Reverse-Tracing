@@ -116,7 +116,7 @@ function serializeAST_visitor (ast) {
                 'op'   : 'LT'
             }
 
-            this.visit(cond_node)
+            this.visit(cond_node) 
             let after_cond = instructions.length;
             instructions.push({type : 'jump', func: if_false_offset, pc_offset : tbd, undo :[]})
             this.visit(node.do)
@@ -168,7 +168,7 @@ function serializeAST_visitor (ast) {
             }; 
             this.visit(init_list_node);
 
-            var list_length = create_tmp_var('idk'); //i need this variable so i dont compute the length in every iteration
+            var list_length = create_tmp_var('list_length'); //I need this variable so I dont compute the length in every iteration
             var cond_node2_length = {
                 'type'  : 'assign_expr_tmp',
                 'lval'  : {
